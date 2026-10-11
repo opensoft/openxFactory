@@ -2219,7 +2219,7 @@
       "requirement_ids": [
         "FR-001"
       ],
-      "sha256": "sha256:babac339d7415f90c9f3f99d5cbb3f2fe4566fe4dc906aedc5b46dea0e82c904"
+      "sha256": "sha256:ba6783e6051519b351a2b4367001c131880e251a07ed9aff0ddfd8f99d8aed32"
     },
     {
       "applies_to": [
@@ -2871,26 +2871,3530 @@
         "FR-001"
       ],
       "sha256": "sha256:7cc84139286e6b9d054569ba394dc5bf1ab7a22e90586c45c521dad1b4a89aa6"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-accept-conditional-seat-not-held",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/admission-accept-conditional-seat-not-held.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-003",
+        "FR-004"
+      ],
+      "sha256": "sha256:91d8c732a7b5fed3932c11cdf6525fa7f4e0b397e0f18255e78f9dc543251082"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-accept-unrelated-file-changed-at-tip",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/admission-accept-unrelated-file-changed-at-tip.json",
+      "requirement_ids": [
+        "FR-003"
+      ],
+      "sha256": "sha256:b7712a786f17c200da2263dda93b95761a9dedba6b131692761f8a444111ddcc"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-candidate-not-resolved",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_mismatch"
+      },
+      "path": "vectors/resolution/admission-refuse-candidate-not-resolved.json",
+      "requirement_ids": [
+        "FR-004"
+      ],
+      "sha256": "sha256:1b4cf5e55a9e3cc04b975191a3ba5deba012659028151c845f7f6825eba7689a"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-head-moved-after-submission",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_head_moved"
+      },
+      "path": "vectors/resolution/admission-refuse-head-moved-after-submission.json",
+      "requirement_ids": [
+        "FR-004"
+      ],
+      "sha256": "sha256:7f0c1e8747619dc4e320e2729e78a5ee0cb7400fb670357cf74ffed14e857b7a"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-head-unavailable",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_head_unavailable"
+      },
+      "path": "vectors/resolution/admission-refuse-head-unavailable.json",
+      "requirement_ids": [
+        "FR-004"
+      ],
+      "sha256": "sha256:89565bebf518a0904965f7c3de58e6b33b355da3638f3d0ca3b0eaa24043579c"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-digest-before-superseded",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_digest_mismatch"
+      },
+      "path": "vectors/resolution/admission-refuse-order-digest-before-superseded.json",
+      "requirement_ids": [
+        "FR-003"
+      ],
+      "sha256": "sha256:1ba86971dce5d2053f7a938fed16ba4f5ba1d0198d65f945bc9d203267d57442"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-superseded-before-council",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_superseded"
+      },
+      "path": "vectors/resolution/admission-refuse-order-superseded-before-council.json",
+      "requirement_ids": [
+        "FR-003"
+      ],
+      "sha256": "sha256:b0c663cda9df7794aedbf85ce1f2318a9cb0e391d2efb46cb17151cae4d2ea1b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-superseded-source-before-later-source",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_superseded"
+      },
+      "path": "vectors/resolution/admission-refuse-order-superseded-source-before-later-source.json",
+      "requirement_ids": [
+        "FR-003"
+      ],
+      "sha256": "sha256:eb3dcb02d3708880850a5448c5f8f7d96880997cf5a341d377764eb0c6a31d7b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-rule-superseded-council-profile",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_superseded"
+      },
+      "path": "vectors/resolution/admission-refuse-rule-superseded-council-profile.json",
+      "requirement_ids": [
+        "FR-003"
+      ],
+      "sha256": "sha256:45881393f4069ebb6bebec37da40307d558abac59565bbfa69adc9ce2ef7418c"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-rule-superseded-listing",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_superseded"
+      },
+      "path": "vectors/resolution/admission-refuse-rule-superseded-listing.json",
+      "requirement_ids": [
+        "FR-003"
+      ],
+      "sha256": "sha256:d48da222cda463a32569c65000a129a9c2e417ff3baf902dc82b0855709b9463"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-rule-superseded-rule-file",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_superseded"
+      },
+      "path": "vectors/resolution/admission-refuse-rule-superseded-rule-file.json",
+      "requirement_ids": [
+        "FR-003"
+      ],
+      "sha256": "sha256:224dc85678d1dc14d81049ed14a65c2fd0793ce0e75d9ceeeb324d69f5c4b3b0"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-rule-superseded-source-deleted-at-tip",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_superseded"
+      },
+      "path": "vectors/resolution/admission-refuse-rule-superseded-source-deleted-at-tip.json",
+      "requirement_ids": [
+        "FR-003"
+      ],
+      "sha256": "sha256:b631c6fa1a8fb950dededb6bcbb2f3322c5877bb407043bf2e5101e74a0bf5bb"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-class-first-match-wins",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:90d2bbee5fa1dbfcf93000e33e62ff8d5c0e4849cc10b9ffff60f7a1f91dab59"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b",
+            "seat-c"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-class-first-match-wins.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:28a10051d351cce40f7d18002fd27e738eac77243ffed47edf60c2fae714295f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-class-glob-after-exact",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:2600a8f4f1866701831704b91c4b7e63e37e7841819fd298acbcf64136f6b127"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-class-glob-after-exact.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:6290cdadf7d9fefc571e2366b04c1a055d9c73127389fc27f38586c46627c583"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-class-selected-by-glob",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:b48aa5ba8149885657c532678cc3ff419bfbf03eaa26bccce0bf54b234ba7863"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-class-selected-by-glob.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:e7e378e6e6e7508a43a92634d0a881070d5108675b74346a05f64dd301fa01f5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-conditional-seat-already-standing",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:a7dd00637b33e30dac3887b456bfe4ba9967af68db2503b621082ff9baf6c2a8"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b",
+            "seat-c",
+            "seat-d"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-conditional-seat-already-standing.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:3377ade72775e176747c605f52775898c33d6714d81bf9c9a48a4e00fcbc0da5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-conditional-seat-held",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:53844be62a7f2cd3ffd2cf88b96d6d19446e504331ec7c1eefaacd79e69cb002"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b",
+            "seat-c"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-conditional-seat-held.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:993cd60c9e8a1dfb6b9c1df5441079059c3207eef17d81815c0487adcad1f50d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-conditional-seat-not-held",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-conditional-seat-not-held.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:186039071539fafb510e82fa2a05085a9fbd0095f2272b8f7fe4b0036976340a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-governed-source-rule-facts",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:77a46d4f5c0639f0f506e395059f31f1b12a269d80a89714d6491771b5cf1507"
+          },
+          "required_seats": [
+            "seat-r1",
+            "seat-r2"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-governed-source-rule-facts.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:d84cfbcdb1f3494e2c4258600da7281b33c65a51af86009db0dc91aafd836f36"
+    },
+    {
+      "applies_to": [
+        "producer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-head-stable-across-reads",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-head-stable-across-reads.json",
+      "requirement_ids": [
+        "FR-004"
+      ],
+      "sha256": "sha256:bec9f6a66adf515a5117e0f3853a65a16f5441e9e5c4774443ab6dbaaf74cc98"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-rename-new-path-held",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:483834c7af6b7ec871972c3fb493f26850dc8e1e82de766fc9393976c9000409"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b",
+            "seat-c"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-rename-new-path-held.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:20158fb9a7c94f54f2ffdb1b3e79813a92c110eacec2b98ec674dc62ab28127b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-rename-new-path-sorts-first",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:aa94e6d0dfda5d29af5d9ea8991130416089fbb29318b85b7818a535bcbd5e65"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b",
+            "seat-c"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-rename-new-path-sorts-first.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:e64fc9b9a3d4207dceb8a4f4c608fc0d92640f94824be37e00e026057fee4968"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-rename-old-path-held",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:aa09092d327238b7e3d2c4994da7c353e99d1ce6bedbcaa137b59916044a2bcd"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b",
+            "seat-c"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-rename-old-path-held.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:0581d6d49882c8b0f9aacb81203cfcff0e6c19d47ece29151bde5e699b9ca43d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-standing-only",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:227b198c062353db52ba893fb51871022d349a60f3f3012a23447d990bd64cc5"
+          },
+          "required_seats": [
+            "seat-a"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-standing-only.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:43e40b81ff9302902bbdaaa0741a5f772a4156d72fe1d4d85494b637c94bf67b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-two-input-contracts-in-projection-order",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:4c7d9fc7416484d483d0e454c7eb4503508ea369c70238c243547abc23105be1"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b",
+            "seat-d"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-two-input-contracts-in-projection-order.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:9b8cc120b59c6c990abab77a27445938488a50cf8643f9c8f332ae84d0a02b34"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-accept-unclassed-rule-facts-held",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:a5f37de972c7f365637fbdaef3dd3f9439fbb4c02e50209811f861e546861248"
+          },
+          "required_seats": [
+            "seat-r1",
+            "seat-r2"
+          ]
+        },
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/resolution/commission-accept-unclassed-rule-facts-held.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:e370288368ba24bcfd6de578caf6a6e3a536f0d2349733b9b0991b0a31e45a75"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-bare-directory-evidence-only-in-the-authoritative-facts",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-bare-directory-evidence-only-in-the-authoritative-facts.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:399032cdf81a066c23d06d0abc238e5fff69d974a6e52e800d7301e687396b06"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-bare-directory-evidence-only-in-the-consumed-facts",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "consumed_facts_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-bare-directory-evidence-only-in-the-consumed-facts.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:93a8ed5499ac3ad5e663588ebee13956b477be674c221536ec915d4123c0c51e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-candidate-class-repository",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-candidate-class-repository.json",
+      "requirement_ids": [
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:c15cc23625444291b2b3f32bed926ac0f2ae3055231edc503f4489a76359f0e6"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-candidate-head-ref-not-authoritative",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-candidate-head-ref-not-authoritative.json",
+      "requirement_ids": [
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:b23c2aecd54b9a251035b49b8518ca9a683fbc3cc37b694aa86ee34ae74abcab"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-candidate-not-expected",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-candidate-not-expected.json",
+      "requirement_ids": [
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:263265a4f41ce8a60a4d3831f28ecda95d460cce4753efee70febe652bd82336"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-candidate-subject-path-not-expected",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-candidate-subject-path-not-expected.json",
+      "requirement_ids": [
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:b2363aa271ea56ddf67c687ff4ae1261b4552cb2528536b8303e37413d666fac"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-candidate-subject-pin-not-head",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-candidate-subject-pin-not-head.json",
+      "requirement_ids": [
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:0c3828fd98089268e60d4272ddb40ea8448f7dd6ddcdeb897a043d94776901e5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-class-mismatch-class-inputs-on-unclassed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "class_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-class-mismatch-class-inputs-on-unclassed.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:b2c08bd066d15756cfbe1ddaf29995a8c608dca40a47b454d88a5262cc98d729"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-class-mismatch-classed-without-inputs",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "class_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-class-mismatch-classed-without-inputs.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:39074bcd01f682b7e1c4a48e466dd4b7f017c27e547fcb363a3e7ee9a5f3d6f5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-class-mismatch-declared-not-selected",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "class_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-class-mismatch-declared-not-selected.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:b1fb689c37807e112a4fee1f679585e8351afce89e3b32ab42bcd9f4d237b708"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-class-unresolved",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "class_unresolved"
+      },
+      "path": "vectors/resolution/commission-refuse-class-unresolved.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:094053160720c8c2963fd9a452ac79e2ebd1fa72e6ec318263389dc6c10a08d5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-condition-result-mismatch-held-claimed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "condition_result_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-condition-result-mismatch-held-claimed.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:233ab6b7ccf3f2fee17b13f9d14913fcaf8e9b267eeb89bcb8c65ab8cfa3fae9"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-condition-result-mismatch",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "condition_result_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-condition-result-mismatch.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:189f82ccb1e4972ef1290d455255631fcb1956e0d9ef2c0d1fd1816b6cd24026"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-condition-seat-unbound",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "condition_seat_unbound"
+      },
+      "path": "vectors/resolution/commission-refuse-condition-seat-unbound.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:247a9e533533fedcba347bb4d4e7e8c3b8940941a515eb4de02ba6c4c03a259f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-condition-unevaluable-authoritative-fact-absent",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "condition_unevaluable"
+      },
+      "path": "vectors/resolution/commission-refuse-condition-unevaluable-authoritative-fact-absent.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:9dc957e7266436e58c1d457c2799baceb34ac9580b013e054564f94b2d2d1fd5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-condition-unevaluable-fewer-paths-than-entries",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "condition_unevaluable"
+      },
+      "path": "vectors/resolution/commission-refuse-condition-unevaluable-fewer-paths-than-entries.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:e9f7d9f1c0e38efd500e68a191dde2fb0cf97a0051b710d9a218dc69465b0232"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-condition-unevaluable-incomplete-listing",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "condition_unevaluable"
+      },
+      "path": "vectors/resolution/commission-refuse-condition-unevaluable-incomplete-listing.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:a168dc32b195f82fc0a87e79e5847c5ef4a4f5115d98b146bb50eb6676e720f9"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-condition-unevaluable-over-two-paths-per-entry",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "condition_unevaluable"
+      },
+      "path": "vectors/resolution/commission-refuse-condition-unevaluable-over-two-paths-per-entry.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:72f89fbd67384e1e4244bac8ea0c525ed41e0d7b9fcd5c3339be7cc82480f7d4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-condition-unevaluable-rule-facts-absent",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "condition_unevaluable"
+      },
+      "path": "vectors/resolution/commission-refuse-condition-unevaluable-rule-facts-absent.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:3b9557534f6aaf4b9b049f1c0e0f384202f620c8628adb9b64e493d1d9dfe963"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-condition-unevaluable-total-above-bound",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "condition_unevaluable"
+      },
+      "path": "vectors/resolution/commission-refuse-condition-unevaluable-total-above-bound.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:e779c0b7fd38d0337d4d196123038a39d8581de0a409c380e1081c3fc85ac099"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-consumed-facts-mismatch",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "consumed_facts_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-consumed-facts-mismatch.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:6ed1e7bab5f69fc8225e91cc2b4d14b8458d201d11502092e1d40db46c49c0ac"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-changed-paths-repeated",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-changed-paths-repeated.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:b5f10143194dd975502e1344774848f0a0724ff2f7f5042b990018dad2a5ee1a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-changed-paths-unsorted",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-changed-paths-unsorted.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:adc63543f8244b7ab5493da5f7a86eb44a8c00dcd4cbf9b8497160e83c08b15a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-class-half",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-class-half.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:62a2dc5d2dac77983b7e48c7675d861d9782d4232f7d811ad1fa30c31c0aacbd"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-listing-entry-not-a-file",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-listing-entry-not-a-file.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:833d3c1ba9f2e8c7a37359458fea5f7ce0cbb6683c2bfd2b98dab15472f11c0e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-listing-entry-not-directly-inside",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-listing-entry-not-directly-inside.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:0fbfc835322c7fbd6c4f2a20cad4bb9ef2d8e4251c3416f8b57147711fe11103"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-listing-entry-wrong-suffix",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-listing-entry-wrong-suffix.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:fb5035f5c94cf5ec7ee983e79b3002efbbeb3a1a0cf48633befbabeb8ff8f5cb"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-listing-unsorted",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-listing-unsorted.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:5ee77cf6b1125059317aedca4e6083c33fe737beaafb83569776292f9a8ba38c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-path-over-4096-bytes",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-path-over-4096-bytes.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:857b82274a3c8bb5977657f6e9fd6906f7ff2d9a1e296dd865b8403c6a40d914"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-repeated-fact-source",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-repeated-fact-source.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:abf795548c0eae925cc661a735d074063478f8ff3df917dbc124a28cc6b87463"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-sources-out-of-order",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-sources-out-of-order.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:d49246bc50ee4bb684a1fe595b5db66a6bc0d389f1b7a2ffcb21e362986bffd2"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-unknown-member",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-unknown-member.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:5c3ab2e820a6efb8e60ecab2a1e6d22ac6ad250e4b37d23ef994fc1d5f202f9a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-unknown-nested-member",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-unknown-nested-member.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:262e29210343b969936e15f2bcf0bb10f4484d8bea1b4965797a6616a9e0c0a7"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-council-unknown",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "council_unknown"
+      },
+      "path": "vectors/resolution/commission-refuse-council-unknown.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:c7799c97bf85e10aa6722925e6c698d248c4a3f4d23416a2c78fe3d3958f516e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-fact-source-for-contract-not-in-use",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "fact_source_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-fact-source-for-contract-not-in-use.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:85c288185d8e9e59f08536631fa0f1abc7d6ae657e4f857cd18161895c5fa4a7"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-fact-source-governed-path-not-listed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "fact_source_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-fact-source-governed-path-not-listed.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:670e4b776cb913c3cf2afd7bfc60e734f6e68f98c15f77f1428c61f5a89f0e30"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-fact-source-kind-not-allowed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "fact_source_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-fact-source-kind-not-allowed.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:95b425f3bfda516eecf7c5613d6f4385fa8483b7be8f3fd3fa4e07cc8bf76a7e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-fact-source-missing-for-contract-in-use",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "fact_source_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-fact-source-missing-for-contract-in-use.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:84ff1aa28fc8ba3715cc438dcb3c634fdedd323f0d47596e5ee5878d85eb501b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-fact-source-subject-path-absent",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "fact_source_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-fact-source-subject-path-absent.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:dbf7fcba0988553705b061a4b91eb824b3467ef7e799bf96aa2f5c17aa95c912"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-fact-source-swapped-between-governed-files",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "fact_source_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-fact-source-swapped-between-governed-files.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:5830cb6a072220c5d77163fac13247a289dcf39c33f984a214ec16e89730fd74"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-fact-source-swapped-to-a-governed-file",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "fact_source_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-fact-source-swapped-to-a-governed-file.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:9883b511123f60a37f4f01b263fd95427c0c428c83eef9950255137405630fca"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-fact-source-swapped-to-the-candidate-subject",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "fact_source_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-fact-source-swapped-to-the-candidate-subject.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:bce35860bee6cf9526cef41e08cfafcc355a1a877a4d424eaa11ba2d7a4b5cad"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-fact-sources-out-of-projection-order",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "fact_source_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-fact-sources-out-of-projection-order.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:62c37685ceca0859930c3c5e0755a181be7ea29830c69ea75122fd4dcbee157a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-facts-unused-empty-contract-object",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "facts_unused"
+      },
+      "path": "vectors/resolution/commission-refuse-facts-unused-empty-contract-object.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:db3e9389629e0d4beac8854c8c00c6ade4d8db73d5ccb8cb29446414ef834d17"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-facts-unused",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "facts_unused"
+      },
+      "path": "vectors/resolution/commission-refuse-facts-unused.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:43d8beb0721443e72b1965c2e44d343b783be3a5d78638029ace72863adefbcd"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-governed-sources-extra",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "governed_sources_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-governed-sources-extra.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:5d80e01c07e62f12d8344797510990c006bc7833466a9334def4eb7bc2e3e886"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-governed-sources-omitted",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "governed_sources_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-governed-sources-omitted.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:e334357f43b2d6d4186d308a0f3a705a307391c2d0e18eda44d1fd15d631987c"
+    },
+    {
+      "applies_to": [
+        "producer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-head-moved-and-restored",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_head_moved"
+      },
+      "path": "vectors/resolution/commission-refuse-head-moved-and-restored.json",
+      "requirement_ids": [
+        "FR-004"
+      ],
+      "sha256": "sha256:72c6d95eefdd5e20a937994e67604a6cdccc2545ae1150597191a570b9e1c39a"
+    },
+    {
+      "applies_to": [
+        "producer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-head-moved-before-submission",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_head_moved"
+      },
+      "path": "vectors/resolution/commission-refuse-head-moved-before-submission.json",
+      "requirement_ids": [
+        "FR-004"
+      ],
+      "sha256": "sha256:03551eac9c0955662ce7d581c18795f91145a3ca0b7ce7fdcbcb4376bf211f72"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-head-moved-unclassed-subject",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_head_moved"
+      },
+      "path": "vectors/resolution/commission-refuse-head-moved-unclassed-subject.json",
+      "requirement_ids": [
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:96a8f3723dbc7ed56d474e57aa825052689acd1f94159b0422d735b97a375b65"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-head-moved",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_head_moved"
+      },
+      "path": "vectors/resolution/commission-refuse-head-moved.json",
+      "requirement_ids": [
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:bc9cf7aa36901965630b886679eddd92f8e9c25ff490455baf3bf4f92215d07e"
+    },
+    {
+      "applies_to": [
+        "producer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-head-unavailable-before-submission",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_head_unavailable"
+      },
+      "path": "vectors/resolution/commission-refuse-head-unavailable-before-submission.json",
+      "requirement_ids": [
+        "FR-004"
+      ],
+      "sha256": "sha256:cf33c708d31755b9b42e38bfc8703dec8f137fc676e6e38cb2d3031c3a167b07"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-head-unavailable",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_head_unavailable"
+      },
+      "path": "vectors/resolution/commission-refuse-head-unavailable.json",
+      "requirement_ids": [
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:0fe251114d95f3af786ef44ac3f54b4a917ea0ca7a87acc65e60a791d08e1385"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-legacy-block-under-replacement",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/resolution/commission-refuse-legacy-block-under-replacement.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011",
+        "SC-001"
+      ],
+      "sha256": "sha256:38a27ad79793b2608fb82c9aba1a239420e016e6be4071f88a44ab8088cc6b47"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-mutable-rule-reference",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "mutable_rule_reference"
+      },
+      "path": "vectors/resolution/commission-refuse-mutable-rule-reference.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:9bc279a827431ddd3fc682e78f3ed70e861767b933e94c80859040adb9389488"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-opaque-conclusion",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "opaque_conclusion"
+      },
+      "path": "vectors/resolution/commission-refuse-opaque-conclusion.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:24165629d78bf5571b83f50caa5714e4a47db747b16260f8d3d2cd4feaa5e31e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-authoritative-before-held",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "consumed_facts_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-order-authoritative-before-held.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:d17ce10f7ab4f2c634eb5a6e202f9796238c5bb61e096fa2fc5d432764089675"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-bare-directory-before-a-later-unevaluable",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-order-bare-directory-before-a-later-unevaluable.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:04893380a6ac8fd84007d308d337833d92f9735721ba5a9a394514889e2f91ac"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-candidate-before-governed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-order-candidate-before-governed.json",
+      "requirement_ids": [
+        "FR-003",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:716d2a657a289b948cd9f52878d02faab79f6c28c87b5d191a5ec5cf7a00c946"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-class-before-projection",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "class_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-order-class-before-projection.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:f09041ce2cc695be10fd768c9b7bf2745e9f31a806e979d563d240b3777af0a3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-duplicate-before-mismatch",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "roster_duplicate_seat"
+      },
+      "path": "vectors/resolution/commission-refuse-order-duplicate-before-mismatch.json",
+      "requirement_ids": [
+        "FR-001",
+        "SC-001"
+      ],
+      "sha256": "sha256:f866a941e9fff1dc802a929f0926435b5ed97059a459a92bceb7d466129a7cb5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-earlier-source-first",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_unauthorized"
+      },
+      "path": "vectors/resolution/commission-refuse-order-earlier-source-first.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:fd2518e1304ebe0e483ccebea1c7b7ab314f39edd9bb138a3a2da3f7e93dc341"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-fact-source-before-opaque",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "fact_source_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-order-fact-source-before-opaque.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:2b5e42208ca0cb21fa79e9ede255e9011c03841bed05678440b58da6f0d69515"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-facts-before-authoritative",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "facts_unused"
+      },
+      "path": "vectors/resolution/commission-refuse-order-facts-before-authoritative.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:7a9de921f46d5780ab7d91f31a049b4b2b90154137bed81ecac6889f0051fd67"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-governed-before-council",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_unavailable"
+      },
+      "path": "vectors/resolution/commission-refuse-order-governed-before-council.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:dc9883fbc8e7ec025fb42af6994644ad859f676d1549869bc20bbb2cd6607b1d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-held-before-roster",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "condition_result_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-order-held-before-roster.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:c6acec52be7f98c3189aa3792c9394eb03776eee5b843fa8594fdadeb45b5bbc"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-history-before-sources",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_revision_ungoverned"
+      },
+      "path": "vectors/resolution/commission-refuse-order-history-before-sources.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:b9ec3531aa5b4a8e9beaffcfc0a94aa401026243967b1e8b1472d87ef16cc526"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-mutable-before-unauthorized",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "mutable_rule_reference"
+      },
+      "path": "vectors/resolution/commission-refuse-order-mutable-before-unauthorized.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:33f6dd7656c518383506db1b870aec95e7a3ede798a1fd0c1b4b262176630435"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-opaque-before-unused",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "opaque_conclusion"
+      },
+      "path": "vectors/resolution/commission-refuse-order-opaque-before-unused.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:2c98f56582584781febfba5ec87f3ddda6d191ea532180bedf5be885c4240bad"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-path-before-unavailable",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_path_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-order-path-before-unavailable.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:2f768db6e11b2aa80ed2c785fbb6d9cfeea660d4febd195490806f70739b5dbb"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-predicate-before-facts",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_unknown"
+      },
+      "path": "vectors/resolution/commission-refuse-order-predicate-before-facts.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:576391e5f8a7c8623b4c56a993d2fb57bc762b6068caceb4618071c6630ee4c6"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-predicates-per-condition",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-order-predicates-per-condition.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:cc8f95aead0b9ef30d2d38770fb1afc4bcd681d54216923e4b292a68a12ae5f6"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-projection-before-predicate",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_projection_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-order-projection-before-predicate.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:e33d4be5e5e8a370bcb1dbd9487c64350e20e702e260c8a8be5a390abcb9972e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-protocol-before-shape",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "protocol_unknown"
+      },
+      "path": "vectors/resolution/commission-refuse-order-protocol-before-shape.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-011",
+        "SC-001"
+      ],
+      "sha256": "sha256:58d07e29257ccfa7bbad08ec7d1a4ff8a2e0cbf8cb2399d2a896f5260450a1ff"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-result-before-seat-unbound",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "condition_result_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-order-result-before-seat-unbound.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:cdf90a53dc028f5c11928ca03c44011dab9d3a337bdfc5a0f37c9c98f4bc8784"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-roster-before-head",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "roster_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-order-roster-before-head.json",
+      "requirement_ids": [
+        "FR-001",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:d484bb846386656b0a032f5ace2616cd9c8bbbf4ad747403ad12699ccd380806"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-secret-before-candidate",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "secret_bearing_fact"
+      },
+      "path": "vectors/resolution/commission-refuse-order-secret-before-candidate.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-004",
+        "SC-001"
+      ],
+      "sha256": "sha256:18e8c1ae4c0cada4565da22d74fea5fd7beac25690c0195fb7b34d41e4abfd9d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-shape-before-secret",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-order-shape-before-secret.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:ce6d3c58f7acc22c1e8cb804d4aa689835a18668732960e3980b8cb86a901a72"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-sources-before-path",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "governed_sources_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-order-sources-before-path.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:0be15d30933af470f6efe107347231786cee35ab7bd295d66cddbfe8891a9c0d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-unauthorized-before-digest",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_unauthorized"
+      },
+      "path": "vectors/resolution/commission-refuse-order-unauthorized-before-digest.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:8bba2eef1510d511934c9c26a3e270ad21b6dc00641e603eb08b0fb65448d37a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-unauthorized-before-history",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_unauthorized"
+      },
+      "path": "vectors/resolution/commission-refuse-order-unauthorized-before-history.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:5ec44956b5b09283563c4d1b6eb551616a90b97bf24059dbf4a3ab75831d791f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-unavailable-before-unauthorized",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_unavailable"
+      },
+      "path": "vectors/resolution/commission-refuse-order-unavailable-before-unauthorized.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:abf229004c2ee3f867c995912120aba6cc61e5ff93bc25ed7b24095da470bfdb"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-order-unevaluable-before-mismatch",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "condition_unevaluable"
+      },
+      "path": "vectors/resolution/commission-refuse-order-unevaluable-before-mismatch.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:0ec26415f381a298637ecf35eba780039906e2187f8e16357155e562d677e8cb"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-parameters-bare-directory-evidence",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-parameters-bare-directory-evidence.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:80267db8901014c7a652d34c10fb21a51ddfec0d6c6748ad9eb76f244592bf4a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-parameters-bare-double-star",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-parameters-bare-double-star.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:ae54e58497e9dc613fa400848177e70ac0f933545a7ccd530331dd1418dd9686"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-parameters-bracket",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-parameters-bracket.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:d6ed450f5f6a8b4fc00f3797abae94467dcf381c01ca6ecc6a33e6c9106142b3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-parameters-dot-relative",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-parameters-dot-relative.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:397ae2faf3b699b614b269de886a7f30787949cd387a1973acdf30d223e8db45"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-parameters-empty-list",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-parameters-empty-list.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:2a7b049f2f8a1e2d12400f0bfc95ed145ac7fe488b6995f38e57f3875b53b7f7"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-parameters-empty-segment",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-parameters-empty-segment.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:5a67bed6fcbe23d7f8e32dfa6378c547276d3f47865742053ade8e9b57ebbd24"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-parameters-parent-segment",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-parameters-parent-segment.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:c665e813f35742d7a366b58d4a12c17c1fefe472bcfe237db525696730e2d6ab"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-parameters-question-mark",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-parameters-question-mark.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:c58fc389c70a073fa929d9dcbb5eb62a4ceedbfc522571a48245dca58334a0f5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-parameters-rooted",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-parameters-rooted.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:6c396a9a9585028b9f596dd58ae16e06a9840f221a1f66bd57ab48fa21b521a8"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-parameters-trailing-slash",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-parameters-trailing-slash.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:099cb655a82f305ebc43b4888b262ace76c8af715b3d730e794e71a8d23f43d4"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-parameters-unknown-member",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-parameters-unknown-member.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:73a1b14a63812b23a3746cd67eedc69b9590524a16a1f12cc78e9a39cf91aa0d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-parameters-wildcard-inside",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-parameters-wildcard-inside.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:c360f2498f60f751b95f2af1aa10eed649edfaa9570c10f0bbf74ee8a682b057"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-unknown",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_unknown"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-unknown.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:b320833fa5a5dc135ae7913e0d4864ea1799d5b95657eec68764c4e2848d2241"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-predicate-wrong-input-contract",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "predicate_parameters_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-predicate-wrong-input-contract.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:5b4e08803b882d6fb48473566f3357221ea4da91f86d1d0d17c848debda53240"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-projection-conditions-reordered",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_projection_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-projection-conditions-reordered.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:db47184f4fcf305590a1ffec33c11c2e66a31328e63336d99ce9b6e6fd94cd1b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-projection-parameters-narrowed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_projection_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-projection-parameters-narrowed.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:77f259f29af4747bd0b102ac338fa17f388bfa541d961b1061f16def02d4e294"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-projection-standing-seats",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_projection_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-projection-standing-seats.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:e8c56e5f26f6c9a1ee9e6ec36bea3086560791a08b27b1e2c8ea57818128fce1"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-roster-duplicate-seat",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "roster_duplicate_seat"
+      },
+      "path": "vectors/resolution/commission-refuse-roster-duplicate-seat.json",
+      "requirement_ids": [
+        "FR-001",
+        "SC-001"
+      ],
+      "sha256": "sha256:71ad822523eb4e9cf083b78c013e95ce8e3160cac4d75fb4727890e7c5a70ebf"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-roster-empty",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "roster_empty"
+      },
+      "path": "vectors/resolution/commission-refuse-roster-empty.json",
+      "requirement_ids": [
+        "FR-001",
+        "SC-001"
+      ],
+      "sha256": "sha256:fec39c400dea98037c66ace4a54e0c67ac4e19b8c7e97535a6cfd164ee2ad8e7"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-roster-extra-seat",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "roster_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-roster-extra-seat.json",
+      "requirement_ids": [
+        "FR-001",
+        "SC-001"
+      ],
+      "sha256": "sha256:be58926db406dc146b9303c2ab47a1313544a9d18c66ab271ffacf9836ba0e3b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-roster-held-seat-missing",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "roster_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-roster-held-seat-missing.json",
+      "requirement_ids": [
+        "FR-001",
+        "SC-001"
+      ],
+      "sha256": "sha256:833de6d70eeff43c948733845468c33993e502b4ee1cdcccb788cc4d34586e17"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-roster-reordered",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "roster_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-roster-reordered.json",
+      "requirement_ids": [
+        "FR-001",
+        "SC-001"
+      ],
+      "sha256": "sha256:0e6633eacb395126d0afae842e768597182b50bd0f9fda741ff7bb911b55bf8a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-roster-same-count-substitution",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "roster_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-roster-same-count-substitution.json",
+      "requirement_ids": [
+        "FR-001",
+        "SC-001"
+      ],
+      "sha256": "sha256:f89cbb43ac77aa0ac6c705f856d301c6ca17c92fdf034c58d394b2978e676c4f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-rule-digest-mismatch-file-at-a-listing",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_digest_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-rule-digest-mismatch-file-at-a-listing.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:c94d096c398cdd34f47aefaf33c074691bd7913d8dfa6b564a8d367d683a730e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-rule-digest-mismatch-file",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_digest_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-rule-digest-mismatch-file.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:d1f5f6923bfa35fd9a4f72b913e067d61279403174ad5d2ce203b2c50cde0bca"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-rule-digest-mismatch-listing-at-a-file",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_digest_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-rule-digest-mismatch-listing-at-a-file.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:227326ea5a65bcf41be340905a05d5da97fb455ee0b896a3d49fcbd0a57d0e8b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-rule-digest-mismatch-listing",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_digest_mismatch"
+      },
+      "path": "vectors/resolution/commission-refuse-rule-digest-mismatch-listing.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:2fa3bbed63430f7b53599ec10446dcdfe0678fdc1294b3bca8121d3ba7c01875"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-rule-path-malformed",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_path_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-rule-path-malformed.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:6e826391373fec87dde13de2cdf5071e8a32fdbbcc565b81e72bab0d9b0e9add"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-rule-revision-ungoverned",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_revision_ungoverned"
+      },
+      "path": "vectors/resolution/commission-refuse-rule-revision-ungoverned.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:0f2a7afe4f47f28d87324ac29b1a959505a2b1210581d99a8893e5ea35e63fd8"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-rule-unauthorized-repository-former-spelling",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_unauthorized"
+      },
+      "path": "vectors/resolution/commission-refuse-rule-unauthorized-repository-former-spelling.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:0814c38b163d0ec79cb15e9d7c336e797074cd639f6da924f82697b9f76193f6"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-rule-unauthorized-source",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_unauthorized"
+      },
+      "path": "vectors/resolution/commission-refuse-rule-unauthorized-source.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:571779e221d25ec7478b6faa715c14fdff3fcd38360fd09b6a382f1b00cac4b8"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-rule-unavailable",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_unavailable"
+      },
+      "path": "vectors/resolution/commission-refuse-rule-unavailable.json",
+      "requirement_ids": [
+        "FR-003",
+        "SC-001"
+      ],
+      "sha256": "sha256:2d9a9a6d5b18256735859c4e24640922eb42bc7cf065f4a26b7425ca6659d866"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-secret-in-class-inputs",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "secret_bearing_fact"
+      },
+      "path": "vectors/resolution/commission-refuse-secret-in-class-inputs.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:99b2addc1d813721318f9deeded604b77542a3afd82383a351fd00fc107dbcce"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-secret-in-consumed-fact",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "secret_bearing_fact"
+      },
+      "path": "vectors/resolution/commission-refuse-secret-in-consumed-fact.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:e43ec345b6c1e0fa3566d2436fbd2f1acd0389bdd515bd7ba092e09ef4ff8a66"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-secret-in-packet-ref",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "secret_bearing_fact"
+      },
+      "path": "vectors/resolution/commission-refuse-secret-in-packet-ref.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:cceb3fd226b57bff29b64f926387f151aeeeff9478b4300dcd32feb53b38ca7e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-secret-in-parameters",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "secret_bearing_fact"
+      },
+      "path": "vectors/resolution/commission-refuse-secret-in-parameters.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:3536d68c807a46d759579c029fa9366333b42067a77de27404d254d7da381eb6"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-secret-pem-header-in-packet-ref",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "secret_bearing_fact"
+      },
+      "path": "vectors/resolution/commission-refuse-secret-pem-header-in-packet-ref.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:5cd9daeb635f301fbfbbbbd10526f13be78bd15fcfa9911f40a78bb289b29547"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-secret-sk-key-in-consumed-fact",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "secret_bearing_fact"
+      },
+      "path": "vectors/resolution/commission-refuse-secret-sk-key-in-consumed-fact.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:14f23313f03b15d5db2b8a4d5a6d16169167454a7ad3dae1294eec92f5500fc3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-value-not-canonicalizable-float",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_not_canonicalizable"
+      },
+      "path": "vectors/resolution/commission-refuse-value-not-canonicalizable-float.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:8ec72237e940db2f1eb628905c4d11af25c8a52175f9d5f77eaca3840561ed1b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-value-not-canonicalizable-integer",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_not_canonicalizable"
+      },
+      "path": "vectors/resolution/commission-refuse-value-not-canonicalizable-integer.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:12f5d7bb5738f3addf806b8ee244cb3d9ce9dd3e26ca1f28ec88fd86808961fc"
     }
   ],
   "corpus_id": "council-convening-conformance",
   "coverage_floor": [
     "FR-001",
-    "FR-011"
+    "FR-002",
+    "FR-003",
+    "FR-004",
+    "FR-011",
+    "SC-001"
   ],
   "kind": "openxfactory-council-convening-conformance-index",
   "protocol": "xfc-resolved-council-1",
   "schema_version": 1,
   "totals": {
-    "both_sides": 133,
+    "both_sides": 266,
     "by_area": {
-      "foundation": 133
+      "foundation": 133,
+      "resolution": 149
     },
     "by_outcome": {
-      "accept": 42,
-      "refuse": 83,
+      "accept": 58,
+      "refuse": 216,
       "route": 8
     },
-    "vectors": 133
+    "vectors": 282
   }
 }

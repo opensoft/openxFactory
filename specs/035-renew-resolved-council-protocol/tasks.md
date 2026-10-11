@@ -205,7 +205,7 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
 
 ### Tests first
 
-- [ ] T024 [P] [US1] Write failing `tests/council_convening/test_predicates.py`:
+- [x] T024 [P] [US1] Write failing `tests/council_convening/test_predicates.py`:
   - `changed_paths_intersect` and `rule_touches_security_posture`, by those identifiers (OPEN-5), each holding and not holding;
   - every pattern-grammar refusal;
   - the bare-directory evidence rule;
@@ -213,7 +213,7 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
   - unevaluable is never false;
   - the wrong input contract;
   - an unknown predicate.
-- [ ] T025 [P] [US1] Write failing `tests/council_convening/test_resolution.py`:
+- [x] T025 [P] [US1] Write failing `tests/council_convening/test_resolution.py`:
   - the closed E2 shape, and classification before shape;
   - the data-model E2 evaluation order, with multi-defect records that pin each adjacent pair of steps;
   - class selection from `class_inputs`: exact and glob head refs, each glob rule, first match wins, and a declared but unselected class refused as `class_mismatch` (U1);
@@ -227,27 +227,27 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
   - candidate identity against `inputs.expected_candidate` and `environment.resolved_candidate`;
   - head moved before the recheck, after the recheck, and at admission; head unavailable;
   - `convening_digest` known answers.
-- [ ] T026 [US1] Author the `resolution` vectors, creating `contracts/council-convening/conformance/vectors/resolution/` with the first of them, with their expected outcomes before any implementation.
+- [x] T026 [US1] Author the `resolution` vectors, creating `contracts/council-convening/conformance/vectors/resolution/` with the first of them, with their expected outcomes before any implementation.
   - Positives: standing only; a conditional seat held; a conditional seat not held; an unclassed gate-rules council with a `rule_facts` conjunction held; a conditional seat already standing; both rename paths; a class selected by glob.
   - At least one negative per Phase 2 refusal code, and the multi-defect order vectors.
   - Shared resolution checks use boundary `commission` and carry `applies_to: [producer, consumer]`. A consumer runs one through its admission resolution with no binding step: each shared commission vector carries both `inputs.expected_candidate` and an `environment.resolved_candidate` consistent with it, a single-entry `live_heads`, and no binding (contracts/conformance-corpus.md § How each side runs a shared vector). A vector whose `live_heads` gives more than one read, to model drift between the producer's reads, is producer-only. Shared commission vectors carry no `rule_superseded` case.
   - Admission vectors are `applies_to: [consumer]`, because from Phase 5 admission also runs the consumer's binding checks. Pre-submit drift is producer-only. Admission drift is consumer-only. No vector's `expected` depends on 025's guards at E2 steps A2 and A5, which run as passing seams in a corpus run (data-model E2), and no multi-defect vector pairs one of them with another defect.
   - Raise `coverage_floor` to add FR-002–FR-004 and SC-001, keeping Phase 1's FR-001 and FR-011, and regenerate `conformance/index.json`.
-- [ ] T027 [P] [US1] Extend `tests/council_convening/test_validator_cli.py`: `check` runs the offline E2 rules, reports each oracle-dependent rule as not offline-checkable, and the self-test prints the predicate-registry note.
+- [x] T027 [P] [US1] Extend `tests/council_convening/test_validator_cli.py`: `check` runs the offline E2 rules, reports each oracle-dependent rule as not offline-checkable, and the self-test prints the predicate-registry note.
 
 ### Implementation
 
-- [ ] T028 [US1] Author `contracts/council-convening/predicate-registry.schema.yaml` and the closed instance `contracts/council-convening/predicate.registry.yaml`, per data-model E3 and research R5, with the ruled identifiers. Extend `refusal_code` in `contracts/council-convening/shared-definitions.schema.yaml` with the Phase 2 codes (G1).
-- [ ] T029 [US1] Author `contracts/council-convening/council-convening.schema.yaml`, per data-model E2.
-- [ ] T030 [US1] Implement `scripts/council_convening/predicates.py` from E3's written semantics only. No code is copied from codexFactory (R4).
-- [ ] T031 [US1] Implement `scripts/council_convening/resolution.py`:
+- [x] T028 [US1] Author `contracts/council-convening/predicate-registry.schema.yaml` and the closed instance `contracts/council-convening/predicate.registry.yaml`, per data-model E3 and research R5, with the ruled identifiers. Extend `refusal_code` in `contracts/council-convening/shared-definitions.schema.yaml` with the Phase 2 codes (G1).
+- [x] T029 [US1] Author `contracts/council-convening/council-convening.schema.yaml`, per data-model E2.
+- [x] T030 [US1] Implement `scripts/council_convening/predicates.py` from E3's written semantics only. No code is copied from codexFactory (R4).
+- [x] T031 [US1] Implement `scripts/council_convening/resolution.py`:
   - the E2 evaluation order, every provenance check and roster composition;
   - the injected oracle interface (R8);
   - the secret check through `importlib` of `SECRET_PATTERNS` in `scripts/validate-domain-factory.py` (R9);
   - `convening_digest`.
-- [ ] T032 [US1] Register the `commission` and `admission` handlers in `scripts/council_convening/corpus.py`. Add the offline E2 rules to `check` in `scripts/validate-council-convening.py`. Add the predicate-registry note to the gate's assertion in `.github/workflows/council-convening-gate.yml` and its test.
-- [ ] T033 [US1] Measure the secret floor gap (I13). Run the four patterns 049 detects and the floor lacks over every tracked file, and record the hits in `evidence.md` § Phase 2. File the floor widening as its own follow-up issue on opensoft/openxFactory, citing R9. Do not widen `SECRET_PATTERNS` in this PR.
-- [ ] T034 [US1] Run quickstart steps 1–5 and record them in `evidence.md` § Phase 2, including the agreement-set count, and cite follow-up 1, "Every governed source (Recommended)", as the ruling the source-currency vectors encode. Open PR-2 as a draft.
+- [x] T032 [US1] Register the `commission` and `admission` handlers in `scripts/council_convening/corpus.py`. Add the offline E2 rules to `check` in `scripts/validate-council-convening.py`. Add the predicate-registry note to the gate's assertion in `.github/workflows/council-convening-gate.yml` and its test.
+- [x] T033 [US1] Measure the secret floor gap (I13). Run the four patterns 049 detects and the floor lacks over every tracked file, and record the hits in `evidence.md` § Phase 2. File the floor widening as its own follow-up issue on opensoft/openxFactory, citing R9. Do not widen `SECRET_PATTERNS` in this PR.
+- [x] T034 [US1] Run quickstart steps 1–5 and record them in `evidence.md` § Phase 2, including the agreement-set count, and cite follow-up 1, "Every governed source (Recommended)", as the ruling the source-currency vectors encode. Open PR-2 as a draft.
 
 **Checkpoint**: The MVP. Producer and consumer can each prove membership agreement against one reviewed commit, while staying dormant.
 
