@@ -874,7 +874,7 @@ def test_the_installers_options_are_exactly_the_three_it_needs(installer):
 # its condition REFUSES.
 
 
-def test_the_real_pin_declares_exactly_the_five_dispositions_two_repos_carry(
+def test_the_real_pin_declares_exactly_the_three_dispositions_two_repos_carry(
         mod, pin):
     """The pin's own entries, read through the pin's own reader.
 
@@ -913,6 +913,19 @@ def test_the_real_pin_declares_exactly_the_five_dispositions_two_repos_carry(
     entry before it was deleted, which is the mechanism doing the one job it was
     built for.
 
+    It fired a FIFTH time for `retire-codexfactory-sibling-currency-dispositions`
+    (5 -> 3, by way of TWO DELETIONS and no addition), whose `design.md` § 4
+    reads that movement. Both CANON-MOVED entries go, and they go AHEAD of the
+    event their own `retires_when:` named — neither sibling has re-derived yet —
+    because codexFactory reads this pin at the commit it declares and only its
+    pin advance can carry the re-derivations: a pin still carrying the entries
+    refuses STALE over re-derived blocks, and a pin without them leaves the
+    findings UNDISPOSITIONED over un-re-derived ones. The deletion is published
+    here first and the advance and the re-derivations land as one codexFactory
+    act. `relocate-review-authority-floor`'s OTHER entry, on
+    `repository-gate-floor/spec.md`, stays, so that change is back to ONE entry
+    and the CANON_MOVED class has no member.
+
     WHY THE SPLIT AND NOT A COUNT. The first version asserted
     `{repo} == {"openxFactory"}`, which a growing fleet loosens once and then
     forever. Pinning WHICH item belongs to WHICH repository keeps the fleet
@@ -927,10 +940,6 @@ def test_the_real_pin_declares_exactly_the_five_dispositions_two_repos_carry(
          "domain-hermes-content/spec.md"),
         ("codexFactory", "relocate-review-authority-floor",
          "repository-gate-floor/spec.md"),
-        ("codexFactory", "extend-merge-master-envelope-to-floor-bot-lanes",
-         "merge-master-approval/spec.md"),
-        ("codexFactory", "relocate-review-authority-floor",
-         "merge-master-approval/spec.md"),
     ]
 
 
@@ -1229,19 +1238,22 @@ def _departed_since_the_capture(mod, identity, row):
 #:
 #: RE-KEYED FROM `item` TO THE TRIPLE BY
 #: `disposition-codexfactory-regular-pr-council-clearance-archive`, and that is a
-#: TIGHTENING rather than a rename. From 2026-09-11 one codexFactory CHANGE,
-#: `relocate-review-authority-floor`, carries TWO entries under two different
-#: delta paths: a DECLARED RETITLE on `repository-gate-floor/spec.md`, measured
-#: on 2026-09-10 and granted by that day's word, and a canon-moved-underneath
-#: finding on `merge-master-approval/spec.md`, measured on 2026-09-11 and granted
-#: by a different word. An item-keyed map cannot tell them apart and would have
-#: asserted one entry's measurement against the other. The triple is exactly the
-#: precision the matcher has, so the map now has it too.
+#: TIGHTENING rather than a rename. From 2026-09-11 until
+#: `retire-codexfactory-sibling-currency-dispositions` deleted the second, one
+#: codexFactory CHANGE, `relocate-review-authority-floor`, carried TWO entries
+#: under two different delta paths: a DECLARED RETITLE on
+#: `repository-gate-floor/spec.md`, measured on 2026-09-10 and granted by that
+#: day's word, and a canon-moved-underneath finding on
+#: `merge-master-approval/spec.md`, measured on 2026-09-11 and granted by a
+#: different word. An item-keyed map cannot tell such entries apart and would
+#: have asserted one entry's measurement against the other. The triple is
+#: exactly the precision the matcher has, so the map keeps it with one entry per
+#: change today: the next change to carry two entries needs no re-key.
 #:
 #: A PER-ENTRY MAP rather than a widened substring, on the precedent's own
 #: reasoning (`disposition-codexfactory-floor-relocation-retitle` `design.md`
 #: § 4): the weak repair for an entry granted on a second day is to drop the
-#: literal, and a dropped literal never fires again. This one fires on a seventh
+#: literal, and a dropped literal never fires again. This one fires on the next
 #: entry.
 DISPOSITION_MEASUREMENT = {
     ("openxFactory", "add-chain-attestation", "signed-execution-chain/spec.md"):
@@ -1252,16 +1264,10 @@ DISPOSITION_MEASUREMENT = {
     ("codexFactory", "relocate-review-authority-floor",
      "repository-gate-floor/spec.md"):
         "codexfactory-floor-relocation-2026-09-10.md",
-    ("codexFactory", "extend-merge-master-envelope-to-floor-bot-lanes",
-     "merge-master-approval/spec.md"):
-        "codexfactory-regular-pr-council-clearance-archive-2026-09-11.md",
-    ("codexFactory", "relocate-review-authority-floor",
-     "merge-master-approval/spec.md"):
-        "codexfactory-regular-pr-council-clearance-archive-2026-09-11.md",
 }
 
 #: THE CLASS EACH ENTRY BELONGS TO, per entry, because from 2026-09-11 this list
-#: carries TWO and a single shared literal let the second class inherit the
+#: declares TWO and a single shared literal let the second class inherit the
 #: first class's citation without ever pointing at it.
 #:
 #: MARKER_BLINDNESS is the original class: 1.12.0 cannot read this estate's
@@ -1273,8 +1279,14 @@ DISPOSITION_MEASUREMENT = {
 #: NOTHING SHOULD BE — the change did not perform the retitle — so a
 #: `Merged into` citation there would be a claim about a marker that is not in
 #: the block and does not belong in it. The assertion below is therefore an
-#: IF AND ONLY IF and not a floor: the marker is cited by the four, and by
-#: exactly the four.
+#: IF AND ONLY IF and not a floor: the marker is cited by every marker-blindness
+#: entry, and by no other.
+#:
+#: CANON_MOVED HAS NO MEMBER SINCE `retire-codexfactory-sibling-currency-dispositions`
+#: deleted both of its entries, and it STAYS DECLARED, with its row in
+#: `DISPOSITION_CLASS_CITATION`, on that change's open question OQ-1: the pin's
+#: header still declares the class, and the next canon-moved entry must land in
+#: it with the currency citation rather than reach for the marker class's.
 MARKER_BLINDNESS = "marker-blindness"
 CANON_MOVED = "canon-moved-under-an-un-re-derived-delta"
 
@@ -1296,18 +1308,15 @@ DISPOSITION_CLASS = {
      "domain-hermes-content/spec.md"): MARKER_BLINDNESS,
     ("codexFactory", "relocate-review-authority-floor",
      "repository-gate-floor/spec.md"): MARKER_BLINDNESS,
-    ("codexFactory", "extend-merge-master-envelope-to-floor-bot-lanes",
-     "merge-master-approval/spec.md"): CANON_MOVED,
-    ("codexFactory", "relocate-review-authority-floor",
-     "merge-master-approval/spec.md"): CANON_MOVED,
 }
 
-#: The WORD each entry was granted by, to the day. Same reasoning: four entries
+#: The WORD each entry was granted by, to the day. Same reasoning: two entries
 #: carry "take exit 2" / "use recommended name, go on 3 repo shape" + "ratify
-#: 697" from 2026-09-05, the fifth carries "go A, ratify the disposition entry as
-#: encoded" from 2026-09-10, and the two added on 2026-09-11 carry "ratified_by —
-#: ratify the entries as encoded", given 2026-09-12T03:04:29.167Z (UTC having
-#: rolled past the session-local date the packet is named for).
+#: 697" from 2026-09-05, and the third carries "go A, ratify the disposition
+#: entry as encoded" from 2026-09-10. The two canon-moved entries added on
+#: 2026-09-11 carried "ratified_by — ratify the entries as encoded", given
+#: 2026-09-12T03:04:29.167Z, until
+#: `retire-codexfactory-sibling-currency-dispositions` deleted them.
 DISPOSITION_AUTHORITY_PREFIX = {
     ("openxFactory", "add-chain-attestation", "signed-execution-chain/spec.md"):
         "Brett Heap, 2026-09-05",
@@ -1317,12 +1326,6 @@ DISPOSITION_AUTHORITY_PREFIX = {
     ("codexFactory", "relocate-review-authority-floor",
      "repository-gate-floor/spec.md"):
         "Brett Heap, 2026-09-10",
-    ("codexFactory", "extend-merge-master-envelope-to-floor-bot-lanes",
-     "merge-master-approval/spec.md"):
-        "Brett Heap, 2026-09-12",
-    ("codexFactory", "relocate-review-authority-floor",
-     "merge-master-approval/spec.md"):
-        "Brett Heap, 2026-09-12",
 }
 
 
