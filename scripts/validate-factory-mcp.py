@@ -80,6 +80,14 @@ UNREADABLE = ("snapshot_unavailable", "input_unreadable", "reference_unreadable"
 OPERATIONAL = UNREADABLE + ("output_size_limit",)
 CHECK_STATE = {None: "not run", True: "pass", False: "fail"}
 
+# A deployed service's authorization block (amend-factory-mcp-conformance-auth-profile,
+# design D2 and D4). Algorithm names are case-sensitive (RFC 7515 section 4.1.1); only
+# the forbidden names are compared without letter case, and only in ASCII.
+ADMITTED_ALGORITHMS = ("RS256", "EdDSA")
+FORBIDDEN_ALGORITHMS = ("none", "hs256", "hs384", "hs512")
+# RFC 9728 section 3.1: the protected-resource metadata's well-known string.
+WELL_KNOWN_METADATA = "/.well-known/oauth-protected-resource"
+
 
 class Invalid(ValueError):
     pass
@@ -805,6 +813,19 @@ def resource_uri_ok(uri):
             and not any(bracket in parsed.path + parsed.query for bracket in "[]"))
 
 
+def has_query(uri):
+    """RFC 3986 section 3: a query begins at the first `?` before any fragment, and
+    an empty query is still a query."""
+    return "?" in uri.partition("#")[0]
+
+
+def metadata_path_for(uri):
+    """RFC 9728 section 3.1: the well-known string inserted between the host and the
+    resource URI's path, which is kept as written. An empty path or `/` adds nothing."""
+    path = urlsplit(uri).path
+    return WELL_KNOWN_METADATA + ("" if path in ("", "/") else path)
+
+
 class Diagnostics(list):
     def add(self, dimension, code, path=""):
         self.append({"dimension": dimension, "code": code, "location": path or "/"})
@@ -896,7 +917,7 @@ def check_references(declaration, snapshots, found):
 
 
 def check_catalog(declaration, found):
-    """Identities across the whole declaration, and the service identity."""
+    """Identities across the whole declaration, and the service (`check_service`)."""
     support_ids = set()
     for name in ("evidence", "gaps"):
         for k, record in enumerate(declaration[name]):
@@ -912,24 +933,80 @@ def check_catalog(declaration, found):
     for k, artifact in enumerate(source["artifacts"]):
         if artifact["repository"] != source["repository"] or artifact["revision"] != source["revision"]:
             found.add("semantics", "source_artifact_identity_mismatch", f"/source/artifacts/{k}")
+    check_service(declaration, found)
+
+
+def check_service(declaration, found):
+    """A deployed service: its canonical resource URI, and the authorization block
+    describing the tokens it accepts. A not-deployed service carries neither; the
+    closed schema branch already refuses a block there."""
     service = declaration["service"]
-    if service["deployment"] == "deployed" and not resource_uri_ok(service["canonical_resource_uri"]):
+    if service["deployment"] != "deployed":
+        return
+    uri = service["canonical_resource_uri"]
+    uri_ok = resource_uri_ok(uri)
+    if not uri_ok:
         found.add("semantics", "invalid_resource_uri", "/service/canonical_resource_uri")
+    if has_query(uri):
+        found.add("semantics", "auth_resource_query", "/service/canonical_resource_uri")
+    if "auth" not in service:
+        found.add("semantics", "hosted_auth_missing", "/service")
+        return
+    check_auth(service, uri_ok, declaration, found)
 
 
-def check_support(tool, evidence, gap_index, bad):
-    """Evidence and gap citations; returns the concerns supported and gapped."""
+def check_auth(service, uri_ok, declaration, found):
+    """The authorization block: issuer, algorithms, audience, metadata path and
+    support. Checked offline, it never certifies that a server enforces it."""
+    auth = service["auth"]
+
+    def bad(code, suffix=""):
+        found.add("semantics", code, "/service/auth" + suffix)
+
+    issuer = auth["issuer"]
+    if not resource_uri_ok(issuer) or has_query(issuer):
+        bad("invalid_issuer", "/issuer")
+    if "RS256" not in auth["algorithms"]:
+        bad("auth_rs256_missing", "/algorithms")
+    for k, name in enumerate(auth["algorithms"]):
+        if name.isascii() and name.lower() in FORBIDDEN_ALGORITHMS:
+            bad("auth_algorithm_forbidden", f"/algorithms/{k}")
+        elif name not in ADMITTED_ALGORITHMS:
+            bad("auth_algorithm_unadmitted", f"/algorithms/{k}")
+    audience, uri = auth["audience"], service["canonical_resource_uri"]
+    if "*" in audience["value"] or audience["value"] == issuer or (
+            audience["binding"] == "resource_uri" and audience["value"] != uri):
+        bad("auth_audience_unbound", "/audience/value")
+    # An invalid resource URI has no RFC 9728 location; `invalid_resource_uri` names it.
+    if uri_ok and auth["metadata_path"] != metadata_path_for(uri):
+        bad("auth_metadata_path_mismatch", "/metadata_path")
+    evidence = {r["id"]: r for r in declaration["evidence"]}
+    gap_index = {r["id"]: r for r in declaration["gaps"]}
+    supported, _ = cite(auth, evidence, gap_index, bad)
+    if "auth" not in supported:
+        bad("unsupported_auth", "/evidence_ids")
+
+
+def cite(holder, evidence, gap_index, bad):
+    """Resolve the `evidence_ids` and `gap_ids` of a tool or of the authorization
+    block, located under the holder; returns the concerns supported and gapped."""
     supported, gap_concerns = set(), set()
     for name, index in (("evidence_ids", evidence), ("gap_ids", gap_index)):
-        if len(tool[name]) != len(set(tool[name])):
+        if len(holder[name]) != len(set(holder[name])):
             bad("duplicate_support_reference", "/" + name)
-        for k, identifier in enumerate(tool[name]):
+        for k, identifier in enumerate(holder[name]):
             if identifier not in index:
                 bad("missing_support_reference", f"/{name}/{k}")
                 continue
             supported.update(index[identifier]["concerns"])
             if name == "gap_ids":
                 gap_concerns.update(index[identifier]["concerns"])
+    return supported, gap_concerns
+
+
+def check_support(tool, evidence, gap_index, bad):
+    """Evidence and gap citations; returns the concerns supported and gapped."""
+    supported, gap_concerns = cite(tool, evidence, gap_index, bad)
     for concern in ("binding", "effects", "outcomes", "evidence", "repetition", "limits"):
         if concern not in supported:
             bad("unsupported_" + concern, "/evidence_ids")

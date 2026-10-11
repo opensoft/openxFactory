@@ -9,6 +9,204 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v4.1 — 2026-10-09 (additive; the factory MCP declaration is registered for the first time, with the authorization block a deployed service carries, and the clearing family joins the release inventory at its floor)
+
+Realizes `amend-factory-mcp-conformance-auth-profile` **task 2.6**, through
+Speckit feature
+[`039-factory-mcp-auth-profile`](../specs/039-factory-mcp-auth-profile/spec.md).
+Brett Heap ratified the change on 2026-10-08 (verbatim *"Ratify, OQs as
+recommended (Recommended)"*), and its packet landed as pull request #1274
+(`93d13d6c`). The number was claimed as row 4 on #630 (comment `6086467830`,
+2026-10-09T18:02Z) and reserved nowhere earlier: the packet declares
+`target_release: deferred-allocation`, under § *Version Identity*'s rule that a
+proposed change MUST NOT reserve a minor before merge order is known. **The
+annotated tag is NOT published by this candidate**: § *Bundle Realization Order*
+step 5 follows the landing, and the realization lands only on its own word.
+
+**RE-CUT, forward-only, on the same branch.** The first candidate was
+`38c78817`, cut from `main` `93d13d6c`. Before the realization landed, #1284
+landed on `main` (merge `9a272c6d`, 2026-10-09T18:07Z) and moved two inventory
+members, `contracts/manifest.yaml` and `contracts/README.md`. `main` was merged
+in (`24699ca5`, never a rebase), and this candidate rebuilds the inventory from
+the merged bytes and re-attributes it below, as `contract-v3.6`'s re-cut did.
+The number does not change: `contract-v4.1` stays claimed on #630.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+§ Change Classes: a new contract is added, and nothing is removed, narrowed or
+reinterpreted. The argument over the whole bundle is below.
+
+### The substance: one new registration
+
+**`factory-mcp-declaration`**:
+[`factory-mcp/declaration.schema.json`](factory-mcp/declaration.schema.json),
+`schema_version: 1`, per-file `sha256`
+`5e3cf502cea37f18e5281ce6b344a621196e1fa77bfe40b57e17b4ddd2fa28ac`. This is the
+closed advisory declaration of a domain's MCP tool catalog, which
+`add-factory-mcp-conformance` promoted (archived 2026-10-06) unbundled and
+unreleased. This bundle carries it with the amendment already realized in it:
+
+- a deployed service carries an `auth` block: one https issuer identifier;
+  algorithms naming RS256, with EdDSA optional and `none` and the HMAC names
+  refused by name; one audience bound to the canonical resource URI or
+  issuer-assigned; the RFC 9728 § 3.1 metadata path; and cited `auth` support;
+- a service that is not deployed carries no block;
+- the evidence and gap concern vocabularies admit `auth`;
+- the schema's title no longer calls it unreleased.
+
+The offline validator
+[`scripts/validate-factory-mcp.py`](../scripts/validate-factory-mcp.py), its
+synthetic examples under `factory-mcp/examples/` and `tests/factory-mcp/` are
+pinned by the release commit, content-addressed rather than per-file digested.
+A valid declaration still reports `verified_conformance: false`. The runbook is
+[`docs/factory-mcp-conformance.md`](../docs/factory-mcp-conformance.md).
+
+**That schema is a registered manifest row and NOT a release-inventory member**,
+exactly as `contract-v3.6` recorded for the consent schema. Membership is closed
+over the surface
+[`scripts/hermes_runtime_validation/release.py`](../scripts/hermes_runtime_validation/release.py)
+enumerates, and `contracts/factory-mcp/` is not in it. The schema's identity
+travels by the row's `sha256`, verified by `scripts/validate-manifest-digests.py`
+(185 rows, green at this candidate).
+
+### Registered rows that moved since `contract-v4.0`
+
+Measured by comparing every row of `contracts/manifest.yaml` at the
+`contract-v4.0` tag with this candidate's rows (202 become 204). Two rows were
+added, one row changed, and none was removed:
+
+| row | change | by |
+| --- | --- | --- |
+| `factory-mcp-declaration` | ADDED, with its per-file `sha256` | **THIS CUT** |
+| `openxwallet-pin` | ADDED: the sibling consumption pin, `type: pin`, with no `sha256` (a pin is read by commit) | `a80f0e3c` (#1026) |
+| `signed-execution-chain-digest-construction` | `sha256` `0dfc2e8e…` → `ef157d88…`: `$defs/digest_subject` gains `council_convening` and `council_seat_return_payload`, under the one construction `xfc-jcs-sha256-1`; `schema_version` stays `1` | `e318168d`, in #1284 (merge `9a272c6d`), which left the version number and this entry to the cutting session |
+
+#1284 also added `contracts/council-convening/`, a family it declares DORMANT AND
+UNREGISTERED: it has no manifest row and is not an inventory member, so this
+bundle registers none of it.
+
+### What moved: the INVENTORY DIFF over all members
+
+**Counted from the DIGEST INVENTORY, not from `git diff -- contracts/`.**
+Measured with [`releases/contract-v4.0.digests.yaml`](releases/contract-v4.0.digests.yaml)
+against this candidate's own bytes:
+
+- **283 entries become 342**: FIFTY-NINE ADDED, ZERO removed, no `git_mode` or
+  other non-digest field changed on any common member, and EIGHT digests moved.
+- 104 of the 342 members live outside `contracts/`.
+
+**The eight moved digests**, by exact path, with what moved each:
+
+| member | moved by |
+| --- | --- |
+| `contracts/manifest.yaml` | `a1ef886f` (#984), a dated citation in a comment; `a80f0e3c` (#1026), the `openxwallet-pin` row; `e318168d`, in #1284 (merge `9a272c6d`), the `signed-execution-chain-digest-construction` row's `sha256`; and **THIS CUT**: the `contract_bundle_version` line and the `factory-mcp-declaration` row |
+| `contracts/README.md` | `a80f0e3c` (#1026); `e085d04c`, in #1284 (merge `9a272c6d`), the two council-convening rows of the native contract index; and **THIS CUT**: the two factory MCP rows beside them |
+| `contracts/CHANGELOG.md` | `a1ef886f` (#984); and **THIS CUT**: this entry |
+| `scripts/hermes_runtime_validation/release.py` | `c30dc1b9` (#1000), the clearing floor; `d5dd1ca5` (#1032), the carve floor's `retired:` row form; `53769f9e` (#1051), the worktree reader fix; `0a5c1310` (#1117), an unreadable pinned leg refused as a dependency |
+| `scripts/hermes_runtime_validation/catalog.py` | `d5dd1ca5` (#1032); `0a5c1310` (#1117) |
+| `scripts/validate-hermes-runtime-contracts.py` | `0a5c1310` (#1117) |
+| `scripts/validate-ideation-dashboard-contracts.py` | Read from the pinned openXdox code leg since the § 5.2 shed (its carve row), so it moved with that leg's pin: `1edbb3dd` (#1157) took openXdox to `069fe471`, whose code leg `e28930b` rewrote it, and `fcb45380` (#1215) took openXdox to `f257e021`, whose code leg `6a3b93b` rewrote it again. Its bytes at the current pin `9564d5d9` are those of `6a3b93b` |
+| `tests/intent-compliance/test_release_boundary.py` | **THIS CUT**: the cut-coupled tripwire |
+
+The table names no digest values. This file is itself an inventory member, so
+its digest is fixed only by the build that runs after this text is final, the
+reason `contract-v3.4` and `contract-v3.6` gave. The authoritative values are in
+[`releases/contract-v4.1.digests.yaml`](releases/contract-v4.1.digests.yaml),
+which the tool built from this candidate's bytes and nobody edited by hand.
+
+**The FIFTY-NINE added members are the clearing family, at its floor.**
+`CLEARING_RELEASE_FLOOR = (4, 1)` in `release.py` (RULED by Brett Heap,
+2026-09-12, #745, PR #1000 review thread) makes the family a release member only
+for a declared bundle at or after `contract-v4.1`. That keeps every published
+tag through `contract-v4.0` verifying exactly against its own recorded
+inventory, and makes this bundle the first to record the family:
+
+- the six `contracts/clearing/*.schema.yaml`;
+- the registry instance `permitted-operations.registry.yaml`;
+- `contracts/clearing/README.md`;
+- ten valid examples (with the factory-identity fixture);
+- twenty-eight negative examples;
+- `scripts/validate-clearing-dispatch.py` (mode `100755`);
+- the twelve `tests/clearing/*.py`.
+
+**None of them moved a byte to get here**: `git diff --name-status contract-v4.0
+<candidate>` over `contracts/clearing/`, `tests/clearing/` and
+`scripts/validate-clearing-dispatch.py` reports ZERO paths. They are the bytes
+`contract-v4.0`'s own commit already carried, now recorded rather than
+re-issued.
+
+**`tests/intent-compliance/test_release_boundary.py` moves because
+`_release_state()` FAILS LOUDLY on a bundle its enum does not name.** It takes
+the three edits each earlier cut made: `FEATURE_SUCCESSOR_13 = "contract-v4.1"`,
+the member added to BOTH match arms, and the hand-written boundary paragraph.
+That paragraph's claim is measured: `git diff --name-status contract-v4.0
+<candidate>` over `contracts/intent-compliance/`, `scripts/intent_compliance/`,
+`tests/intent-compliance/` and `scripts/validate-intent-compliance.py` reported
+ZERO paths before the edit. The inventory was BUILT AFTER the edit.
+
+### Change class: ADDITIVE (minor), argued over the WHOLE bundle
+
+- **The factory MCP declaration is a contract no earlier bundle carried.** Its
+  authorization block was added before its first release, so no consumer ever
+  pinned a shape without it. That is why `schema_version` stays `1` and the
+  profile stays `advisory-v1` (OQ-5; the change's `design.md` D10). A deployed
+  declaration that omits the block is refused (`hosted_auth_missing`), the
+  ratified intent, and no published shape is narrowed by it.
+- **The digest-construction widening (#1284) is additive.** Two values are
+  added to a closed set of digest subjects. Nothing is removed and nothing
+  becomes required, so every instance valid under `contract-v4.0` stays valid.
+- **The `openxwallet-pin` row (#1026) is a registration**, of a pin that was
+  already in the tree. It narrows no shape.
+- **The clearing family is ADDED to the inventory, not changed.** Its rows have
+  been in [`manifest.yaml`](manifest.yaml) since `contract-v3.3`, with per-file
+  `sha256`, and their bytes are unchanged.
+- **The four moved validators are tooling**, landed on `main` by their own
+  pull requests. No contract shape moves with them.
+- **`contracts/manifest.yaml`, `contracts/README.md`, this entry and the built
+  inventory are EDITORIAL members**, moved by every cut.
+- **`tests/intent-compliance/test_release_boundary.py` is a TRIPWIRE**, not a
+  contract.
+
+**NOTHING IN THIS BUNDLE IS BREAKING, AND NOTHING IS DEPRECATED.**
+
+### The bundle number, FRESH-COUNTED at the candidate
+
+- [`manifest.yaml`](manifest.yaml) declared `contract_bundle_version:
+  contract-v4.0` before this edit.
+- [`releases/`](releases/) held inventories through
+  [`contract-v4.0.digests.yaml`](releases/contract-v4.0.digests.yaml).
+- `refs/tags/contract-v4.0` is published, and no `contract-v4.1` or later tag
+  exists, so no earlier bundle owes a tag and this number is not a reuse.
+- No #630 comment names `contract-v4.1` or later before the claim
+  `6086467830`.
+- #1284, the one open pull request touching the release surface when the
+  number was counted, refreshed one existing row's `sha256` and took no number.
+  It has since landed, and this re-cut carries it.
+
+### What this bundle does NOT do
+
+It runs no server, adds no transport package, mints no token and registers no
+client. It does not amend any domain: until the engineering domain's own slice
+declares a block, a hosted engineering declaration reports
+`hosted_auth_missing` (and `auth_rs256_missing` for a block that lists EdDSA
+alone), while its stdio declaration validates as before. It does not correct
+the operations domain's hosting plan or align its gateway's intake.
+
+### `contract-v4.0` remains valid provenance
+
+Its tag and [its inventory](releases/contract-v4.0.digests.yaml) are untouched
+by this cut and stay exactly as published. A consumer pinned at `contract-v4.0`
+remains conformant without changes. The number is never reused, and this
+bundle supersedes nothing and declares nothing spent.
+
+### Migration guidance
+
+None is required: every addition is new. A domain that adopts the factory MCP
+profile pins this release commit with the
+`factory-mcp-declaration` row's `sha256` verified, validates its declaration
+offline with `scripts/validate-factory-mcp.py --snapshot ...`, and, for a
+deployed service, declares the authorization block.
+
 ## contract-v4.0 — 2026-09-11 (BREAKING; the five ideation-dashboard contract schemas are REMOVED and consumed at the openDox / openXdox spec legs)
 
 Realizes `split-opendox-two-layer-product` **§ 5.7** (`tasks.md` § 5), the

@@ -22,6 +22,7 @@ import tempfile
 import tracemalloc
 import unittest
 from unittest.mock import patch
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts/validate-factory-mcp.py"
@@ -48,6 +49,10 @@ def everywhere(code, *locations):
 
 TOOL_REFS = ("/tools/0/error", "/tools/0/input", "/tools/0/output")
 ALL_REFS = ("/evidence/0/source", "/source/artifacts/0") + TOOL_REFS
+# Feature 039 (the authorization profile): synthetic names under the reserved `.test` domain.
+RESOURCE = "https://mcp.example.test/mcp"
+ISSUER = "https://issuer.example.test/synthetic"
+WELL_KNOWN = "/.well-known/oauth-protected-resource"
 
 
 class ConformanceTests(unittest.TestCase):
@@ -1380,11 +1385,17 @@ class ConformanceTests(unittest.TestCase):
         self.assertValidWithGaps()
 
     def test_resource_identity_without_optional_format_checker(self):
-        self.doc["service"] = {"deployment": "deployed", "installation": "synthetic",
-            "environment": "test", "canonical_resource_uri": "relative/path"}
+        """Amended for feature 039 (research R-15). The ratified
+        amend-factory-mcp-conformance-auth-profile, design *Compatibility*, reverses
+        this test's premise: "A deployed declaration without the block, which is
+        valid today, becomes invalid (`hosted_auth_missing`)". The deployed service
+        now carries a valid block with an issuer-assigned audience, so the resource
+        URI is still judged alone; a URI with a query also reports
+        `auth_resource_query`."""
+        self.assigned("relative/path")
         with patch.dict(self.module.FormatChecker.checkers, {}, clear=True):
             self.assertDiagnostics([("invalid_resource_uri", "/service/canonical_resource_uri")])
-            self.doc["service"]["canonical_resource_uri"] = "https://mcp.example.test/"
+            self.assigned("https://mcp.example.test/")
             self.assertValidWithGaps()
             # Review r4187849299: `urlsplit` does not check percent escapes.
             # Review r4188149170: nor characters RFC 3986 forbids unescaped.
@@ -1398,16 +1409,22 @@ class ConformanceTests(unittest.TestCase):
                                ("https://mcp.example.test/<a>", False), ('https://mcp.example.test/"a"', False),
                                ("https://mcp.example.test/a[0]", False), ("https://mcp.example.test/?q=[0]", False)]:
                 with self.subTest(uri=uri):
-                    self.doc["service"]["canonical_resource_uri"] = uri
+                    self.assigned(uri)
                     if valid:
                         self.assertValidWithGaps()
                     else:
-                        self.assertDiagnostics([("invalid_resource_uri", "/service/canonical_resource_uri")])
+                        self.assertDiagnostics(
+                            ([("auth_resource_query", "/service/canonical_resource_uri")] if "?" in uri else [])
+                            + [("invalid_resource_uri", "/service/canonical_resource_uri")])
 
     def test_resource_uri_is_https_without_fragment_or_userinfo(self):
-        """L2: a canonical resource URI is an absolute https URI with no fragment or userinfo."""
-        self.doc["service"] = {"deployment": "deployed", "installation": "synthetic",
-            "environment": "test", "canonical_resource_uri": "https://mcp.example.test/mcp"}
+        """L2: a canonical resource URI is an absolute https URI with no fragment or userinfo.
+
+        Amended for feature 039 (research R-15): the ratified design *Compatibility*
+        makes a deployed declaration without the block invalid
+        (`hosted_auth_missing`), so the service carries a valid block with an
+        issuer-assigned audience and the URI is still judged alone."""
+        self.assigned("https://mcp.example.test/mcp")
         with patch.dict(self.module.FormatChecker.checkers, {}, clear=True):
             self.assertValidWithGaps()
         for uri in ["http://mcp.example.test/mcp", "https://mcp.example.test/mcp#frag",
@@ -1417,7 +1434,7 @@ class ConformanceTests(unittest.TestCase):
                     "https://mcp.example.test\\evil", "https://example.test/\u0085",
                     "https://b\u00fccher.example/mcp"]:
             with self.subTest(uri=uri):
-                self.doc["service"]["canonical_resource_uri"] = uri
+                self.assigned(uri)
                 with patch.dict(self.module.FormatChecker.checkers, {}, clear=True):
                     self.assertDiagnostics([("invalid_resource_uri", "/service/canonical_resource_uri")])
 
@@ -1590,6 +1607,365 @@ class ConformanceTests(unittest.TestCase):
         self.assertEqual(report["diagnostics"], [])
         self.assertFalse(report["verified_conformance"])
         self.assertEqual([g["id"] for g in report["gaps"]], ["audit-gap"])
+
+    # ---- the authorization profile (feature 039) ---------------------------
+    #
+    # Realizes amend-factory-mcp-conformance-auth-profile (ratified 2026-10-08),
+    # specs/039-factory-mcp-auth-profile. Every name below is synthetic: the
+    # `.test` top-level domain is reserved (RFC 6761), and no real issuer,
+    # tenant, host or domain schema is used.
+
+    @staticmethod
+    def metadata_path(uri):
+        """RFC 9728 section 3.1 insertion, for the helper's default only; the
+        derivation itself is pinned by literal paths in its own test."""
+        path = urlsplit(uri).path
+        return WELL_KNOWN + ("" if path in ("", "/") else path)
+
+    def hosted(self, uri=RESOURCE, **block):
+        """Deploy the synthetic service with a valid block, supported by an `auth` gap."""
+        auth = {"issuer": ISSUER, "algorithms": ["RS256"],
+                "audience": {"binding": "resource_uri", "value": uri},
+                "metadata_path": self.metadata_path(uri), "evidence_ids": [], "gap_ids": ["auth-gap"]}
+        auth.update(block)
+        self.doc["service"] = {"deployment": "deployed", "installation": "synthetic-install",
+                               "environment": "test", "canonical_resource_uri": uri, "auth": auth}
+        if not any(gap["id"] == "auth-gap" for gap in self.doc["gaps"]):
+            self.doc["gaps"].append({"id": "auth-gap", "concerns": ["auth"],
+                                     "description": "Synthetic block; no server's token verification was observed."})
+        return auth
+
+    def assigned(self, uri):
+        """A deployed service whose audience is issuer-assigned, so that a test of the
+        resource URI alone carries no URI-bound audience (039 research R-15)."""
+        return self.hosted(uri, audience={"binding": "issuer_assigned", "value": "synthetic-resource-0001"})
+
+    def test_hosted_declaration_without_block(self):
+        """039 FR-001, *Hosted declaration without the block*: refused at the service."""
+        self.hosted()
+        del self.doc["service"]["auth"]
+        self.assertDiagnostics([("hosted_auth_missing", "/service")])
+
+    def test_auth_on_an_undeployed_service_is_refused(self):
+        """039 FR-002, *Stdio-only declaration*. CHARACTERIZATION: the closed
+        not-deployed branch refuses an `auth` field on `main` already. The block cites
+        no `auth` record, so nothing else in the declaration differs from `main`'s."""
+        block = {"issuer": ISSUER, "algorithms": ["RS256"], "audience": {"binding": "resource_uri", "value": RESOURCE},
+                 "metadata_path": WELL_KNOWN + "/mcp", "evidence_ids": [], "gap_ids": []}
+        self.doc["service"] = {"deployment": "not_deployed", "auth": block}
+        self.assertDiagnostics([("schema_oneOf", "/service")])
+
+    def test_stdio_declaration_needs_no_block(self):
+        """039 FR-002, *Stdio-only declaration*. CHARACTERIZATION: a block-free
+        not-deployed declaration validates on `main` already."""
+        self.assertEqual(self.doc["service"], {"deployment": "not_deployed"})
+        self.assertValidWithGaps()
+
+    def test_a_valid_hosted_block_is_accepted(self):
+        """039 FR-003, FR-010, FR-012; *EdDSA beside RS256*, *Audience is the server's
+        own resource*, *Issuer-assigned audience*. A gap-only block is
+        valid-with-gaps and never certified."""
+        for case, change in [
+                ("gap only, RS256 alone", {}),
+                ("RS256 and EdDSA", {"algorithms": ["RS256", "EdDSA"]}),
+                ("EdDSA first", {"algorithms": ["EdDSA", "RS256"]}),
+                ("issuer-assigned audience", {"audience": {"binding": "issuer_assigned",
+                                                           "value": "synthetic-resource-0001"}}),
+                ("an assigned value may be a URI", {"audience": {"binding": "issuer_assigned",
+                                                                 "value": "api://synthetic-resource"}}),
+                ("evidence without auth beside the gap", {"evidence_ids": ["synthetic-observation"]})]:
+            with self.subTest(case=case):
+                self.doc = self.declaration()
+                self.hosted(**change)
+                report = self.assertValidWithGaps()
+                self.assertEqual([gap["id"] for gap in report["gaps"]], ["audit-gap", "auth-gap"])
+        self.doc = self.declaration()
+        self.doc["evidence"][0]["concerns"].append("auth")
+        self.hosted(evidence_ids=["synthetic-observation"], gap_ids=[])
+        self.assertValidWithGaps()
+
+    def test_block_shape_is_closed(self):
+        """039 FR-003, design D7 and OQ-6: a block that breaks its closed shape is
+        refused as `schema_oneOf` at `/service` (the structure pass does not descend
+        into the branches). The valid block comes first, so this test is red on
+        `main`, which refuses every block as a whole."""
+        self.hosted()
+        self.assertValidWithGaps()
+        for case, mutate in [
+                ("an unknown field", lambda a: a.update(jwks_uri="https://issuer.example.test/keys")),
+                ("a client secret", lambda a: a.update(client_secret="not-a-real-secret")),
+                ("a token", lambda a: a.update(token="synthetic.token.value")),
+                ("a wrong type", lambda a: a.update(algorithms="RS256")),
+                ("a binding outside the closed set", lambda a: a["audience"].update(binding="any")),
+                ("an unknown audience field", lambda a: a["audience"].update(scope="all")),
+                ("an empty algorithm list", lambda a: a.update(algorithms=[])),
+                ("a repeated algorithm", lambda a: a.update(algorithms=["RS256", "RS256"])),
+                ("an issuer given as a list", lambda a: a.update(
+                    issuer=[ISSUER, "https://issuer.example.test/second"])),
+                ("a second issuer", lambda a: a.update(issuers=["https://issuer.example.test/second"])),
+                ("a missing field", lambda a: a.pop("metadata_path")),
+                ("an audience given as a list", lambda a: a.update(
+                    audience=[{"binding": "resource_uri", "value": RESOURCE}]))]:
+            with self.subTest(case=case):
+                self.doc = self.declaration()
+                mutate(self.hosted())
+                self.assertDiagnostics([("schema_oneOf", "/service")])
+
+    def test_issuer_must_be_an_https_identifier(self):
+        """039 FR-004, *Issuer named rather than identified*."""
+        for issuer in ["hermes", "synthetic-issuer", "http://issuer.example.test/synthetic",
+                       "https://user@issuer.example.test/synthetic",
+                       "https://issuer.example.test/synthetic?tenant=x", "https://issuer.example.test/synthetic?",
+                       "https://issuer.example.test/synthetic#keys", "urn:example:issuer", "https:///synthetic",
+                       "https://issuer.example.test/a b"]:
+            with self.subTest(issuer=issuer):
+                self.doc = self.declaration()
+                self.hosted(issuer=issuer)
+                self.assertDiagnostics([("invalid_issuer", "/service/auth/issuer")])
+        for issuer in ["https://issuer.example.test", "https://issuer.example.test/synthetic/v2.0",
+                       "https://issuer.example.test:8443/tenant/"]:
+            with self.subTest(issuer=issuer):
+                self.doc = self.declaration()
+                self.hosted(issuer=issuer)
+                self.assertValidWithGaps()
+
+    def test_metadata_path_is_the_rfc9728_location(self):
+        """039 FR-005, *Metadata off the well-known path*: RFC 9728 section 3.1 inserts
+        the well-known string before the resource URI's path (design D4, OQ-3)."""
+        for uri, path in [("https://mcp.example.test", WELL_KNOWN),
+                          ("https://mcp.example.test/", WELL_KNOWN),
+                          ("https://mcp.example.test/mcp", WELL_KNOWN + "/mcp"),
+                          ("https://mcp.example.test/a/b/", WELL_KNOWN + "/a/b/"),
+                          ("https://mcp.example.test:8443/mcp", WELL_KNOWN + "/mcp"),
+                          ("https://mcp.example.test/a%2Fb", WELL_KNOWN + "/a%2Fb")]:
+            with self.subTest(uri=uri):
+                self.doc = self.declaration()
+                self.hosted(uri, metadata_path=path)
+                self.assertValidWithGaps()
+        for uri, path in [(RESOURCE, WELL_KNOWN), (RESOURCE, "/mcp" + WELL_KNOWN), (RESOURCE, WELL_KNOWN + "/mcp/"),
+                          (RESOURCE, WELL_KNOWN + "/MCP"), (RESOURCE, "/.well-known/oauth-authorization-server/mcp"),
+                          (RESOURCE, WELL_KNOWN[1:] + "/mcp"), (RESOURCE, RESOURCE + WELL_KNOWN),
+                          ("https://mcp.example.test/a%2Fb", WELL_KNOWN + "/a%2fb"),
+                          ("https://mcp.example.test", WELL_KNOWN + "/")]:
+            with self.subTest(uri=uri, path=path):
+                self.doc = self.declaration()
+                self.hosted(uri, metadata_path=path)
+                self.assertDiagnostics([("auth_metadata_path_mismatch", "/service/auth/metadata_path")])
+        # A resource URI that is already refused has no RFC 9728 location to compare.
+        self.doc = self.declaration()
+        self.hosted("https://mcp.example.test/m cp", metadata_path="/elsewhere")
+        with patch.dict(self.module.FormatChecker.checkers, {}, clear=True):
+            self.assertDiagnostics([("invalid_resource_uri", "/service/canonical_resource_uri")])
+
+    def test_hosted_resource_uri_carries_no_query(self):
+        """039 FR-006, *Hosted resource URI with a query*: a `?` before any `#` is a
+        query component, even an empty one (RFC 3986 section 3), block or no block."""
+        query = [("auth_resource_query", "/service/canonical_resource_uri")]
+        for uri in ["https://mcp.example.test/mcp?tenant=x", "https://mcp.example.test/mcp?",
+                    "https://mcp.example.test?x"]:
+            with self.subTest(uri=uri, block=True):
+                self.doc = self.declaration()
+                self.hosted(uri)
+                self.assertDiagnostics(query)
+            with self.subTest(uri=uri, block=False):
+                self.doc = self.declaration()
+                self.hosted(uri)
+                del self.doc["service"]["auth"]
+                self.assertDiagnostics([("hosted_auth_missing", "/service")] + query)
+        # A `?` inside a fragment is no query; the fragment is refused already.
+        self.doc = self.declaration()
+        self.assigned("https://mcp.example.test/mcp#a?b")
+        with patch.dict(self.module.FormatChecker.checkers, {}, clear=True):
+            self.assertDiagnostics([("invalid_resource_uri", "/service/canonical_resource_uri")])
+
+    def test_auth_claims_cite_support(self):
+        """039 FR-007, *Unsupported authorization claim*: the block's ids resolve as a
+        tool's do, and at least one resolved record carries `auth` (design D5, OQ-4)."""
+        unsupported = ("unsupported_auth", "/service/auth/evidence_ids")
+        for case, change, expected in [
+                ("a gap-only block", {}, []),
+                ("nothing cited", {"gap_ids": []}, [unsupported]),
+                ("support without auth", {"evidence_ids": ["synthetic-observation"], "gap_ids": ["audit-gap"]},
+                 [unsupported]),
+                ("a dangling evidence id", {"evidence_ids": ["missing-evidence"]},
+                 [("missing_support_reference", "/service/auth/evidence_ids/0")]),
+                ("a dangling gap id", {"gap_ids": ["auth-gap", "missing-gap"]},
+                 [("missing_support_reference", "/service/auth/gap_ids/1")]),
+                ("a repeated evidence id", {"evidence_ids": ["synthetic-observation"] * 2},
+                 [("duplicate_support_reference", "/service/auth/evidence_ids")]),
+                ("a repeated gap id", {"gap_ids": ["auth-gap"] * 2},
+                 [("duplicate_support_reference", "/service/auth/gap_ids")]),
+                ("a gap cited as evidence", {"evidence_ids": ["auth-gap"], "gap_ids": []},
+                 [unsupported, ("missing_support_reference", "/service/auth/evidence_ids/0")])]:
+            with self.subTest(case=case):
+                self.doc = self.declaration()
+                self.hosted(**change)
+                self.assertDiagnostics(expected, status="invalid" if expected else "valid-with-gaps")
+
+    def test_auth_concern_is_admitted_everywhere(self):
+        """039 FR-007: the concern vocabulary of evidence and gaps admits `auth`; on a
+        not-deployed declaration it is merely admitted."""
+        self.doc["evidence"][0]["concerns"].append("auth")
+        self.doc["gaps"].append({"id": "auth-note", "concerns": ["auth"], "description": "Admitted, unused."})
+        self.assertValidWithGaps()
+
+    def test_rs256_is_required(self):
+        """039 FR-008, *RS256 absent*. Algorithm names are case-sensitive (RFC 7515
+        section 4.1.1), so `rs256` is not RS256."""
+        missing = ("auth_rs256_missing", "/service/auth/algorithms")
+        for algorithms, expected in [
+                (["EdDSA"], [missing]),
+                (["rs256"], [missing, ("auth_algorithm_unadmitted", "/service/auth/algorithms/0")]),
+                (["EdDSA", "none"], [missing, ("auth_algorithm_forbidden", "/service/auth/algorithms/1")])]:
+            with self.subTest(algorithms=algorithms):
+                self.doc = self.declaration()
+                self.hosted(algorithms=algorithms)
+                self.assertDiagnostics(expected)
+
+    def test_none_and_hmac_are_refused_by_name(self):
+        """039 FR-009, *Unsigned or symmetric algorithm*: in any letter case."""
+        for name in ["none", "None", "NONE", "nOnE", "HS256", "hs256", "Hs256", "HS384", "hs384", "hS384",
+                     "HS512", "hs512", "Hs512"]:
+            with self.subTest(name=name):
+                self.doc = self.declaration()
+                self.hosted(algorithms=["RS256", name])
+                self.assertDiagnostics([("auth_algorithm_forbidden", "/service/auth/algorithms/1")])
+        self.doc = self.declaration()
+        self.hosted(algorithms=["none", "RS256", "HS256"])
+        self.assertDiagnostics(everywhere("auth_algorithm_forbidden", "/service/auth/algorithms/0",
+                                          "/service/auth/algorithms/2"))
+
+    def test_other_algorithms_are_not_admitted(self):
+        """039 FR-010, *An algorithm the profile does not admit* (OQ-2)."""
+        for name in ["ES256", "PS256", "RS384", "RS512", "eddsa", "EdDSA ", "Ed25519", "HS1", "ＨS256"]:
+            with self.subTest(name=name):
+                self.doc = self.declaration()
+                self.hosted(algorithms=["RS256", name])
+                self.assertDiagnostics([("auth_algorithm_unadmitted", "/service/auth/algorithms/1")])
+
+    def test_audience_is_bound_to_the_server(self):
+        """039 FR-011 to FR-013, *Audience names another resource* and *Unbounded
+        audience* (design D3): exact comparison; no wildcard; never the issuer."""
+        unbound = [("auth_audience_unbound", "/service/auth/audience/value")]
+        for case, audience in [
+                ("another resource", {"binding": "resource_uri", "value": "https://other.example.test/mcp"}),
+                ("a trailing slash", {"binding": "resource_uri", "value": RESOURCE + "/"}),
+                ("another letter case", {"binding": "resource_uri", "value": "https://MCP.example.test/mcp"}),
+                ("an identifier under resource_uri", {"binding": "resource_uri", "value": "synthetic-resource-0001"}),
+                ("a wildcard, issuer-assigned", {"binding": "issuer_assigned", "value": "synthetic-*"}),
+                ("a bare wildcard", {"binding": "issuer_assigned", "value": "*"}),
+                ("the issuer, issuer-assigned", {"binding": "issuer_assigned", "value": ISSUER})]:
+            with self.subTest(case=case):
+                self.doc = self.declaration()
+                self.hosted(audience=audience)
+                self.assertDiagnostics(unbound)
+        for case, uri, change in [
+                ("a resource URI holding a wildcard", "https://mcp.example.test/a*b", {}),
+                ("the issuer, resource_uri", RESOURCE, {"issuer": RESOURCE})]:
+            with self.subTest(case=case):
+                self.doc = self.declaration()
+                self.hosted(uri, **change)
+                self.assertDiagnostics(unbound)
+
+    def test_dependency_failure_reported_as_an_error_is_an_execution_failure(self):
+        """039 FR-014, M5 as narrowed (*Unavailable dependency*): an error-inventory
+        code is an execution failure. CHARACTERIZATION on `main`; red against the
+        mutant whose classification comparison is removed (verification.md)."""
+        self.assertEqual(self.tool()["outcomes"]["mapping"][2]["value"], "UNAVAILABLE")
+        for klass, is_error in [("completed_evaluation", False), ("completed_evaluation", True),
+                                ("execution_failure", False)]:
+            with self.subTest(klass=klass, is_error=is_error):
+                self.doc = self.declaration()
+                self.tool()["outcomes"]["mapping"][2].update({"class": klass, "is_error": is_error})
+                self.assertDiagnostics([("outcome_classification_mismatch", "/tools/0/outcomes/mapping/2")])
+
+    def test_result_statuses_are_completed_evaluations(self):
+        """039 FR-014, the MODIFIED body: a result-schema status is a completed
+        evaluation, whatever its name says. CHARACTERIZATION on `main`; red against
+        the mutant (verification.md)."""
+        self.schema["properties"]["status"]["enum"].append("dependency_unavailable")
+        self.write_schema()
+        self.doc = self.declaration()
+        rows = self.tool()["outcomes"]["mapping"]
+        rows.append({"inventory": 0, "value": "dependency_unavailable", "class": "execution_failure",
+                     "is_error": True})
+        self.assertDiagnostics([("outcome_classification_mismatch", "/tools/0/outcomes/mapping/4")])
+        rows[4].update({"class": "completed_evaluation", "is_error": False})
+        self.assertValidWithGaps()
+
+    def test_two_domains_share_a_code_name(self):
+        """039 FR-015, *Two domains share a code name*: each declaration maps its own
+        code through its own inventory; judging one moves nothing in the other.
+        CHARACTERIZATION: `main` already never compares declarations."""
+        first = self.validate()
+        self.assertEqual((first["status"], diagnostics(first)), ("valid-with-gaps", []))
+
+        def branch(code):
+            return {"type": "object", "additionalProperties": False, "required": ["code", "retryable"],
+                    "properties": {"code": {"const": code}, "retryable": {"const": True}}}
+        ref = self.put("other-error.json", {"$schema": DRAFT,
+                                            "oneOf": [branch("UNAVAILABLE"), branch("RATE_LIMITED")]})
+        other = copy.deepcopy(self.doc)
+        other["domain"] = "other"
+        other["source"]["artifacts"].append(dict(ref))
+        tool = other["tools"][0]
+        tool.update(owner="other", error=dict(ref))
+        tool["outcomes"]["inventories"][1].update(pointer="", discriminator="code")
+        tool["outcomes"]["mapping"] = [row for row in tool["outcomes"]["mapping"] if row["inventory"] == 0] + [
+            {"inventory": 1, "value": code, "class": "execution_failure", "is_error": True}
+            for code in ("UNAVAILABLE", "RATE_LIMITED")]
+        roots = {("synthetic", self.revision): self.root}
+        second = self.module.validate(other, roots)
+        self.assertEqual((second["status"], diagnostics(second)), ("valid-with-gaps", []))
+        self.assertEqual(self.validate(), first)
+        tool["outcomes"]["mapping"].pop()
+        self.assertEqual(diagnostics(self.module.validate(other, roots)),
+                         [("incomplete_outcome_mapping", "/tools/0/outcomes/inventories/1")])
+        self.assertEqual(self.validate(), first)
+
+    def test_a_code_no_other_domain_uses(self):
+        """039 FR-015, *A code no other domain uses*: judged by its own mapping alone.
+        CHARACTERIZATION: there is no neutral code list to refuse it."""
+        self.schema["properties"]["code"]["oneOf"].append({"const": "SYNTHETIC_ONLY_CODE"})
+        self.write_schema()
+        self.doc = self.declaration()
+        self.tool()["outcomes"]["mapping"].append(
+            {"inventory": 1, "value": "SYNTHETIC_ONLY_CODE", "class": "execution_failure", "is_error": True})
+        self.assertValidWithGaps()
+
+    def test_auth_diagnostics_are_deterministic(self):
+        """039 FR-016, SC-007: several faults at once, located, sorted, de-duplicated
+        and identical across runs."""
+        self.hosted(issuer="hermes", algorithms=["EdDSA", "HS256", "ES256"],
+                    audience={"binding": "resource_uri", "value": "https://other.example.test/"},
+                    metadata_path="/mcp" + WELL_KNOWN, gap_ids=["auth-gap", "auth-gap"])
+        first = self.validate()
+        self.assertEqual(first, self.validate())
+        self.assertEqual(diagnostics(first), [
+            ("auth_rs256_missing", "/service/auth/algorithms"),
+            ("auth_algorithm_forbidden", "/service/auth/algorithms/1"),
+            ("auth_algorithm_unadmitted", "/service/auth/algorithms/2"),
+            ("auth_audience_unbound", "/service/auth/audience/value"),
+            ("duplicate_support_reference", "/service/auth/gap_ids"),
+            ("invalid_issuer", "/service/auth/issuer"),
+            ("auth_metadata_path_mismatch", "/service/auth/metadata_path")])
+        self.assertFalse(first["verified_conformance"])
+
+    def test_packaged_deployed_example(self):
+        """039 FR-017: the shipped deployed example validates as the runbook says, and
+        names only reserved hosts."""
+        path = EXAMPLES / "declaration-deployed.example.json"
+        run = self.cli(path, "--json", "--snapshot", f"synthetic@{'a' * 40}={EXAMPLES}")
+        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+        report = json.loads(run.stdout)
+        self.assertEqual((report["status"], report["diagnostics"]), ("valid-with-gaps", []))
+        self.assertFalse(report["verified_conformance"])
+        self.assertEqual([gap["id"] for gap in report["gaps"]], ["audit-gap", "auth-gap"])
+        service = json.loads(path.read_text())["service"]
+        self.assertEqual(service["deployment"], "deployed")
+        self.assertEqual(service["auth"]["algorithms"], ["RS256", "EdDSA"])
+        for uri in (service["canonical_resource_uri"], service["auth"]["issuer"]):
+            self.assertTrue(urlsplit(uri).hostname.endswith(".example.test"), uri)
 
 
 if __name__ == "__main__":

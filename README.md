@@ -77,6 +77,7 @@ Core domain-neutral docs:
 - [Factory MCP Conformance — Promoted Specification](openspec/specs/factory-mcp-conformance/spec.md)
   ([archived proposal](openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md))
 - [Factory MCP Conformance — Validator and Implementation Records](docs/factory-mcp-conformance.md)
+- [Factory MCP authorization profile: Speckit feature 039](specs/039-factory-mcp-auth-profile/spec.md) (the realization of the ratified `amend-factory-mcp-conformance-auth-profile` (#1274, landed `93d13d6c`): the authorization block a deployed declaration carries, with its RS256 baseline, audience binding and RFC 9728 metadata path; the *Unavailable dependency* scenario narrowed to error-inventory codes; and per-domain error vocabularies. [Plan](specs/039-factory-mcp-auth-profile/plan.md), [research](specs/039-factory-mcp-auth-profile/research.md), [tasks](specs/039-factory-mcp-auth-profile/tasks.md), [verification](specs/039-factory-mcp-auth-profile/verification.md))
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
 - [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
