@@ -1,0 +1,73 @@
+{
+  "applies_to": [
+    "producer",
+    "consumer"
+  ],
+  "area": "assignment",
+  "boundary": "admission",
+  "case_id": "asg-snapshot-malformed-convening-zero-seats-refuse",
+  "evaluation_time": "2026-10-09T01:00:00Z",
+  "expected": {
+    "derived": {},
+    "derived_origin": "hand",
+    "findings": [],
+    "outcome": "refuse",
+    "refusal": "snapshot_malformed"
+  },
+  "inputs": {
+    "selected_protocol": "xfc-resolved-council-1",
+    "snapshot": {
+      "admitted_at": "2026-10-09T00:00:00Z",
+      "assignments": [],
+      "convening": {
+        "council_id": "council-alpha",
+        "kind": "xfactory_council_convening",
+        "packet_refs": [
+          "packet/alpha-1"
+        ],
+        "protocol": "xfc-resolved-council-1",
+        "required_seats": [],
+        "required_seats_provenance": {
+          "candidate": {
+            "head_sha": "1111111111111111111111111111111111111111",
+            "pull_number": 7,
+            "repository": "example-owner/example-candidate"
+          },
+          "conditions": [],
+          "consumed_facts": {},
+          "fact_sources": [],
+          "governed": {
+            "repository": "example-owner/example-rules",
+            "revision": "2222222222222222222222222222222222222222",
+            "sources": [
+              {
+                "kind": "file",
+                "path": "rules/council-alpha.yaml",
+                "sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+              }
+            ]
+          },
+          "standing_seats": []
+        },
+        "schema_version": 1,
+        "subject_pin": "1111111111111111111111111111111111111111"
+      },
+      "convening_digest": {
+        "construction": "xfc-jcs-sha256-1",
+        "subject": "council_convening",
+        "value": "sha256:8c3fb7a234dd615516cf5b0e79dd4f2b10afae520bd4ce9973cac7159a7d2067"
+      },
+      "convening_id": "convening-0001",
+      "kind": "xfactory_council_convening_snapshot",
+      "protocol": "xfc-resolved-council-1",
+      "schema_version": 1
+    }
+  },
+  "kind": "openxfactory-council-convening-conformance-vector",
+  "requirement_ids": [
+    "FR-004",
+    "FR-005",
+    "SC-002"
+  ],
+  "schema_version": 1
+}

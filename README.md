@@ -77,6 +77,7 @@ Core domain-neutral docs:
 - [Factory MCP Conformance — Promoted Specification](openspec/specs/factory-mcp-conformance/spec.md)
   ([archived proposal](openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md))
 - [Factory MCP Conformance — Validator and Implementation Records](docs/factory-mcp-conformance.md)
+- [Factory MCP authorization profile: Speckit feature 039](specs/039-factory-mcp-auth-profile/spec.md) (the realization of the ratified `amend-factory-mcp-conformance-auth-profile` (#1274, landed `93d13d6c`): the authorization block a deployed declaration carries, with its RS256 baseline, audience binding and RFC 9728 metadata path; the *Unavailable dependency* scenario narrowed to error-inventory codes; and per-domain error vocabularies. [Plan](specs/039-factory-mcp-auth-profile/plan.md), [research](specs/039-factory-mcp-auth-profile/research.md), [tasks](specs/039-factory-mcp-auth-profile/tasks.md), [verification](specs/039-factory-mcp-auth-profile/verification.md))
 - [Architecture](docs/architecture.md)
 - [Terminology And Repository Topology](docs/terminology-and-repo-topology.md)
 - [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
@@ -3265,6 +3266,70 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [retire-codexfactory-sibling-currency-dispositions](openspec/changes/archive/2026-10-11-retire-codexfactory-sibling-currency-dispositions/proposal.md)
+  — **ARCHIVED 2026-10-11** by
+  [PR #1295](https://github.com/opensoft/openxFactory/pull/1295),
+  by lane `codexfactory-1` (display `codeXfactory-1`), to land by MERGE
+  COMMIT, never squash, under lane-collision Rule 6, on Brett Heap's archive
+  word, first-hand in that lane's own session at 2026-10-11T00:19:47Z, verbatim
+  ***"Archive + land when green (Recommended)"***, recorded on
+  [#1286, comment 6103700924](https://github.com/opensoft/openxFactory/issues/1286#issuecomment-6103700924).
+  As offered, the archive is a pull request landed under Rule 6, and successor
+  rows 5.1 to 5.3 stay open in the archived packet. Authored 2026-10-09 on his
+  word *"This lane drafts it (Recommended)"* (2026-10-09T17:35:29Z, gate G-1
+  of
+  [codeXfactory/codexFactory#549](https://github.com/codeXfactory/codexFactory/issues/549#issuecomment-6086047985)),
+  which authorized the draft only; **RATIFIED AS DRAFTED by Brett Heap at
+  2026-10-09T21:00:16.594Z**, verbatim *"Ratify + land when green
+  (Recommended)"*, over head `ed0c67ad` (PR
+  [#1288](https://github.com/opensoft/openxFactory/pull/1288) comment
+  `6089181718`; record
+  [`review/ratification-2026-10-09.md`](openspec/changes/archive/2026-10-11-retire-codexfactory-sibling-currency-dispositions/review/ratification-2026-10-09.md)),
+  OQ-1 to OQ-4 landing at their defaults, flagged rather than resolved; and
+  landed under Rule 6 by the coordinator as #1288 →
+  `841e86f06cc9cce245560026ed02a3628ace35e4` (2026-10-09T23:12:42Z, an admin
+  merge commit on his word), which is **D**. It DELETED the two
+  `repo: codexFactory` dispositions on `merge-master-approval/spec.md` that
+  `disposition-codexfactory-regular-pr-council-clearance-archive` added, for
+  `extend-merge-master-envelope-to-floor-bot-lanes` and
+  `relocate-review-authority-floor`, ahead of the sibling re-derivations
+  (`contracts/openspec-cli-pin.yaml` 5 → 3, three tests moved deliberately;
+  measurements in
+  [`evidence/codexfactory-sibling-currency-retirement-2026-10-09.md`](openspec/changes/archive/2026-10-11-retire-codexfactory-sibling-currency-dispositions/evidence/codexfactory-sibling-currency-retirement-2026-10-09.md)).
+  **NO SPEC DELTA, DECLARED** (`skip_specs: true`), so the archive promotes
+  nothing and writes nothing under `openspec/specs/`. **`code_surface:` is
+  non-empty, so under `release-realization` it archives on merged-plus-green
+  realization evidence** (`tasks.md` 5.4): merged as #1288 → `841e86f0`;
+  every push run on `main` at `841e86f0` reads `success`, which covers all
+  five push-triggered workflows (`pytest-suite` 38003270892,
+  `doc-health-py314` 38003271040, `clearing-dispatch-gate` 38003270870,
+  `council-convening-gate` 38003270891, `signed-execution-chain-gate`
+  38003270916); and `openspec-cli-pin`, which runs on pull requests only, read
+  `success` on the landed head `f2b98b7e` (run 38001206989). **THROUGH THE
+  PINNED CLI, BECAUSE THE GOVERNED WRAPPER REFUSES AN OPEN BOX.** The archive
+  word keeps five boxes open: the owner boxes 0.2 and 0.3, whose acts are
+  recorded as dated notes and which an agent does not tick, and the successor
+  rows 5.1 to 5.3. The wrapper, `TZ=UTC python3 scripts/proposal-support.py .
+  archive retire-codexfactory-sibling-currency-dispositions --yes`, was run
+  first and refused without moving anything: *"ORIGIN RETAINED
+  retire-codexfactory-sibling-currency-dispositions (declaration unchanged
+  since the ratifying commit 1dee56db3486)"*, *"change has incomplete
+  tasks"*, exit 1. The archive was then taken through the content-addressed
+  `@fission-ai/openspec@1.12.0` pin directly, from the repository root with
+  `TZ=UTC` and `OPENSPEC_TELEMETRY=0`, as `govern-archived-record-edits` was
+  archived with its successor rows open (`faeabe22`): exit 0, *"Task status:
+  21/26 tasks"*, *"Warning: 5 incomplete task(s) found. Continuing due to
+  --yes flag."*, *"Change 'retire-codexfactory-sibling-currency-dispositions'
+  archived as '2026-10-11-retire-codexfactory-sibling-currency-dispositions'"*.
+  The six packet files move as pure renames, `tasks.md` carrying 5.4's tick
+  and the closure note from the commit before the move. Still owed, and named
+  so nobody reads them as done: codexFactory #549's second advance with both
+  re-derivations (5.1), which must advance to `841e86f0` or later; the
+  template's 6.3 (5.2); and the `Fission-AI/OpenSpec#1793` watch (5.3), that
+  issue reading CLOSED, `not_planned`, since 2026-09-25.
+  `contracts/openspec-cli-pin.yaml`'s header still names the evidence file at
+  its active path, and is left as written.
 
 - [prefer-triad-project-shape](openspec/changes/archive/2026-10-09-prefer-triad-project-shape/proposal.md)
   — **ARCHIVED 2026-10-09** by
