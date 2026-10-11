@@ -543,45 +543,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [amend-factory-mcp-conformance-auth-profile](openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md)
-  — filed 2026-10-08, lane `openxfactory-5` (display `openXfactory-5`), as
-  DRAFT [PR #1274](https://github.com/opensoft/openxFactory/pull/1274),
-  **`Status: ratified`** (2026-10-08T20:2xZ, Brett Heap, in session, verbatim
-  *"Ratify, OQs as recommended (Recommended)"*: the packet as drafted and all
-  six open questions as recommended, so no requirement or scenario text moved;
-  RULED on the lane register at 2026-10-08T20:33:25Z; record
-  [`review/ratification-2026-10-08.md`](openspec/changes/amend-factory-mcp-conformance-auth-profile/review/ratification-2026-10-08.md)).
-  It carries his three rulings of 2026-10-08 on the items the archive of
-  `add-factory-mcp-conformance` left open, each RULED on the lane register
-  (`opensoft/brett-wip` `lanes/log/openXfactory-5.md`, commits `eed43d23`,
-  `ceaa3c02`, `8534027e`): *"RS256 baseline (Recommended)"*, *"Narrow to error
-  codes (Recommended)"* and *"Per domain, profile maps (Recommended)"*. The
-  rulings decided what it says and did not ratify it; the ratify word above is
-  the separate one. One delta in
-  `factory-mcp-conformance`: **FOUR `## ADDED` requirements** (a hosted
-  declaration carries an authorization block, and a stdio-only one carries
-  none; RS256 required of every hosted domain server, EdDSA optional, `none`
-  and HMAC refused by name; the audience bound to the server's own resource;
-  per-domain error vocabularies with the lossless mapping as the only shared
-  layer) and **ONE `## MODIFIED`** requirement, *Lossless results and explicit
-  failures*, title unchanged, whose *Unavailable dependency* scenario is
-  narrowed to a dependency failure reported through the error inventory. That
-  is what the validator already enforces. **`code_surface: openxFactory`** (the
-  declaration schema, the validator, red-first tests, the runbook and, at the
-  cut, the release surfaces); **`target_release: deferred-allocation`**, since
-  the realization first-bundles the unreleased declaration at the next additive
-  minor after `contract-v4.0`, claimed as row 4 on #630 at the cut. The
-  realization follows through one Speckit feature, which the word allows and
-  which is no part of this pull request. `design.md`'s six open questions are
-  each RULED as recommended. **RATIFIED, THEN A SEPARATE LAND WORD**: Brett
-  Heap's land word followed (2026-10-08T23:0xZ, verbatim *"Land all three,
-  waive Codex (Recommended)"*, RULED on the lane register at
-  2026-10-08T23:00:44Z, Codex review waived by it). It stays ACTIVE after it
-  lands, and the archive is a later act on merged, green realization evidence
-  and its own word. Claims: this change path on the lane register
-  (`55a63c0d`); this block on #630 (comment `6066626855`, amended by comment
-  `6068473680`).
-
 - [renew-resolved-council-protocol](openspec/changes/renew-resolved-council-protocol/proposal.md)
   — filed 2026-10-03 outside a lane; first published 2026-10-07 by lane
   `codexfactory-2` from the 2026-10-04 review snapshot
@@ -3254,6 +3215,68 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [amend-factory-mcp-conformance-auth-profile](openspec/changes/archive/2026-10-11-amend-factory-mcp-conformance-auth-profile/proposal.md)
+  — **ARCHIVED 2026-10-11** by ARCHIVE-PR-NUMBER-PENDING,
+  by lane `openxfactory-5` (display `openXfactory-5`), to land by MERGE
+  COMMIT, never squash, under lane-collision Rule 6, on Brett Heap's
+  separate archive word, a multiple-choice answer whose verbatim option label
+  is ***"Archive, land when green (Recommended)"*** (2026-10-11T15:5xZ, in
+  session; RULED in `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at
+  2026-10-11T16:03:19Z, commit `d74bd6f2`, against
+  `openspec/changes/amend-factory-mcp-conformance-auth-profile`; Codex waived
+  as for #1289). Filed 2026-10-08 by lane `openxfactory-5` on his three
+  rulings of that day, *"RS256 baseline (Recommended)"*, *"Narrow to error
+  codes (Recommended)"* and *"Per domain, profile maps (Recommended)"*;
+  **RATIFIED 2026-10-08 by Brett Heap**, verbatim *"Ratify, OQs as
+  recommended (Recommended)"*, all six open questions as recommended (record
+  [`review/ratification-2026-10-08.md`](openspec/changes/archive/2026-10-11-amend-factory-mcp-conformance-auth-profile/review/ratification-2026-10-08.md));
+  landed on his land word *"Land all three, waive Codex (Recommended)"* as PR
+  [#1274](https://github.com/opensoft/openxFactory/pull/1274) by squash
+  `93d13d6c` (2026-10-09T01:51:24Z). **`code_surface: openxFactory` is
+  non-empty, so under `release-realization` it archives on merged-plus-green
+  realization evidence**, which is cited rather than asserted: Speckit feature
+  [`specs/039-factory-mcp-auth-profile/`](specs/039-factory-mcp-auth-profile/spec.md)
+  landed as PR [#1289](https://github.com/opensoft/openxFactory/pull/1289) →
+  merge commit `b27ae7a25705e52147f59e05f30a17533d7af367`
+  (2026-10-11T02:17:36Z) on his word *"Land when green, waive Codex
+  (Recommended)"*, with every check green at its head `aed40d2d` and
+  `pytest-suite` green on `main` at `b27ae7a2` itself, run
+  [38104679302](https://github.com/opensoft/openxFactory/actions/runs/38104679302)
+  (`selected=11063 passed=11057 skipped=6 failures=0 errors=0`). **Its
+  release is `contract-v4.1`**: that merge is the cut, and the annotated tag
+  `contract-v4.1` (tag object `b30b65be`) dereferences to it, `verify-tag`
+  passing from a refetched checkout
+  ([#630 comment 6104587382](https://github.com/opensoft/openxFactory/issues/630#issuecomment-6104587382)).
+  The proposal's `target_release: deferred-allocation` was **resolved to
+  `contract-v4.1`** in this archive's pull request before the wrapper ran,
+  naming the bundle it observed and the release surface carrying it
+  (`contracts/manifest.yaml`, `contracts/releases/contract-v4.1.digests.yaml`
+  and `contracts/CHANGELOG.md`). **Performed through the governed wrapper,
+  never a bare `openspec archive`**:
+  `TZ=UTC python3 scripts/proposal-support.py . archive amend-factory-mcp-conformance-auth-profile --yes`,
+  exit 0: *"ORIGIN RETAINED amend-factory-mcp-conformance-auth-profile
+  (declaration unchanged since the ratifying commit 93d13d6c8e14)"*,
+  *"Totals: + 4, ~ 1, - 0, → 0"*, over the content-addressed
+  `@fission-ai/openspec@1.12.0` pin. **The promotion, measured byte for
+  byte**, in
+  [`factory-mcp-conformance`](openspec/specs/factory-mcp-conformance/spec.md):
+  the four ADDED requirements, *Hosted declarations carry an authorization
+  block* (2,345 bytes), *RS256 token-signing baseline* (1,086), *Audience
+  bound to the server's own resource* (1,508) and *Per-domain error
+  vocabularies* (1,099), and the MODIFIED *Lossless results and explicit
+  failures* (951 bytes before, 1,165 now), are each byte-identical between
+  the archived delta and canon. The seven requirement blocks the delta does
+  not name are byte-identical before and after, and the title, the Purpose
+  and the order are unchanged, the four ADDED blocks appended in the delta's
+  order. Canon goes from eight requirements and 22 scenarios to **twelve
+  requirements** and 38. The six packet files move as renames, `tasks.md`
+  carrying its closing ticks, and the `modified-block-currency` self-gate's
+  `_LEDGER_SUBJECTS` row for the MODIFIED block retires on its own stated
+  condition (13 literal entries, 12 unique). Not done here, each owned
+  elsewhere (`tasks.md` § 5): codexFactory's RS256 slice, OpsxFactory's
+  hosting-plan `issuer` correction, and the Ops gateway's intake alignment.
+  Runbook: [`docs/factory-mcp-conformance.md`](docs/factory-mcp-conformance.md).
 
 - [retire-codexfactory-sibling-currency-dispositions](openspec/changes/archive/2026-10-11-retire-codexfactory-sibling-currency-dispositions/proposal.md)
   — **ARCHIVED 2026-10-11** by
