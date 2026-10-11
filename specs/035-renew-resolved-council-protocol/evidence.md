@@ -1122,4 +1122,28 @@ All at `427e14c8b` unless another commit is named. Py-bench container, Python 3.
    - **Full suite.** Not run locally, on the coordinator's instruction. CI's `pytest-suite` on PR-4 is the gate of record.
 5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty.
 
+### Gates at the M2 head (`131d49535`, 2026-10-11)
+
+After PR-3 at `cbc0f45b8` was merged (`b225cc90e`), and with the M2 test changes (`131d49535`):
+
+- **`python3 -m pytest tests/council_convening -q -m "not postgres"`** (2026-10-11T01:07:18Z–01:19:16Z): **3 failed, 1715 passed**. All three are Phase 3 against Phase 5 integration drift in other phases' files, not this phase's:
+  - `test_the_assignment_area_is_exactly_what_its_builder_writes` and `test_every_retry_vector_copies_phase_2s_base_vector`: Phase 3's assignment builder against Phase 5's retry-vector edits, as at the fix-round head.
+  - `test_binding.py::test_the_identical_retry_with_a_passing_token_returns_the_snapshot`, new at this head. Phase 5's vector `asg-retry-order-binding-before-identical-retry-refuse` carries a live snapshot whose two seats share `binding_ref: binding-seat`. Phase 3's implementation of the ruling now refuses that at freeze (`assignment_shared_holder at assignments[1].holder.binding_ref`), so the snapshot is not sound (data-model E4). Phase 5's reconciliation must give that snapshot one binding per seat.
+- **Self-test:** exit 0. It printed:
+  - `vectors adjudicated: 519/519`;
+  - `refusal codes probed: 85/85`;
+  - `finding codes probed: 1/1`;
+  - `requirements probed: 13/13`;
+  - `generator reproduced corpus byte-for-byte`.
+
+  The corpus still adjudicates clean: that Phase 5 vector refuses at E2 step A1, before retry identity reads its live snapshot. Only the test that restores the token reaches the unsound snapshot.
+- **`generate --check`:** exit 0.
+- **Corpus:**
+  - 519 vectors, with an agreement set of 362;
+  - by area: assignment 68, binding 65, foundation 133, resolution 165, signing 88;
+  - by outcome: accept 93, refuse 417, route 9;
+  - index `sha256:b1ed2b887fa70b15c42688e0845dea8a1efd5d003d64207c9a24ca83d185d22c`.
+- **OpenSpec** (pinned CLI): exit 0, `Totals: 114 passed, 1 failed (115 items)`. The one failure is `add-chain-attestation`'s accepted exception. The 115th item arrived with `main`.
+- **Doc-health** (exported trees of this head, of Phase 3's `cbc0f45b8` and of Phase 5's `61a646a31`): each read `Findings: 27 critical, 22 error, 3 warning, 16 info`, with 0 regressions and no new findings. Normalized, they differ only in the canon word counts.
+
 **The PR.** T049 says to open PR-4 as a draft. The lane's coordinator instructed that it opens as a **draft only after PR-5 has landed**, and that Phase 4's boxes in `tasks.md` stay unticked until then and until `origin/main` is merged. PR-4 is not open at this record's commit, and its landing needs Brett Heap's own word.
