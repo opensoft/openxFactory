@@ -312,7 +312,7 @@ These are readings, not rulings. Each is pinned so the producer and the consumer
    *The reading is now a dated data-model note too (E2 step 10).*
 4. **Step 11 checks every `held` before any seat** (`commission-refuse-order-result-before-seat-unbound`).
 5. **Step 13 names the first read that is not the head.** A head that moved and came back still refuses (`commission-refuse-head-moved-and-restored`).
-6. **Consumed facts compare exactly**, as canonical JSON values: a path list in another order is `consumed_facts_mismatch`. No normalization is specified, so none is applied (`test_resolution.py::test_consumed_facts_must_equal_the_authoritative_facts`). *Narrowed 2026-10-09 by Brett Heap's ruling of 2026-10-09T17:35:34Z, "Sorted and unique (Recommended)". `changed_paths` now has one order, bytewise sorted and duplicate-free, and step 2 refuses any other. The reading still stands for `rule_touched_paths`, whose order is not specified (`test_resolution.py::test_rule_touched_paths_compare_in_order`).*
+6. **Consumed facts compare exactly**, as canonical JSON values: a path list in another order is `consumed_facts_mismatch`. No normalization is specified, so none is applied (`test_resolution.py::test_consumed_facts_must_equal_the_authoritative_facts`). *Narrowed 2026-10-09 by Brett Heap's ruling of 2026-10-09T17:35:34Z, "Sorted and unique (Recommended)". `changed_paths` now has one order, bytewise sorted and duplicate-free, and step 2 refuses any other. The reading still stands for `rule_touched_paths`, whose order is not specified (`test_resolution.py::test_rule_touched_paths_compare_in_order`).* *Superseded for `rule_touched_paths` 2026-10-11, by Brett Heap's ruling of 2026-10-11T00:19:34Z, "Same rule, in PR-3 (Recommended)". That list takes `changed_paths`'s rule, landed in PR-3. The test named here is now `test_rule_touched_paths_are_sorted_and_unique_at_step_2` (§ Phase 3).*
 7. **A tree pattern `d/**` matches paths strictly inside `d/`**, not a file named `d` and not a sibling sharing the prefix (`test_predicates.py::test_a_tree_pattern_matches_strictly_inside_its_directory`).
 8. **Oracle data a vector does not carry is a harness error, never a pass or a refusal.** A shared vector that is inconsistent for the consumer is one too (`test_resolution.py::test_a_missing_oracle_is_a_harness_error`, `::test_a_shared_vector_inconsistent_for_the_consumer_is_a_harness_error`). The corpus reports it as a vector input error.
 
@@ -432,7 +432,7 @@ The independent pre-review of `fdc0b0601` returned READY AFTER FIXES. It reprodu
   - step 9 refuses a record whose `fact_sources` differ from that declaration, entry for entry and in order, as `fact_source_mismatch`, with no new code;
   - offline `check` names that comparison as not checkable offline.
 - **M3, "Sorted and unique (Recommended)".** A consumed `pr_facts.changed_paths` must be bytewise sorted and duplicate-free, and step 2 refuses any other as `convening_malformed`.
-  - **Reading:** I read the ruling's gloss "a rename keeps its old-then-new pair" as: a rename contributes both its paths, and each takes its own sorted place. One sorted, flat list cannot also keep a pair adjacent and in old-then-new order. `commission-accept-rename-new-path-sorts-first` pins this reading, so the lane can confirm or overrule it.
+  - **Reading:** I read the ruling's gloss "a rename keeps its old-then-new pair" as: a rename contributes both its paths, and each takes its own sorted place. One sorted, flat list cannot also keep a pair adjacent and in old-then-new order. `commission-accept-rename-new-path-sorts-first` pins this reading, so the lane can confirm or overrule it. *Confirmed 2026-10-11: Brett Heap ruled it at 2026-10-11T00:19:34Z, "Each path sorts alone (Recommended)".*
 
 The other fixes:
 
@@ -765,3 +765,73 @@ All in the py-bench container, Python 3.12.3, in this phase's worktree. `openXwa
 5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`, with the merge base at `a8ab30396`: empty.
 
 **The PR.** It is not open at this record's commit. It opens **ready** after PR-2 lands, on Brett Heap's word *"merge PR-3 when green"* (2026-10-09T01:38:36Z, log line 240).
+
+### Brett Heap's rulings of 2026-10-11T00:19:34Z, and PR-2's landing
+
+**PR-2 landed** at 2026-10-11T00:23:56Z, as merge commit `33d2a56a9` (#1294). `c0bedf4b0` merged `origin/main` at `33d2a56a9`, which also carries #1287 and #1288; the merge was clean. `origin/035-phase2-membership` is deleted. From here this branch takes `main`.
+
+**The rulings.** Brett Heap ruled three points first-hand at 2026-10-11T00:19:34Z (transcript time), each the recommended option; they are RULED in the lane register at `c036b8921`. A fourth item came from PR-2's delta review.
+
+1. **"Refuse at freeze (Recommended)"**, the pre-review's M2. E4 step 7 also refuses a `holder.binding_ref` repeated across seats, under the existing `assignment_shared_holder`, so the refusal vocabulary stays at 41 codes. Every repeated `principal_ref` is named before any repeated `binding_ref`.
+   - **Fixtures and vectors.** `holder_binding_ref` now returns `binding-<seat_id>`, so every holder has its own binding. The builder rebuilt the whole area, including the retry vectors' live snapshots. That moved their `snapshot_digest` values, and no expected outcome.
+   - **New vectors.** `asg-shared-binding-refuse`; `asg-order-duplicate-before-shared-binding-refuse` (step 6 before step 7); and `asg-order-shared-principal-before-shared-binding-refuse`.
+   - **What a vector cannot pin.** Both repeats in that last vector are the one code, so it pins the pair's outcome, and `test_every_repeated_principal_is_named_before_any_repeated_binding` pins the member.
+   - **The flipped test.** `test_a_shared_binding_is_not_a_shared_holder` is now `test_a_binding_shared_across_seats_is_assignment_shared_holder`.
+   - **Dated amendments.** Data-model E4 step 7 and E5's holder row, the snapshot schema's step 7, and a provider-interface consumer-impact row.
+   - **The seat count E12 allows.** E12's `binding_refs` is the consumer's whole configured binding set, at most 16, the commission binding included, and every seat's binding must be in it (E7 step 5, `binding_unresolved`). So a convening has at most 16 − k seats, where k counts the configured bindings none of its seats holds. That is **15** while the commission binding is its own instance, and 16 only if a seat's holder runs under the commission binding itself. That needs the binding to list `seat_execution` as well, which neither E4 nor E10 forbids. The pre-review's "at most 15" is the first case.
+2. **"Each path sorts alone (Recommended)"** confirms Phase 2's rename reading: each of a rename's two paths takes its own sorted place. Phase 3 needed no change. The reading is marked confirmed in § Phase 2.
+3. **"Same rule, in PR-3 (Recommended)".** A consumed `rule_facts.rule_touched_paths` is bytewise sorted and duplicate-free, and E2 step 2 refuses any other as `convening_malformed`.
+   - **New commission vectors**, shared, copied from `commission-accept-unclassed-rule-facts-held`: `commission-refuse-convening-malformed-rule-touched-paths-unsorted` and `-repeated`. The consumed and the authoritative list are arranged alike, so only step 2 can refuse them; before the rule both accepted.
+   - **The snapshot half** applies the rule through its embedded-record check, as `snapshot_malformed` (`asg-snapshot-malformed-convening-rule-touched-paths-unsorted-refuse`, `-repeated-refuse`).
+   - **Phase 2's tests and reading.** `test_rule_touched_paths_compare_in_order` (reading 6's test) is now `test_rule_touched_paths_are_sorted_and_unique_at_step_2`. Reading 6 is marked superseded for `rule_touched_paths` in § Phase 2.
+   - **Dated amendments.** Data-model E2 step 2, E2's `consumed_facts` row and E3's `rule_facts` row, and the E2 schema's list of structural rules.
+4. **PR-2's delta review, N1 (docs).**
+   - Two consumer-impact rows: the projection's declared `fact_sources`, carried unchanged; and sorted, unique path lists on both the gather side and the authoritative read.
+   - The E2 schema's `fact_sources` description now says `fact_source_mismatch` also covers inequality with the projection.
+
+**Not imported.** Phase 5's edits to the retry vectors (A1 bindings and two more vectors) stay on Phase 5's branch. Phase 5 reconciles them with this builder after PR-3 lands, on the lane coordinator's instruction.
+
+**Red** (`5070fba5a`; run 2026-10-11T00:28:25Z–00:38:00Z, at `c0bedf4b0` plus the uncommitted tests-first round): **17 failed, 1079 passed**.
+
+- 3 in `test_assignments.py`: the two `rule_touched_paths` embedded-record cases, and the flipped shared-binding test.
+- 6 in `test_resolution.py`: the two new commission vectors, each at commission and through the consumer's admission, and the two step-2 cases.
+- 8 self-test, `corpus` and gate cases, caused only by the 5 new vectors the reference did not yet refuse.
+
+**Green** (`47e478933`): the self-test adjudicated 350/350.
+
+### Quickstart steps 1–5 at the PR-3 head (`f5431285a`, 2026-10-11T00:40Z–00:48Z)
+
+All in the py-bench container, Python 3.12.3, in this phase's worktree, with the submodules initialized as `pytest-suite` does. This record's own commit changes only this file, and no `tests/council_convening` module reads it.
+
+1. **Red.** Recorded above (17 failed, 1079 passed).
+2. **Green.**
+   - `python3 -m pytest tests/council_convening -q -m "not postgres"`: **1096 passed** (00:40:15Z–00:47:51Z).
+   - `python3 scripts/validate-council-convening.py`: exit 0. It printed:
+     - `schemas loaded: 6 (family) + digest-construction`;
+     - both registries closed;
+     - `vectors adjudicated: 350/350`;
+     - `refusal codes probed: 41/41`;
+     - `finding codes probed: 1/1`;
+     - `requirements probed: 9/9 (FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-011, SC-001, SC-002)`;
+     - `generator reproduced corpus byte-for-byte`;
+     - `self-test: 0 error(s), 0 warning(s)`.
+3. **Corpus reproducible.**
+   - `generate --check`: byte-for-byte.
+   - `python3 -m tests.council_convening.assignment_vectors --check`: `66 vectors built, 0 differ`.
+   - `corpus`: **350 vectors, agreement set 322**.
+     - By area: assignment 66, foundation 133, resolution 151.
+     - By outcome: 72 accept, 270 refuse, 8 route.
+   - The assignment area splits into two halves:
+     - the snapshot half, 54 vectors (8 accept, 46 refuse), all shared;
+     - the retry vectors, 12 (6 accept, 6 refuse), all consumer-only.
+   - Index `sha256:ed3e362dcd3ea77a619c5b109b27c0fa8978b2abfededea1ae40c2088d8f387c`, unpublished until Phase 7.
+4. **Repository gates.**
+   - **OpenSpec.** `python3 scripts/validate-openspec-cli-pin.py --all --strict` (finished 00:40:39Z): exit 0, `Totals: 114 passed, 1 failed (115 items)`, 0 undispositioned. The one failure is `add-chain-attestation`'s accepted exception. `main` added the 115th item, `retire-codexfactory-sibling-currency-dispositions`.
+   - **Doc-health.** `python3 scripts/doc-health.py --single-repo .` at `f5431285a` (00:40:55Z–00:42:48Z): exit 0, `Findings: 31 critical, 26 error, 76 warning, 21 info`, 0 regressions, and no finding on a council-convening or feature-035 path.
+     - The same run at the PR's base, `origin/main` at `33d2a56a9` (00:43:44Z–00:45:48Z), in a temporary detached worktree with the same submodules, then removed with `git worktree remove --force`: the same counts.
+     - Once the repository name is normalized, the two reports differ only in the canon share line and the `ratified` row, by the README row's 69 words. The finding sets are identical.
+     - The warnings rose from 59 to 76 since the fix-round record at base and head alike, so the rise is `main`'s and the calendar's, not this branch's.
+   - **The full suite** was not run locally, on the coordinator's instruction. The required `pytest-suite` check on PR-3 is the gate of record.
+5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty.
+
+**The PR.** PR-3 opens **ready** against `main` after this record's commit, on the coordinator's word that PR-2 has landed. It lands on Brett Heap's word *"merge PR-3 when green"* (2026-10-09T01:38:36Z, log line 240), once CI and the delta review pass.
