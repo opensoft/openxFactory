@@ -6,7 +6,7 @@ Kind: plan
 **Input**: [`spec.md`](spec.md), [`plan.md`](plan.md), [`research.md`](research.md),
 [`data-model.md`](data-model.md), [`contracts/interface.md`](contracts/interface.md),
 [`quickstart.md`](quickstart.md), and the change's
-[`tasks.md`](../../openspec/changes/amend-factory-mcp-conformance-auth-profile/tasks.md)
+[`tasks.md`](../../openspec/changes/archive/2026-10-11-amend-factory-mcp-conformance-auth-profile/tasks.md)
 § 2, which holds the governance boxes. This file does not duplicate them.
 **Lane**: `openxfactory-5` (display `openXfactory-5`).
 

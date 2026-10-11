@@ -4,17 +4,17 @@
 **Created**: 2026-10-09
 Status: draft
 Kind: reference
-Governed by: [amend-factory-mcp-conformance-auth-profile](../../openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md), ratified 2026-10-08 (record [`review/ratification-2026-10-08.md`](../../openspec/changes/amend-factory-mcp-conformance-auth-profile/review/ratification-2026-10-08.md)); its packet landed as pull request #1274 (`93d13d6c`).
+Governed by: [amend-factory-mcp-conformance-auth-profile](../../openspec/changes/archive/2026-10-11-amend-factory-mcp-conformance-auth-profile/proposal.md), ratified 2026-10-08 (record [`review/ratification-2026-10-08.md`](../../openspec/changes/archive/2026-10-11-amend-factory-mcp-conformance-auth-profile/review/ratification-2026-10-08.md)); its packet landed as pull request #1274 (`93d13d6c`).
 **Input**: the change's `tasks.md` § 2, "Realization (one Speckit feature)": the authorization block on a deployed factory MCP declaration (issuer, an RS256 baseline with optional EdDSA, the audience and its binding, the RFC 9728 metadata path, and an `auth` support concern), the M5 narrowing of *Unavailable dependency* to error-inventory codes, and per-domain error vocabularies.
 
 ## Authority and traceability
 
 This feature realizes one ratified delta,
-[`specs/factory-mcp-conformance/spec.md`](../../openspec/changes/amend-factory-mcp-conformance-auth-profile/specs/factory-mcp-conformance/spec.md)
+[`specs/factory-mcp-conformance/spec.md`](../../openspec/changes/archive/2026-10-11-amend-factory-mcp-conformance-auth-profile/specs/factory-mcp-conformance/spec.md)
 of the change: four `## ADDED` requirements (16 scenarios) and one
 `## MODIFIED` requirement (3 scenarios). The ratified text is the authority.
 The requirements below index it and add only what the realization must decide
-where the change's [`design.md`](../../openspec/changes/amend-factory-mcp-conformance-auth-profile/design.md)
+where the change's [`design.md`](../../openspec/changes/archive/2026-10-11-amend-factory-mcp-conformance-auth-profile/design.md)
 leaves that to it. They never restate a scenario differently. Every
 requirement names the delta scenario and the design decision it traces to, and
 [`tasks.md`](tasks.md) names the test that witnesses it.

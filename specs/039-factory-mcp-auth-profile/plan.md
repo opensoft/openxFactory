@@ -5,7 +5,7 @@ Kind: plan
 
 **Branch**: `039-factory-mcp-auth-profile` | **Date**: 2026-10-09 | **Spec**: [`spec.md`](spec.md)
 **Input**: the feature specification; the ratified change
-[`amend-factory-mcp-conformance-auth-profile`](../../openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md)
+[`amend-factory-mcp-conformance-auth-profile`](../../openspec/changes/archive/2026-10-11-amend-factory-mcp-conformance-auth-profile/proposal.md)
 (`design.md` D1 to D10, its delta, and `tasks.md` § 2); and the surfaces
 [feature 037](../037-factory-mcp-conformance/plan.md) built.
 **Lane**: `openxfactory-5` (display `openXfactory-5`).
