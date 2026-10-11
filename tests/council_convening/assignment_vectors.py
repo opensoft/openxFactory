@@ -33,8 +33,10 @@ the fixtures with `canonical.digest`, which is why they carry
 `derived_origin: generated`. The one implementation function used is
 `corpus.dump_json`, the corpus's byte format.
 
-ONE LINE re-keys every holder's `binding_ref`: `holder_binding_ref` in
-`assignment_fixtures.py`, then a rebuild.
+EVERY HOLDER'S `binding_ref` comes from `holder_binding_ref` in
+`assignment_fixtures.py`: one binding per seat, since E4 step 7 refuses a
+binding repeated across seats (Brett Heap, 2026-10-11T00:19:34Z, "Refuse at
+freeze (Recommended)").
 """
 
 from __future__ import annotations
@@ -130,6 +132,23 @@ def conditional_record(*, held=True, seat="seat-c") -> dict:
     prov["consumed_facts"] = {"pr_facts": {
         "changed_paths": ["README.md", "src/app/main.py"],
         "changed_files_total": 2, "changed_paths_entry_count": 2}}
+    return record
+
+
+def rule_conditional_record(touched=("policy/authority/approvers.yaml",
+                                     "policy/readme.md")) -> dict:
+    """Two standing seats and one held `rule_facts` condition, read from the
+    candidate's subject, that adds seat-c: the gate-rules shape."""
+    record = three_seat_record()
+    prov = record["required_seats_provenance"]
+    prov["standing_seats"] = ["seat-a", "seat-b"]
+    prov["candidate"]["subject_path"] = "policy/packets/change-17.yaml"
+    prov["conditions"] = [{
+        "seat": "seat-c", "predicate": "rule_touches_security_posture",
+        "input_contract": "rule_facts",
+        "parameters": {"security_surfaces": ["policy/authority/**"]}, "held": True}]
+    prov["fact_sources"] = [{"input_contract": "rule_facts", "source": "candidate_subject"}]
+    prov["consumed_facts"] = {"rule_facts": {"rule_touched_paths": list(touched)}}
     return record
 
 
@@ -284,6 +303,14 @@ def snapshot_cases() -> list[dict]:
     add("asg-shared-holder-refuse", snap, refuse("assignment_shared_holder"),
         ("FR-005", "FR-006", "SC-002"))
 
+    # One binding on two seats, with distinct principals (Brett Heap,
+    # 2026-10-11T00:19:34Z, "Refuse at freeze (Recommended)"): the same code.
+    snap = snapshot()
+    snap["assignments"][1]["holder"]["binding_ref"] = (
+        snap["assignments"][0]["holder"]["binding_ref"])
+    add("asg-shared-binding-refuse", snap, refuse("assignment_shared_holder"),
+        ("FR-005", "FR-006", "FR-007", "SC-002"))
+
     # The E4 order, each adjacent pair pinned by a two-defect record.
     snap = snapshot()
     snap["protocol"] = LEGACY
@@ -345,6 +372,25 @@ def snapshot_cases() -> list[dict]:
     snap["assignments"][1]["holder"]["principal_ref"] = (
         snap["assignments"][0]["holder"]["principal_ref"])
     add("asg-order-duplicate-before-shared-holder-refuse", snap, refuse("assignment_duplicate"))
+
+    # The shared binding is step 7's, after the duplicate check of step 6.
+    snap = snapshot()
+    snap["assignments"][1]["assignment_id"] = snap["assignments"][0]["assignment_id"]
+    snap["assignments"][1]["holder"]["binding_ref"] = (
+        snap["assignments"][0]["holder"]["binding_ref"])
+    add("asg-order-duplicate-before-shared-binding-refuse", snap,
+        refuse("assignment_duplicate"), ("FR-005", "FR-006"))
+
+    # Inside step 7, every repeated principal is checked before any repeated
+    # binding. Both are `assignment_shared_holder`, so this vector pins the pair's
+    # code; which repeat is named first is the refusal's member, which no vector
+    # compares, and `test_assignments.py` pins it.
+    snap = snapshot(three_seat_record())
+    items = snap["assignments"]
+    items[1]["holder"]["binding_ref"] = items[0]["holder"]["binding_ref"]
+    items[2]["holder"]["principal_ref"] = items[0]["holder"]["principal_ref"]
+    add("asg-order-shared-principal-before-shared-binding-refuse", snap,
+        refuse("assignment_shared_holder"), ("FR-005", "FR-006"))
     return cases
 
 
@@ -369,6 +415,14 @@ def _inadmissible_records():
     record["required_seats_provenance"]["consumed_facts"]["pr_facts"]["changed_paths"] = [
         "src/app/main.py", "README.md"]
     yield "asg-snapshot-malformed-convening-changed-paths-unsorted-refuse", record
+
+    # Step 2: a consumed `rule_touched_paths` out of bytewise order, or repeated
+    # (Brett Heap, 2026-10-11T00:19:34Z, "Same rule, in PR-3 (Recommended)").
+    yield ("asg-snapshot-malformed-convening-rule-touched-paths-unsorted-refuse",
+           rule_conditional_record(("policy/readme.md", "policy/authority/approvers.yaml")))
+    yield ("asg-snapshot-malformed-convening-rule-touched-paths-repeated-refuse",
+           rule_conditional_record(("policy/authority/approvers.yaml",
+                                    "policy/authority/approvers.yaml")))
 
     # Step 11's offline half: a held condition with no seat.
     record = conditional_record(seat=None)

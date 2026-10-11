@@ -5,14 +5,14 @@
   ],
   "area": "assignment",
   "boundary": "admission",
-  "case_id": "asg-operations-reordered-refuse",
+  "case_id": "asg-shared-binding-refuse",
   "evaluation_time": "2026-10-09T01:00:00Z",
   "expected": {
     "derived": {},
     "derived_origin": "hand",
     "findings": [],
     "outcome": "refuse",
-    "refusal": "assignment_malformed"
+    "refusal": "assignment_shared_holder"
   },
   "inputs": {
     "selected_protocol": "xfc-resolved-council-1",
@@ -42,8 +42,8 @@
           "kind": "xfactory_council_seat_assignment",
           "not_before": "2026-10-09T00:00:00Z",
           "permitted_operations": [
-            "seat_return",
-            "seat_key_registration"
+            "seat_key_registration",
+            "seat_return"
           ],
           "protocol": "xfc-resolved-council-1",
           "schema_version": 1,
@@ -65,7 +65,7 @@
           "council_id": "council-alpha",
           "expires_at": "2026-10-09T06:00:00Z",
           "holder": {
-            "binding_ref": "binding-seat-b",
+            "binding_ref": "binding-seat-a",
             "principal_kind": "github_oidc_job",
             "principal_ref": "principal-seat-b"
           },
@@ -133,7 +133,9 @@
   "kind": "openxfactory-council-convening-conformance-vector",
   "requirement_ids": [
     "FR-005",
-    "FR-007"
+    "FR-006",
+    "FR-007",
+    "SC-002"
   ],
   "schema_version": 1
 }

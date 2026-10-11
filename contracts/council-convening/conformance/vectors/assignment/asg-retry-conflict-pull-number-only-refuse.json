@@ -95,7 +95,7 @@
               "council_id": "review-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
-                "binding_ref": "binding-seat",
+                "binding_ref": "binding-seat-a",
                 "principal_kind": "github_oidc_job",
                 "principal_ref": "principal-seat-a"
               },
@@ -125,7 +125,7 @@
               "council_id": "review-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
-                "binding_ref": "binding-seat",
+                "binding_ref": "binding-seat-b",
                 "principal_kind": "github_oidc_job",
                 "principal_ref": "principal-seat-b"
               },

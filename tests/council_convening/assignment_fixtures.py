@@ -83,12 +83,12 @@ def holder_binding_ref(seat_id: str) -> str:
 
     Every holder in these tests, and so in every Phase 3 vector and every
     retry vector's live snapshots (`assignment_vectors.py` builds both from
-    this module), takes its binding from here. One shared binding is legal
-    at this commit (`test_a_shared_binding_is_not_a_shared_holder`). If E4
-    step 7 comes to refuse a repeated `binding_ref` too, the one line below
-    becomes `return f"binding-{seat_id}"` and the vectors are rebuilt.
+    this module), takes its binding from here: one binding per seat. E4 step
+    7 refuses a `binding_ref` repeated across seats as
+    `assignment_shared_holder` (Brett Heap, 2026-10-11T00:19:34Z, "Refuse at
+    freeze (Recommended)").
     """
-    return "binding-seat"
+    return f"binding-{seat_id}"
 
 
 def assignment(convening: dict, convening_id: str, seat_id: str, **overrides) -> dict:

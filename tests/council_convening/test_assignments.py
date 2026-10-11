@@ -164,6 +164,21 @@ def conditional(*, held=True, seat="seat-c") -> dict:
     return record
 
 
+def rule_conditional(touched=("policy/authority/approvers.yaml", "policy/readme.md")) -> dict:
+    """Two standing seats and one held `rule_facts` condition adding seat-c, read
+    from the candidate's subject, the gate-rules shape."""
+    record = convening_record(required_seats=["seat-a", "seat-b", "seat-c"])
+    prov = record["required_seats_provenance"]
+    prov["candidate"]["subject_path"] = "policy/packets/change-17.yaml"
+    prov["conditions"] = [{
+        "seat": "seat-c", "predicate": "rule_touches_security_posture",
+        "input_contract": "rule_facts",
+        "parameters": {"security_surfaces": ["policy/authority/**"]}, "held": True}]
+    prov["fact_sources"] = [{"input_contract": "rule_facts", "source": "candidate_subject"}]
+    prov["consumed_facts"] = {"rule_facts": {"rule_touched_paths": list(touched)}}
+    return record
+
+
 def _sources(*paths):
     return [{"kind": "file", "path": p, "sha256": "sha256:" + "3" * 64} for p in paths]
 
@@ -205,6 +220,13 @@ INADMISSIBLE = [
         "changed_paths": ["README.md", "README.md"],
         "changed_files_total": 2, "changed_paths_entry_count": 2}}),
         "changed_paths", id="changed_paths-repeated"),
+    # Brett Heap, 2026-10-11T00:19:34Z, "Same rule, in PR-3 (Recommended)".
+    pytest.param(lambda: rule_conditional(("policy/readme.md",
+                                           "policy/authority/approvers.yaml")),
+                 "rule_touched_paths", id="rule_touched_paths-unsorted"),
+    pytest.param(lambda: rule_conditional(("policy/authority/approvers.yaml",
+                                           "policy/authority/approvers.yaml")),
+                 "rule_touched_paths", id="rule_touched_paths-repeated"),
     # E2 step 11's offline half and step 12.
     pytest.param(lambda: conditional(seat=None), "seat", id="held-condition-seat-unbound"),
     pytest.param(lambda: _set(convening_record(required_seats=[]), "standing_seats", []),
@@ -236,6 +258,8 @@ def test_a_snapshot_embedding_a_record_an_offline_E2_rule_refuses_is_snapshot_ma
 
 def test_a_snapshot_embedding_a_held_conditional_seat_is_accepted():
     value = rebuilt(conditional())
+    assert check(value)["required_seats"] == ["seat-a", "seat-b", "seat-c"]
+    value = rebuilt(rule_conditional())
     assert check(value)["required_seats"] == ["seat-a", "seat-b", "seat-c"]
 
 
@@ -418,13 +442,46 @@ def test_one_principal_on_two_seats_is_assignment_shared_holder():
     assert refusal(check, value) == "assignment_shared_holder"
 
 
-def test_a_shared_binding_is_not_a_shared_holder():
-    # The binding names the workflow configuration both seat jobs run under; the
-    # holder is the principal. Two seats may share the first, never the second.
+def test_a_binding_shared_across_seats_is_assignment_shared_holder():
+    # Brett Heap, 2026-10-11T00:19:34Z, "Refuse at freeze (Recommended)". A shared
+    # binding let seat A's claims pass seat B's binding at registration (E7 step
+    # 5), so each seat holder has its own E10 binding. The code is reused, so the
+    # refusal vocabulary is unchanged.
     value = snapshot()
-    assert value["assignments"][0]["holder"]["binding_ref"] == (
+    assert value["assignments"][0]["holder"]["binding_ref"] != (
         value["assignments"][1]["holder"]["binding_ref"])
     check(value)
+    value["assignments"][1]["holder"]["binding_ref"] = (
+        value["assignments"][0]["holder"]["binding_ref"])
+    with pytest.raises(Refused) as caught:
+        assignments.check_snapshot(value)
+    assert caught.value.code == "assignment_shared_holder"
+    assert caught.value.member == "assignments[1].holder.binding_ref"
+
+
+def test_every_repeated_principal_is_named_before_any_repeated_binding():
+    # Step 7 checks every repeated `principal_ref` first, then every repeated
+    # `binding_ref`. Both are `assignment_shared_holder`, so only the member tells
+    # the order; the corpus vector for this pair pins the code alone.
+    seats = ["seat-a", "seat-b", "seat-c"]
+    record = convening_record(required_seats=seats)
+    record["required_seats_provenance"]["standing_seats"] = list(seats)
+    value = snapshot(record)
+    items = value["assignments"]
+    items[1]["holder"]["binding_ref"] = items[0]["holder"]["binding_ref"]
+    items[2]["holder"]["principal_ref"] = items[0]["holder"]["principal_ref"]
+    with pytest.raises(Refused) as caught:
+        assignments.check_snapshot(value)
+    assert caught.value.code == "assignment_shared_holder"
+    assert caught.value.member == "assignments[2].holder.principal_ref"
+
+
+def test_the_duplicate_check_precedes_the_shared_binding_check():
+    value = snapshot()
+    value["assignments"][1]["assignment_id"] = value["assignments"][0]["assignment_id"]
+    value["assignments"][1]["holder"]["binding_ref"] = (
+        value["assignments"][0]["holder"]["binding_ref"])
+    assert refusal(check, value) == "assignment_duplicate"
 
 
 # --- the E4 order --------------------------------------------------------------------

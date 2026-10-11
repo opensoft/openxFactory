@@ -45,7 +45,7 @@
           "council_id": "council-alpha",
           "expires_at": "2026-10-09T06:00:00Z",
           "holder": {
-            "binding_ref": "binding-seat",
+            "binding_ref": "binding-seat-a",
             "principal_kind": "github_oidc_job",
             "principal_ref": "principal-seat-a"
           },
@@ -75,7 +75,7 @@
           "council_id": "council-alpha",
           "expires_at": "2026-10-09T00:00:01Z",
           "holder": {
-            "binding_ref": "binding-seat",
+            "binding_ref": "binding-seat-b",
             "principal_kind": "github_oidc_job",
             "principal_ref": "principal-seat-b"
           },

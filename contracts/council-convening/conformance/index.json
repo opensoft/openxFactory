@@ -20,7 +20,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:556ccb18fa47fdc55ede482c61d8f33694a8589daf5ef490c590238d3c0e27b5"
+      "sha256": "sha256:af0eb551dec71b18c674b9393d84679b8c0d3cbfa2df3c5bbbb88c398d395ab8"
     },
     {
       "applies_to": [
@@ -42,7 +42,7 @@
         "FR-005",
         "FR-006"
       ],
-      "sha256": "sha256:9b8d7b44f50528f649688fba971b0fbf96c526ad20e70436c718ac8367bfaa84"
+      "sha256": "sha256:13d1bb4de03ff152e7f6dbb54f111e3d588a5ec45e42bbfb1d74c1f94f34dda9"
     },
     {
       "applies_to": [
@@ -64,7 +64,7 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:1a0efa2d14954c4edc923443db29f7650fbbf9d49fb62beb56169159606c2f31"
+      "sha256": "sha256:ac2aae131334effb24f0463e78e6d5af5597509a60585143a4a24cb9e44d1c2d"
     },
     {
       "applies_to": [
@@ -96,7 +96,7 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:cb53cfe1edf470326565d4e133a744864018affad68ad96c6f740cb944fffe62"
+      "sha256": "sha256:4dd5ad02099054e6e4bd5259c2925a0326f820a83e39e32e9aa0b08f74978359"
     },
     {
       "applies_to": [
@@ -118,7 +118,7 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:a4797b14b7b28345316ed1b72ebffb488685ad2f886386c82be4c240068d46e7"
+      "sha256": "sha256:56f5e898cb26d524e61ae73c6acf101a41398b62ea713f15e5b612cdefb2b285"
     },
     {
       "applies_to": [
@@ -140,7 +140,7 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:cb8d06d984b4daea5775682854b0625a4a57c440728709de9a75e90ba988ce41"
+      "sha256": "sha256:aab906f4037031238644d55eca3990529c1f078e12b5471e23bbb162b9bf4665"
     },
     {
       "applies_to": [
@@ -162,7 +162,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:d84eca86201d75b0a09a78fa25987a0edeaf1e61280bffb38eb3d60dc646fc3d"
+      "sha256": "sha256:ec6a4e52951e9036d796187191d85be04a149d39878838d99a35a034d8564b5e"
     },
     {
       "applies_to": [
@@ -184,7 +184,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:965d87ebd86e35b090dc9a52ac3783cb595a7d6ea5c53d6015185026a68bfc53"
+      "sha256": "sha256:d00d24fe99775f11c49b7fbfb9809b303e6ace56e0518ab12ff046afa7cd8c3b"
     },
     {
       "applies_to": [
@@ -206,7 +206,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:58a7854d13e1858eb01929cd9028a18de0f962bd1adeaae4ce1aa7201edd459e"
+      "sha256": "sha256:1dfbaeba562b73ef9ff5f10dc0bd01b5591477c0dc258f526fa37bfea1b46372"
     },
     {
       "applies_to": [
@@ -238,7 +238,7 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:d1cd316153dda1037b127c10a98ee9caf8e91e099894dd8d89ee62c529ddab43"
+      "sha256": "sha256:98000662e0bce8225b864f64f924819c4134af2c46d3142b11e12b1b553a599c"
     },
     {
       "applies_to": [
@@ -270,7 +270,7 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:a8c49b24ced959dfa8193cf1518d03b7bc203a7ca645045b867a5587f854e3dd"
+      "sha256": "sha256:24df41c4d8b5d34e9765b3b67b50bfd033f8edac1058c0bccb87f2c465b78876"
     },
     {
       "applies_to": [
@@ -292,7 +292,7 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:152615a5fb468b5cb520c5afc3284f9d651bffa6c6c52847e0daf1c3b215c6d9"
+      "sha256": "sha256:87fb5cd3ecb42c4a9ec85dbc999c516cbc3f654eceeb6527fae4db8148b4a0b5"
     },
     {
       "applies_to": [
@@ -324,7 +324,7 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:bb75a9cf44ac99175d7f9d1a5c426d6abe70763369502b4d4c8e827e3fe901c3"
+      "sha256": "sha256:78f79b0628df06c0654a9646a17adbb7da0f26221ea1af881a237623688d287f"
     },
     {
       "applies_to": [
@@ -346,7 +346,7 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:bfb415c79d033d44ced7df8cbd90a1f24a162dfc1ec25189bf70fc78c5135d9f"
+      "sha256": "sha256:b2ab70a847401400476507743ed6c078dcfc8fa2ca8b1a3d5521e6952a742e19"
     },
     {
       "applies_to": [
@@ -368,7 +368,7 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:c6444aeb6af14a2a9a813298eee3f24dba729fd558143e048cdd51590b65132f"
+      "sha256": "sha256:46149685a342e5aa197da8d5c67a1434a4a627c98ab47048bd06329384f0e1fb"
     },
     {
       "applies_to": [
@@ -400,7 +400,7 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:515b07e755ec989ec95a78d9a999f37ee6fd384d524dec0a54ae2422bd2a3e74"
+      "sha256": "sha256:fa34872c259b8073725ccb3352498e6da094107d98fa6c06f931725190fa6768"
     },
     {
       "applies_to": [
@@ -422,7 +422,7 @@
         "FR-005",
         "FR-007"
       ],
-      "sha256": "sha256:462a1405fb36705be395bde07be2ebf5238389f11113f4499c934d94cf70aaa9"
+      "sha256": "sha256:a67d21b1c6e047512cda9f57469e1b497e5a02d43ccec0f583d3156f48b95be7"
     },
     {
       "applies_to": [
@@ -444,7 +444,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:6e616ff8f57a0d8d96013ed8fe8351ac303b000d62913c44857f6c2fc0557b01"
+      "sha256": "sha256:9e98ccca83980b9b90f5e1819185765a453c7656940d8ec814050ead2af4771c"
     },
     {
       "applies_to": [
@@ -465,7 +465,7 @@
       "requirement_ids": [
         "FR-005"
       ],
-      "sha256": "sha256:828d89e358c8cdadf7f7844d42f02a37431b9dd09ab22b0e6e380f3f166e42d3"
+      "sha256": "sha256:84fb66ffa8b249874983cc77a1ba356a2d0dc23d471f3404144dd34b3456bdd8"
     },
     {
       "applies_to": [
@@ -487,7 +487,7 @@
         "FR-005",
         "FR-011"
       ],
-      "sha256": "sha256:5ffb91d4536b97e734a6acda9ade74baa91765c3ad8cfbbdd6097cc7e9e19167"
+      "sha256": "sha256:86c67fd6eefaaddcc4e381bbddce198e15a5f6e85c95531ed00033671ef53222"
     },
     {
       "applies_to": [
@@ -509,7 +509,7 @@
         "FR-004",
         "FR-005"
       ],
-      "sha256": "sha256:5725c8a0304bcb2af89978522ce2bf04f4c3704838d0ad41542029ddc8226822"
+      "sha256": "sha256:b411e68d4d37b8fab6082d4888267117613e691c75c3eb0f49360c95455afc7d"
     },
     {
       "applies_to": [
@@ -531,7 +531,29 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:799b01f8030f0112c70614f480362b07d25815a676fbab56fe12133b17b2063b"
+      "sha256": "sha256:c9fc212608a30ef571484ab1d9e4edd7bbc63949d0bb862ced63c6846f9bc86f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-duplicate-before-shared-binding-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_duplicate"
+      },
+      "path": "vectors/assignment/asg-order-duplicate-before-shared-binding-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-006"
+      ],
+      "sha256": "sha256:d5c82c6a6fceef0c52c2ba71ef0092d6f3cc9294944e17dca73f45bb6f795139"
     },
     {
       "applies_to": [
@@ -553,7 +575,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:2c07158d9c331688c1739eeb9f141244cba7b849f49a7b12e4dff13eedf9f4c4"
+      "sha256": "sha256:a18fc0776d10dbaf3c2406d54b3e4a1142a651f6f45afb8410b37da8f83c8458"
     },
     {
       "applies_to": [
@@ -574,7 +596,7 @@
       "requirement_ids": [
         "FR-005"
       ],
-      "sha256": "sha256:46350cfa07b4198c42fbc016f484514ec037442c158a683a7834f27028ffd4a4"
+      "sha256": "sha256:580a3582afad11f5dc03f5aa28c77453666714b4d43d8aa888419ea9a28adff1"
     },
     {
       "applies_to": [
@@ -596,7 +618,29 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:7d9d6b867813b29cb249e5b895730fb36d22ff419a18f927554555681b3cd78a"
+      "sha256": "sha256:36b9fa6e5c0a362e981cbe49dba7090b914a060f0359b1f71c36a14cc8ec2607"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-shared-principal-before-shared-binding-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_shared_holder"
+      },
+      "path": "vectors/assignment/asg-order-shared-principal-before-shared-binding-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-006"
+      ],
+      "sha256": "sha256:a6e0e6c19472f41083b7c64349ecc3a1e6d88b1436a6689cb412a2282849419d"
     },
     {
       "applies_to": [
@@ -618,7 +662,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:0cda1625ef3e4d7982a1e3aaa9ce8f518834c6c4bd32779a8b0fed749f9dfa02"
+      "sha256": "sha256:f8416d11df03decf8a9ac201a53cf2d89cfe0dac760c81216d0d061ec196adca"
     },
     {
       "applies_to": [
@@ -639,7 +683,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:eeda9089b82a706a979e14a65a8c34b5625521340b3d4ad857c10b077d34e060"
+      "sha256": "sha256:05c76559ef369a8a56fe911764b57120c5cd7c5dc57c1aab1c350dad1127c1f8"
     },
     {
       "applies_to": [
@@ -660,7 +704,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:5eee7ecac8cea8d116a981a597fa71c5e3da4b751815826a058983fcac36a381"
+      "sha256": "sha256:39265ca79299bf4179ec6bb6d712918a5e5cd8badef472e423397cb14d457a3a"
     },
     {
       "applies_to": [
@@ -681,7 +725,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:cac3a4fe21f3f794cc746b493cb401968606501066291457914353027a6ba651"
+      "sha256": "sha256:68f8e0cb18f96fe338e2baf5f65801b1fda4a04d3f8f5cc88a7dce7450f0a36d"
     },
     {
       "applies_to": [
@@ -702,7 +746,7 @@
             "seat-a",
             "seat-b"
           ],
-          "snapshot_digest": "sha256:0876f48d7d8b4016fda139102beb1390ce6a34fb9298fd1d84119931f7d05ea4"
+          "snapshot_digest": "sha256:77f9d58314fc6351fe436fba4b408476c82ce13496befed4bd9925e16c8ac0b1"
         },
         "derived_origin": "generated",
         "findings": [],
@@ -714,7 +758,7 @@
         "FR-004",
         "FR-005"
       ],
-      "sha256": "sha256:12b99a55f53b3a85e2c6092ef6c162c06394cd4099bed390fa6e03b700617007"
+      "sha256": "sha256:22c8a4e50d77a19b5b8ced0d4f8da7af0f8961869f9aabd8065d886e216ac3cf"
     },
     {
       "applies_to": [
@@ -735,7 +779,7 @@
             "seat-a",
             "seat-b"
           ],
-          "snapshot_digest": "sha256:0876f48d7d8b4016fda139102beb1390ce6a34fb9298fd1d84119931f7d05ea4"
+          "snapshot_digest": "sha256:77f9d58314fc6351fe436fba4b408476c82ce13496befed4bd9925e16c8ac0b1"
         },
         "derived_origin": "generated",
         "findings": [],
@@ -747,7 +791,7 @@
         "FR-004",
         "FR-005"
       ],
-      "sha256": "sha256:4eaf653a17b6f2688d4ba3ce994bdceff3a47722e7e1f8acf910c82a172efa58"
+      "sha256": "sha256:601a279dd488cf6c8df5d2247e7ebe4f585f990cf8c2d9388dfc5a7bb07b2847"
     },
     {
       "applies_to": [
@@ -768,7 +812,7 @@
             "seat-a",
             "seat-b"
           ],
-          "snapshot_digest": "sha256:0876f48d7d8b4016fda139102beb1390ce6a34fb9298fd1d84119931f7d05ea4"
+          "snapshot_digest": "sha256:77f9d58314fc6351fe436fba4b408476c82ce13496befed4bd9925e16c8ac0b1"
         },
         "derived_origin": "generated",
         "findings": [],
@@ -780,7 +824,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:c309431345c09501f51e6219e263f5775a6fe15735247e23870640c0e5cd6aa1"
+      "sha256": "sha256:11fb08f6be88dbfe8b4a164b7e1a86cfccf2d5cc9f3640dbe66cdee8462cf79f"
     },
     {
       "applies_to": [
@@ -801,7 +845,7 @@
             "seat-a",
             "seat-b"
           ],
-          "snapshot_digest": "sha256:0876f48d7d8b4016fda139102beb1390ce6a34fb9298fd1d84119931f7d05ea4"
+          "snapshot_digest": "sha256:77f9d58314fc6351fe436fba4b408476c82ce13496befed4bd9925e16c8ac0b1"
         },
         "derived_origin": "generated",
         "findings": [],
@@ -814,7 +858,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:0c71a5956646c1ff2f3c2728a2acbf18a4a04b0509f108faa1252b04f3bd0ed5"
+      "sha256": "sha256:60ffaac6d86a6c91d87602f7132bb3253434a2ac8fc484dd426f59d24eb51ecc"
     },
     {
       "applies_to": [
@@ -834,7 +878,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:5ec2fb761d97824030e0ff66eac13eacdc2a055f061a3534e128b10ade9522f6"
+      "sha256": "sha256:480b7133e7ebd0144475a39e8cb2a35db2b1545b26cabe0f841832d9c8562cdc"
     },
     {
       "applies_to": [
@@ -855,7 +899,7 @@
         "FR-002",
         "FR-004"
       ],
-      "sha256": "sha256:99f4d2fbd723a93ef0340961cc8b85a42a96d8cf8b32ba0513526675c95b8526"
+      "sha256": "sha256:34f4266c6479ac64e81bffc1ee0fa0a160686218ed5333cc1fada1a8fbe5cd68"
     },
     {
       "applies_to": [
@@ -875,7 +919,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:38ac7f023941011e790f16967643548492f3b6abddd2f3f992c54b87c2fd7bea"
+      "sha256": "sha256:661eb8bab1108024ac94d43f89dee777235d497f788985f84d08b0270eba14c6"
     },
     {
       "applies_to": [
@@ -905,7 +949,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:bb18e86c75458788a1529cb3c02324ff86e1360e0598e7e43988e6000ec02389"
+      "sha256": "sha256:f37f09138d588546f19224a4664d36a862f4f777e5e5c4ff6ab780e1130bb5b5"
     },
     {
       "applies_to": [
@@ -935,7 +979,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:3474a1af667a208194a8f090ddca7cd205ae8a21ac23792f58ce2295b6a77fd0"
+      "sha256": "sha256:e642ba15262a7c1267390dd70cd1851ca7b2ea2a5a849e801a0c37a1fd01f653"
     },
     {
       "applies_to": [
@@ -957,7 +1001,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:8715637f190402b426e7facb8a8087bf609e7acab93a09504b5e482f15efe8a4"
+      "sha256": "sha256:173d3bf1154e339f27d0420dca6e762f63cb706cac948afd8ab2abe61a7721cf"
     },
     {
       "applies_to": [
@@ -979,7 +1023,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:2dc0d31e4902efda4296487354ef9fec29a19836db5e1873c2933620dd7d79ec"
+      "sha256": "sha256:3f6c24b23000b3a9f5d37beba65a1c89aa38930fd42fc072c46fff378dd17d4e"
     },
     {
       "applies_to": [
@@ -1001,7 +1045,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:f545298108ca88d0faf6f120b05432fd5f98c18b5b74a72e2a8470d77b40184b"
+      "sha256": "sha256:04acdb3c3aa5dba86ab17e9c97160c95c94e18f571e9b2d0ddf424d496ed3d17"
     },
     {
       "applies_to": [
@@ -1023,7 +1067,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:5aebc1bdac26c1d4de73fd215cb466ef585f5ace8f64dc45bff621b5623134a8"
+      "sha256": "sha256:61ab932169447293ab0ad688aea6379f5ec6c4cabf9070a412b019226fe26b7a"
     },
     {
       "applies_to": [
@@ -1045,7 +1089,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:0241b45cf1436ae861cef4c616bdb3f33bd9a7814d831dc7381741ae3e7b4730"
+      "sha256": "sha256:5ae921403f5ae02ee4f9033e5ff4217e2f5e7f2d6be95d42bf9dd97235c25c79"
     },
     {
       "applies_to": [
@@ -1067,7 +1111,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:142196856f052a44c8e4605f055987cedc402b4fc2fede105248937cf049ecf0"
+      "sha256": "sha256:868d94f6e61121fb133e16989ad8625ad8697a4ed502c23ad51d59959f9dd616"
     },
     {
       "applies_to": [
@@ -1089,7 +1133,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:b346b5677a69034d0397e4f7180e52643da0ab45fd2c7918b825ad36a33d5b7e"
+      "sha256": "sha256:04154f97901b933ef03d5479d8a576d9ffe201f5c83d06dfe5def88bcde549a3"
     },
     {
       "applies_to": [
@@ -1111,7 +1155,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:45710a1767f07be2272d729b8b88719e0f90cc32bfdd0e4f113c852b22e9b0a6"
+      "sha256": "sha256:5184ece095f57183265d0c2dad35534cbf6a3a073ef96e1ff8839c3071a593c8"
     },
     {
       "applies_to": [
@@ -1133,7 +1177,31 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:f28fb7baed02416d81811da28cc8f9729a3f72440dc8e90baa4aa406c9d617fb"
+      "sha256": "sha256:6fc078f99d23a4ba8023d57d2d2ae7f010345bc0bf5bd8e0f236350a33544737"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-shared-binding-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_shared_holder"
+      },
+      "path": "vectors/assignment/asg-shared-binding-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "SC-002"
+      ],
+      "sha256": "sha256:f97513aaec334c8c71fc71410702fc3b05e7a903db9fc69d0c4958cb677615e5"
     },
     {
       "applies_to": [
@@ -1156,7 +1224,7 @@
         "FR-006",
         "SC-002"
       ],
-      "sha256": "sha256:08a36e71e7ce16cde4a3a6b3a9b83b361ea889e4c60fdfd4e68d04f0f8635301"
+      "sha256": "sha256:54c16e7a6ee55275c0d4f5f08aa464fa805b42336824c2a49efbdb6d55b1384f"
     },
     {
       "applies_to": [
@@ -1190,7 +1258,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:badbd31b62a717713f644faec06771be205ab557ce66fe447c92f19c4fe3b8ba"
+      "sha256": "sha256:9afe8623385adaf6606ce8725d73915376c3ab692444c49a308bf2ef8eed3c35"
     },
     {
       "applies_to": [
@@ -1223,7 +1291,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:d4c840c22687f5496af413fa1a678216e707d3f74adcd4bbd96f88179163f25b"
+      "sha256": "sha256:fddf04ecb4b92d053d97cad6d028dbadea6a3509f83434d06dd4d1f25136787c"
     },
     {
       "applies_to": [
@@ -1257,7 +1325,7 @@
         "FR-006",
         "SC-002"
       ],
-      "sha256": "sha256:bb0787a7dc0e64ea611cb9fce968fb2258737073816c0e21e5c6d6d69408a1b3"
+      "sha256": "sha256:6a07c63fcbcbab71336b618e4cdceb5723f716bce3db325fe6339e99677b0d6f"
     },
     {
       "applies_to": [
@@ -1280,7 +1348,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:657e74efc57c68ed8f8d09e035a440a7201179f11e4dc7cb86501783fe4ac27d"
+      "sha256": "sha256:1e35bb158c42800b4d150cf82aa306c2f2969b70202bafd74d43492cf42f76e3"
     },
     {
       "applies_to": [
@@ -1303,7 +1371,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:dffcb28eccb353ee7f1e705ae0d271ee8e86df7289561a6741a6e867dd9cbda4"
+      "sha256": "sha256:affa9f55abe6db323922ca4aab0b275375b19c5ced24af7312a441a686c93113"
     },
     {
       "applies_to": [
@@ -1325,7 +1393,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:30dea495a8fdaca7a619f58f6cf3d7e41b5a1d1362ac7147039b816707fc122e"
+      "sha256": "sha256:a8610872d804733dc7c10d69b412fb967e8f56d908f2dc5229de376e128567be"
     },
     {
       "applies_to": [
@@ -1348,7 +1416,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:d84af4ffb52811e4371dd2b82af1e9098c6007ee08e05d73a3a9299b1eaa9236"
+      "sha256": "sha256:25cb6a75d8167f5f49e256557853cbdb165ceb8895c1ef31ec3bfea211c36b79"
     },
     {
       "applies_to": [
@@ -1371,7 +1439,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:b60b198a204686901e9ac58b28fc4832b870e3a3e18d1d9de452e065c8d0bc14"
+      "sha256": "sha256:1435a363a1008aa413cd8ddfa9fd35a2023755907f1da7c6047fa9b7c5fa41c6"
     },
     {
       "applies_to": [
@@ -1394,7 +1462,53 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:6a7543aad09af806bca66575b2f2c35eca916d3b8f9125fecb67d29818a6901c"
+      "sha256": "sha256:e81b94528e132bec96a04cb947c62db90184f9be18932d9202f4497e6a018f0c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-rule-touched-paths-repeated-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-rule-touched-paths-repeated-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:36b7fae79a6c6db201fb5fd70ac0c482d2b696925edd5f940d069aa4c4323c95"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-rule-touched-paths-unsorted-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-rule-touched-paths-unsorted-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:51dc00ce588d7a2ff2d325bcb0f93c02630e2f77c9b97006d5e304038578b3fe"
     },
     {
       "applies_to": [
@@ -1417,7 +1531,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:e1e76dfc7dd1eecda9da2fad9d3ba772429a8fa665a8b83ecd3a4e398799490e"
+      "sha256": "sha256:2feaf67ff5bfe514ad6f27a7ff3583fed8a40d13bb165a159dbee099f0cd42ca"
     },
     {
       "applies_to": [
@@ -1462,7 +1576,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:747647b4f6690a41a77b17b5d3324c86e950bad76252678cef50aa35c2125742"
+      "sha256": "sha256:d7d30b96788f6638ddedbcaf30a0f63000007ee50661311a9fc6859730e9285a"
     },
     {
       "applies_to": [
@@ -1484,7 +1598,7 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:d89da2faf84f078c8888ea3db7a06f7ab7f2ea70183d105ffae37714d4788ac2"
+      "sha256": "sha256:3314ed9db0eef4e986eb26b2b606b03d51625c8c9c0b99d3fe1b106ec0c305eb"
     },
     {
       "applies_to": [
@@ -5798,6 +5912,50 @@
       ],
       "area": "resolution",
       "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-rule-touched-paths-repeated",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-rule-touched-paths-repeated.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:abddce0be2e18dd8b706b80db3519e0e608a7cbbf86c2863f4f6aca26e138db5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-rule-touched-paths-unsorted",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-rule-touched-paths-unsorted.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:7c6975aaed3daa70fe5d8959ac71ce2cc0293de34b0b1b38d565f33c02829635"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
       "case_id": "commission-refuse-convening-malformed-sources-out-of-order",
       "expected": {
         "derived": {},
@@ -7874,17 +8032,17 @@
   "protocol": "xfc-resolved-council-1",
   "schema_version": 1,
   "totals": {
-    "both_sides": 315,
+    "both_sides": 322,
     "by_area": {
-      "assignment": 61,
+      "assignment": 66,
       "foundation": 133,
-      "resolution": 149
+      "resolution": 151
     },
     "by_outcome": {
       "accept": 72,
-      "refuse": 263,
+      "refuse": 270,
       "route": 8
     },
-    "vectors": 343
+    "vectors": 350
   }
 }
