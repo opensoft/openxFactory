@@ -64,6 +64,20 @@ categories with each category's `pack_id`, the pathless re-raise and
 `baseline_class` NOT NULL (`6069024023` items 1 and 2, `6069507373`, and
 `6072086385` item 1).
 
+**Revision: T002's fifth bookkeeping batch** (2026-10-09). More rulings and
+landings, encoded as worded, with no new decision. This file carries only this
+paragraph. tasks.md carries the ticks of T071 (openxFactory#1261 → `a020b34a`) and
+T015 (openDox-code#96 → `c94878be`) and the task-level record, and
+`contracts/health-finding.md` carries the U+0000 bound (the NUL seam,
+`6072086385` item 4) and a pathless finding's identity: its closed category set,
+its 200-character `entry`, and `entry` fixed by its category (`6072197564`,
+refined by `6073087924`), with the `path` bound, the form of `entry-refused`'s
+`identity.entry` and its canonical text, and the per-entry check on an entry's
+name (`6086098003` items 3 and 4, `6088484643` item 5, `6088732352` item 6,
+`6089449884` item 7, `6090537166` item 8, `6103336585` item 9 and `6082100803`),
+and `contracts/cli-http-submit-land.md` carries the land confirmation's stated
+operation (`6103915259` item 10; T016's Files in tasks.md).
+
 **Revision: review round 1 folded** (2026-10-05). Two independent read-only
 reviews of `6d6911e1`, an Opus analyze and adversarial pass and lane
 openXfactory-3's PLANCHECK, are committed verbatim with their disposition tables

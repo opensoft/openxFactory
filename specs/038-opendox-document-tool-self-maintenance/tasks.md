@@ -114,6 +114,51 @@ worded, each cited by comment id or merge commit, with no new decision:
   `pack_id` per category" (item 1), and T045's falsifier nodes for the two
   refusals (item 3); item 2 changes nothing in the plan.
 
+**Revision: T002's fifth bookkeeping batch** (2026-10-09). More rulings and
+landings, posted on `#656` or merged since #1279 (`e514f9e0`), are encoded as
+worded, each cited by comment id or merge commit, with no new decision:
+- the tick of T071, whose ratification record landed as openxFactory#1261 →
+  `a020b34a` (the merge commit read through GraphQL), on Brett's ratify word
+  (`6023375303`);
+- the NUL seam (the holder, `6072086385` item 4): Postgres `jsonb` cannot store
+  U+0000, so T041 refuses it in every string a finding carries, T042's
+  `_json_text` refuses it too, and T044's families never emit it, with the bound
+  in `contracts/health-finding.md`;
+- the holder's rulings on lane 3's review of T041 (`6072197564`, NAMES points (b),
+  (c) and (e), and `6073087924`, which refines (e)): a pathless finding's
+  `identity.category` from a closed set, its `entry` bounded at 200 characters and
+  fixed by its category (required for the seven per-entry categories, `""` for
+  `no-sandbox`, `manifest-refused`, `dispositions-refused` and `identity-collision`,
+  either for `entry-refused`), with `contracts/health-finding.md`;
+- the holder's rulings on the review of this batch's own PR, openxFactory#1283
+  (`6086098003`): the `path` bound, which the NUL seam's principle covers (item
+  3), with T042's refusal of U+0000 in every text parameter it binds; the form of
+  `entry-refused`'s `identity.entry` under the pinned schema, which replaces "the
+  refused entry as written" for an entry that does not conform (item 4); and
+  `refused-patch` joining the engine kinds (item 1). Item 2 (T015's limits) is
+  recorded nowhere in the plan;
+- the holder's ruling on the same review (`6088484643` item 5): the exact canonical
+  text behind that digest form, in `contracts/health-finding.md` and T041's note,
+  and its three review items (`6088732352` item 6): the `str()` collision of a YAML
+  date with its spelling, an accepted limit stated in the contract, which
+  `6089449884` item 7 widens to a non-string mapping key and its JSON spelling; the fallback
+  `ascii(id)` in place of `repr(id)`; and ruling `6082100803`, which corrects (c)'s
+  premise, so that for the per-entry categories `check_finding` refuses an empty
+  entry, the reserved `opendox`, and a name outside 1 to 40 characters; and
+  `6090537166` item 8, the canonical text's second fallback, which catches
+  `ValueError` as well as `RecursionError` and writes ONE fixed text for an id
+  neither spelling can write, and its sets, spelled sorted by each member's
+  `ascii()` text, with their accepted limits, and `6103336585` item 9, one more:
+  the int-digit limit is an interpreter setting, so a huge-integer id's digest can
+  differ between two settings;
+- the holder's ruling on T016's review at openDox-code#100 (`6103915259` item 10):
+  both land-confirmation issuers state the operation the invocation performs, so
+  `src/opendox/landing_confirm.py` is admitted into T016's Files for that wording
+  only, and the land confirm control's description in
+  `contracts/cli-http-submit-land.md` records it;
+- the tick of T015, which landed as openDox-code#96 → `c94878be` (the merge commit
+  read through GraphQL).
+
 **RULED.** Brett Heap ruled the plan at `6847e99e`, every item as recommended
 (`#656` `6013547504`, 2026-10-06; plan.md § "Ruled answers, the plan ruling").
 Implementation starts on this word. Still his word, at the act: the 0.2.0 publish
@@ -555,7 +600,7 @@ hidden; F12.1 exits 0 composed (SC-001).
 
 ### P4-C: openDox's own submit act
 
-- [ ] T015 [US1] [oDc] **The `submit` verb, route and control.** New
+- [x] T015 [US1] [oDc] **The `submit` verb, route and control.** New
   `cli_branch_actions.py` holds `submit --repo-root PATH --branch BRANCH [--local]
   [--json]` (12.4a's ratified shape; ADV-01), contributed through
   `default_profile.py`'s `SUBCOMMAND_EXTENSIONS` (decision N-2), with no actor gate
@@ -620,6 +665,7 @@ hidden; F12.1 exits 0 composed (SC-001).
     false. Each file's chain runs T015 → T016 → any later verb, as `6023619783`
     set for `tests/test_default_profile.py`.
   - **Lane**: 4.
+  - **Landed**: DONE, openDox-code#96 → `c94878be` (2026-10-09T20:20:05Z).
 
 ### P4-D2: the landing bindings and surface
 
@@ -643,9 +689,9 @@ hidden; F12.1 exits 0 composed (SC-001).
     capability test that `actions.land` is true for `standalone` with a lander
     and for `governed` with an instrument, and false otherwise.
   - **Ruled**: R2Q1, R2Q3, R2Q4, R2Q5, R2Q6, R2Q7, R2Q9 (item 7); the holder's
-    `6023619783` (item 1), `6027633398` (the collateral Files) and `6069024568`
-    (item 2, the chains). **Decisions**: CF-1, N-2, N-11, OQ-12-13, OQ-12-14,
-    OQ-12-17.
+    `6023619783` (item 1), `6027633398` (the collateral Files), `6069024568`
+    (item 2, the chains) and `6103915259` (item 10, the confirmation's wording).
+    **Decisions**: CF-1, N-2, N-11, OQ-12-13, OQ-12-14, OQ-12-17.
   - **After**: T015, T012, T013.
   - **Files**: `src/opendox/serve.py`, `src/opendox/cli.py`,
     `src/opendox/default_profile.py`, `src/opendox/cli_branch_actions.py`,
@@ -662,7 +708,13 @@ hidden; F12.1 exits 0 composed (SC-001).
     `tests/test_default_profile.py`, whose chain follows `default_profile.py`'s
     (`6023619783` item 1), and in `src/opendox/web/views/account-menu.js` and
     `pyproject.toml`'s line `:312`, whose chains run T015 → T016 → any later verb
-    (`6069024568` item 2).
+    (`6069024568` item 2). Also admitted (the holder, `6103915259` item 10):
+    `src/opendox/landing_confirm.py`, for the confirmation's wording only, which
+    is the prompt text plus the parameter that carries the operation kind, so
+    that both issuers, the terminal prompt (`confirm_at_terminal()`) and the
+    browser's `confirmQuestion()` in `branch-actions.js`, state the operation the
+    invocation performs: a merge commit onto `main` when standalone, a submission
+    to the host's instrument when governed (contracts/cli-http-submit-land.md).
   - **Lane**: 4.
 - [ ] T017 [oDc] **Phase 4's CI floors.** Re-pin `MIN_SELECTED` (`:272`) and
   `MIN_PASSED` (`:273`) to the counts the phase-4 tip measures; `EXPECT_SKIPPED`
@@ -1140,8 +1192,12 @@ copies (research R7; ADV-05).
     the CLI or HTTP layer emits (the holder, `6027706377` item 1);
     `tests/test_validator_input_set.py` green at the new commit.
   - **Ruled**: R2Q10, R2Q18, R2Q22, R2Q25; the holder's `6018624750`,
-    `6069024023` (items 1 and 2), `6069507373` (T046 item 2) and `6072086385`
-    (item 1).
+    `6069024023` (items 1 and 2), `6069507373` (T046 item 2), `6072086385`
+    (items 1 and 4), `6072197564` (NAMES (b), (c) and (e)), `6073087924` (the
+    entry rule, refining (e)), `6086098003` (items 1, 3 and 4), `6088484643`
+    (item 5, the canonical text), `6088732352` (item 6, with `6082100803`),
+    `6089449884` (item 7, the widened limit), `6090537166` (item 8, the second
+    fallback and sets) and `6103336585` (item 9, the int-digit setting).
     **Decisions**: N-3, N-13, N-15, OQ-H15-19.
   - **After**: T060, T027 (N-6 (a), ruled).
   - **Files**: new `src/opendox/health_contract.py` (first: T041 → T045),
@@ -1149,7 +1205,10 @@ copies (research R7; ADV-05).
     `tests/test_validator_input_set.py` (first: T041 → T047 → T054), new
     `tests/test_health_contract.py`.
   - **Implementation note** (the holder, `6069024023` items 1 and 2,
-    `6069507373` T046 item 2, and `6072086385` item 1):
+    `6069507373` T046 item 2, `6072086385` items 1 and 4, `6072197564`,
+    `6073087924`, `6086098003` items 1, 3 and 4, `6088484643` item 5,
+    `6088732352` item 6, `6089449884` item 7, `6090537166` item 8 and
+    `6103336585` item 9):
     - the engine categories are the nine T041 drafted and the two the holder
       added, `dispositions-refused` and `manifest-refused`, with their mappings,
       each category's `pack_id` among them: the entry's id for a finding against
@@ -1160,7 +1219,141 @@ copies (research R7; ADV-05).
       pathless one (option (D)), with its test;
     - a module-level `finding_id()` is the single hash path `make_finding` calls,
       patchable, so T046's test can patch it. `make_finding`'s interface is
-      unchanged (lane 3, `6069516931`).
+      unchanged (lane 3, `6069516931`);
+    - U+0000 (the NUL seam, `6072086385` item 4): Postgres `jsonb` cannot store
+      U+0000 in a string (SQLSTATE 22P05), so a finding that carries it can never
+      be stored. T041 REFUSES U+0000 in every string a finding carries, keys and
+      values alike (`identity`, `evidence`, `locator` and `message`, and `path`
+      below), with `FindingRefused` and a bounded `where`. For a pack's output, that refusal is
+      T045's whole-output `pack-output-refused` (`6069024023` item 1's mapping), so
+      a broken or hostile pack loses its own output, never the run. The bound is in
+      contracts/health-finding.md, and under the convergence rule (`5988818366`)
+      the holder ruled this fix-now: a crash path reachable with a simple payload;
+    - a pathless finding's identity (lane 3's REVIEW-W1 T041 NAMES points, the
+      holder, `6072197564`; contracts/health-finding.md § Rules):
+      - (b) its `identity.category` is from a CLOSED set: an engine category or
+        `identity-collision`, and, for the re-raise of a pathless original under
+        option (D) (`6069024023` item 2), that original's kind, which is itself one
+        of those. Packs never raise pathless findings: T045 refuses an empty-path
+        pack finding (`6072086385` item 3);
+      - (c) its `entry` is bounded at 200 characters, not 40. A per-entry
+        category's entry is also its `pack_id`, which is where the 40-character
+        name rule applies, and the check, not `make_finding`, is what binds it
+        (below, `6082100803`); only `entry-refused` carries an id that may be
+        malformed, and its form is fixed below (`6086098003` item 4), under the
+        same bound of 200;
+      - (e) `no-sandbox`, `manifest-refused` and `dispositions-refused` take
+        `entry ""`, and a non-empty entry is REFUSED (lane 3's MINOR at
+        `health_contract.py:865`). A run raises ONE `no-sandbox` finding, never one
+        per entry (data-model.md § Sandbox probe and canary, the `verdict` row: "ONE
+        install-level finding", R2Q16 (a)); only the per-entry categories and
+        `entry-refused` take a non-empty entry;
+      - (e) refined (the holder, `6073087924`, on lane 3's REVIEW-W1 T041 MINOR at
+        `health_contract.py:693`): a pathless identity's `entry` is fixed by its
+        category, exactly as the engine builds it:
+        - the seven per-entry categories (`fetch-failed`, `digest-mismatch`,
+          `declaration-refused`, `pack-crashed`, `pack-timed-out`, `pack-bound-hit`
+          and `pack-output-refused`) REQUIRE a non-empty entry, the valid entry's
+          id (`6072086385` item 1), as the per-entry check below enforces
+          (`6082100803`);
+        - `no-sandbox`, `manifest-refused`, `dispositions-refused` and
+          `identity-collision` REQUIRE `entry ""`: `disappearance_identity()`
+          always gives a collision original the entry `""`;
+        - `entry-refused` takes either `""` or a non-empty entry, in the form
+          fixed below (`6086098003` item 4), which replaces "the refused entry as
+          written" for an entry that does not conform;
+        - the contract's check refuses any other form, so it admits exactly what
+          the engine builds, and T041 adds one test row per case;
+    - (b) and (e) each carry a test row and, where they add a guard, a killed
+      mutant (`6072197564`);
+    - the per-entry check (the holder, `6088732352` item 6 (c), encoding
+      `6082100803`, on lane 3's REVIEW-W1 T041 MINOR at
+      `health_contract.py:706-707`): for `ENTRY_CATEGORIES`, `check_finding`
+      refuses an entry that is empty, the reserved `opendox`
+      (contracts/health-packs-manifest.md, the `id` line of its example), or not a
+      1-to-40-character name, the pack-id name rule, with one test row each.
+      `6072197564` (c) assumed that the 40-character rule binds through
+      `make_finding`; it does not for a re-raise, whose `pack_id` is `opendox`, so
+      for a per-entry category's entry the rule binds through this check. Lane 3's
+      exactness probe found 21 mismatches; after the fix it must read 0, quoted,
+      with the mutant that drops each new refusal killed;
+    - `path` (the holder, `6086098003` item 3, on Codex P1 `4230671177` at
+      openxFactory#1283): `6072086385` item 4's principle, "every string a
+      finding carries", covers `path`, and T041 already refuses it: `_path`
+      refuses C0 and C1 controls and lone surrogates, as the pinned finding schema
+      does (contracts/health-finding.md, the `path` row). T041 adds a test row for
+      U+0000 in `path` if it lacks one;
+    - `entry-refused`'s `identity.entry` (the holder, `6086098003` item 4, on
+      Copilot `4230698859` at openxFactory#1283): the pinned schema wins, so "the
+      refused entry as written" (`6072197564` (c), `6073087924`) holds only where
+      the entry conforms. The form is:
+      - `""` when the entry has no id;
+      - the id as written, when it is a string matching `[a-z0-9-]+` of at most
+        200 characters;
+      - otherwise `sha256-` followed by the lowercase hexadecimal SHA-256 of the
+        id's canonical text, over that text's ASCII bytes: 71 characters, inside
+        the schema's `[a-z0-9-]` pattern and the 200-character bound. This covers
+        a malformed or over-long id, a non-string id, and one carrying U+0000. It
+        is never truncated and never a schema exception. It is `6069507373` T044
+        item 7's rule (a string over the bound becomes its SHA-256 hex) in the
+        only form a closed `{category, entry}` identity allows;
+      - the canonical text of the id (the holder, `6088484643` item 5, on Copilot
+        `4232974858` at openxFactory#1283), recorded in
+        contracts/health-finding.md, is Python's `json.dumps(id, sort_keys=True,
+        separators=(",", ":"), ensure_ascii=True, allow_nan=True, default=<the
+        default hook>)`, where the default hook is `str` except for sets, below
+        (Copilot `4239576494` at openxFactory#1283). A value JSON cannot
+        represent (a YAML date, timestamp or binary) is spelled by its `str()`. If
+        that call raises (a mapping whose keys JSON
+        cannot spell or cannot sort, or a self-referencing value), the canonical
+        text is `ascii(id)`, Python's `repr()` with every non-ASCII character
+        escaped (the holder, `6088732352` item 6 (b), on Copilot `4234200849`). The
+        `default` hook spells a `set` or `frozenset` as the list of its members
+        sorted by each member's `ascii()` text, and everything else it meets by
+        `str()` (the holder, `6090537166` item 8 (b), on Copilot `4235176471`), so
+        a set's digest does not vary with `PYTHONHASHSEED`. If the `ascii()`
+        fallback raises too, with `ValueError` (an integer past Python's
+        int-digit limit, such as `0x` plus 4000 `f`s) or `RecursionError`, an id
+        that neither spelling can write takes ONE fixed text, `<past the
+        int-digit or recursion limit>`, which replaces the recursion-only text
+        (item 8 (a), on lane 3's REVIEW-W1 T041 NO-GO at openDox-code#97), so the
+        canonical text is always ASCII and the digest never raises. Accepted
+        limits, stated in the contract's `entry-refused` row (item 6 (a), Copilot
+        `4234200786`, widened by `6089449884` item 7 and `6090537166` item 8,
+        under `5988818366`): the canonical text is not injective across YAML
+        value types. A date or timestamp and its `str()`, a non-string mapping
+        key and its JSON spelling, and two ids that neither spelling can write,
+        can share a digest; `identity-collision` reports any such collision, so
+        it is operator-only and never silent. A set reached only through the
+        `ascii()` fallback keeps Python's order, so at worst that refused entry's
+        finding is raised again each run. The int-digit limit is an interpreter
+        setting (`PYTHONINTMAXSTRDIGITS`), not a constant, so the same
+        huge-integer id can take the fixed text under one setting and be spelled
+        out under another, giving a different digest: operator-only, the same
+        class (the holder, `6103336585` item 9, NIT 2 of lane 3's GO at #97);
+      - T041 adds the helper that builds it: deterministic, total over anything
+        the manifest parser yields, distinct for distinct ids but for the accepted
+        limit above (`6088732352` item 6 (a), `6089449884` item 7), and never
+        raising, with test rows for an absent id, a conforming id, an uppercase or
+        spaced id, an id with U+0000, a non-string id, a 201-character id, and a
+        mapping id with mixed-type keys (the `ascii()` fallback), and one with a
+        non-ASCII key in a mixed-type mapping. Item 8 adds, red first and with
+        their mutants (`6090537166`): one row each for the four ids lane 3
+        reproduced (an integer past the 4300-digit limit as `id: 0x` plus 4000
+        `f`s, a long `0b` literal, the same nested in a list, and inside a
+        mixed-key mapping), each returning a `sha256-` entry and never raising;
+        and one row that digests one set id under at least two `PYTHONHASHSEED`
+        values, in subprocesses, and gets one entry. The contract's check already
+        admits the form;
+    - `refused-patch` joins `ENGINE_KINDS` (the holder, `6086098003` item 1, on
+      lane 3's ask from T049's prep): a refused patch is a finding against the
+      pack naming `refused_patch` and `reason` (T049's entry; data-model.md
+      `:209`, `:223` and `:369`), and only the engine raises it. Outside
+      `ENGINE_KINDS`, T045 would let a pack declare the kind and forge
+      engine-style refusals. It is a PATHED engine kind, like
+      `uncited-disappearance`, not a category: it stays out of the categories and
+      the pathless set (`6072197564` (b)). T041 adds one test row; T045's refusal
+      of a declaration naming it is T045's own test.
   - **Lane**: 4.
 - [ ] T042 [P] [US4] [oDc] **HA-1, the store (`0003_`), one owner.** New
   `migrations/0003_health.sql`: `health_runs` (with the run's kind, the
@@ -1192,7 +1385,9 @@ copies (research R7; ADV-05).
     install-level finding (`pack_id` `opendox`, empty `path`) is admitted; the
     five suites above.
   - **Ruled**: R2Q13, R2Q15, R2Q25; the holder's `6018624750`, `6028364555`
-    (items 1 and 2), `6069024023` (item 3, `run_seq`) and `6069024568` (item 3).
+    (items 1 and 2), `6069024023` (item 3, `run_seq`), `6069024568` (item 3),
+    `6072086385` (item 4, the NUL seam) and `6086098003` (item 3, the text
+    parameters).
     **Decisions**: OQ-H-22, OQ-H15-18, -19, -20.
   - **After**: T027 (N-6 (a), ruled).
   - **Files**: as listed (single owner of `0003_` and of the five suites), and
@@ -1203,6 +1398,15 @@ copies (research R7; ADV-05).
     `test_readiness_refuses_a_database_whose_migration_file_has_changed`, for the
     same cause as at the three `test_migrations_apply` sites (the holder,
     `6069024568` item 3).
+  - **Implementation note** (the holder, `6072086385` item 4, the NUL seam):
+    Postgres `jsonb` cannot store U+0000 in a string (SQLSTATE 22P05). T041
+    refuses it in every string a finding carries (T041's note), and T042's
+    `_json_text` ALSO refuses it, as `RefusedError` and never a raw driver error,
+    with a test (defence in depth). The store refuses U+0000 in EVERY text
+    parameter it binds too, `path` among them (the holder, `6086098003` item 3, on
+    Codex P1 `4230671177` at openxFactory#1283): as `RefusedError` naming the
+    column, before any statement, never a driver `DataError`, the same defence in
+    depth as `_json_text`. One test row (U+0000 in `path`) and its mutant.
   - **Implementation note** (accepted by the holder, `6028138991`, from lane 3's
     T105 measurement, `6028122920`, and made precise by `6028364555`; no
     requirement or falsifier changes): `full` is a reserved word in PostgreSQL 16,
@@ -1254,7 +1458,12 @@ copies (research R7; ADV-05).
   keys or their declared words (R2Q11 (a), as FR-010 words it at
   `spec.md:819-821`; the holder, `6069507373` T044 item 3), near-duplicates (OQ-H-21:
   measure whether `doxbench_knowledge` runs with no binding; set and record the
-  threshold); each family supplies a position-independent identity key (N-13);
+  threshold); each family supplies a position-independent identity key (N-13),
+  and no family emits U+0000: a document string that contains it takes the
+  SHA-256 form under a distinct key (`6069507373`, T044 item 7), never truncation
+  or silent replacement, because a built-in finding the contract refuses fails the
+  run closed (`6069507373`, T046 item 9), so a refusal there can only be a bug
+  (the holder, `6072086385` item 4, the NUL seam);
   the engine files excluded (OQ-H-15), in the families only, through the
   adapter's `excluded=` argument, with no edit to `doxbench_intake.py` (T044 is
   OQ-H-15's one owner; the holder, `6069507373` T044 item 8). Model-free
@@ -1264,7 +1473,8 @@ copies (research R7; ADV-05).
     including the empty stub's class and an id that survives an edit above its
     finding.
   - **Ruled**: R2Q10, R2Q11, R2Q14; the holder's `6069507373` (T044 items 3 and
-    8). **Decisions**: OQ-H-8, -10, -11, -15, -16, -20, -21; N-13.
+    8) and `6072086385` (item 4, whose SHA-256 form is `6069507373` T044 item 7's).
+    **Decisions**: OQ-H-8, -10, -11, -15, -16, -20, -21; N-13.
   - **After**: T041, T043.
   - **Files**: new `src/opendox/health/__init__.py`, `src/opendox/health/families.py`,
     the test.
@@ -2178,7 +2388,7 @@ surfaces check over them (ADV-37).
     `fc4fa0ff` (2026-10-06T18:56:42Z), which folded Copilot's four items (its
     review `5427373153` of #1247) into the change before the ratify word. Brett's
     ratify word is T071's.
-- [ ] T071 [oxF] **Brett's ratify word, and its record.** Put the change to
+- [x] T071 [oxF] **Brett's ratify word, and its record.** Put the change to
   Brett; record his word on `#656` and the change's ratification record, under a
   Rule 6 window. No realization slice starts before it.
   - **After**: T070.
@@ -2186,9 +2396,12 @@ surfaces check over them (ADV-37).
   - **Word given**: Brett Heap, by interactive multi-choice, *"Ratify it
     (Recommended)"* (`#656` `6023375303`, 2026-10-06T19:00:45Z): the `#656` half of
     this task. The change's ratification record, in ONE openxFactory PR under a Rule
-    6 window (openxFactory#1261, a DRAFT), has not landed at this writing, so the
-    box stays open. T072 starts on
+    6 window (openxFactory#1261), has landed (see Landed), so the box is ticked.
+    T072 starts on
     the word (opportunistic, ARC-6); T074 and T075 follow in plan order.
+  - **Landed**: DONE, openxFactory#1261 → `a020b34a` (2026-10-09T01:13:36Z), the
+    ratification record of the change `realize-doc-health-direction-arc`, on Brett's
+    ratify word (`6023375303`).
 - [x] T072 [oDc] **Re-author the generic `lines` slice in openDox-code.** A small
   stdlib module carrying `split_keepends`, `join_rows` and the few git reads
   `RealGit` gives the generator; nothing is relocated out of openxFactory
@@ -2665,9 +2878,9 @@ F9.1 (amended by batch Q item 6, ARC-Q2 (a)) is re-run by T073; F9.2 by T076.
 | — | F9.1's `--deselect` removed | F9.1 (batch J's line) | `5859927858`, at T076 while #1144 is active |
 
 **Task count:** 91 rows: Phase 0 9 (T001–T009; eight done, T002–T009, and T001 is a
-standing act), Phase 4 24 (T010–T033; T010, T011, T012, T013, T014, T020, T021,
+standing act), Phase 4 24 (T010–T033; T010, T011, T012, T013, T014, T015, T020, T021,
 T022, T023, T024, T025 and T026 done), Phase 5 30 (T040–T068, T059, T067 and T068 among them, and T105, the
 read-only wave-1 re-measure; T040, T060 and T105 done),
 requirement 9 12 (T073, T094 and the ten repair slices T095–T104, which replace
 the placeholder row T095+; T094 and the ten repair slices T095–T104 done), the
-direction arc 7 (T070–T072, T074–T077; T070 and T072 done), Close 5 (T080–T084), Every phase 4 (T090–T093).
+direction arc 7 (T070–T072, T074–T077; T070, T071 and T072 done), Close 5 (T080–T084), Every phase 4 (T090–T093).
