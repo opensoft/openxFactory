@@ -416,24 +416,39 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
                      f"a replacement record {what}, whose schema has not landed at "
                      f"this commit"), False
     if kind == assignments.SNAPSHOT_KIND:
-        return _check_snapshot(path, document, schemas), False
+        return _check_snapshot(path, document, schemas, registry), False
     if kind == assignments.ASSIGNMENT_KIND:
         return _check_assignment(path, document, schemas), False
     return _check_commission_record(path, document, schemas, registry), False
 
 
-def _check_snapshot(path: Path, document: Any,
-                    schemas: records.SchemaSet) -> list[corpus.Finding]:
-    """A snapshot, offline: E4 steps 2 to 7. Every one of them is offline, so a
-    snapshot needs no oracle; whether it is a LIVE snapshot is the consumer's
-    state, and is not judged here."""
+def _check_snapshot(path: Path, document: Any, schemas: records.SchemaSet,
+                    registry: classification.Registry) -> list[corpus.Finding]:
+    """A snapshot, offline: E4 steps 2 to 7, then EVERY offline E2 rule of its
+    embedded `convening` (validator-cli.md, "every offline rule"; PR-3 review
+    LOW 1), so an embedded `subject_pin` that is not the candidate's head, or a
+    secret-bearing value, never exits 0. E4's own checks need no oracle; the
+    embedded record's oracle-dependent rules are named as not checkable
+    offline, as for a commission record. Whether it is a LIVE snapshot is the
+    consumer's state, and is not judged here."""
     try:
         derived = assignments.check_snapshot(document, schemas)
     except records.Refused as refused:
         return _malformed_too(path, refused, "data-model E4")
     _say(f"note  {path}: convening_digest recomputed; assignment set matches "
          f"required_seats ({len(derived['required_seats'])} seats)")
-    return []
+    result = resolution.check_offline(document["convening"], schemas, registry)
+    for rule in result.not_checkable:
+        _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: "
+             f"convening: {rule}")
+    if result.refusal is None:
+        _say(f"note  {path}: the embedded convening passes every offline-checkable "
+             f"E2 rule")
+        return []
+    where = f" at {result.member}" if result.member else ""
+    return [corpus.Finding("ERROR", _refusal_code(result.refusal),
+                           f"{path}: the embedded convening is refused "
+                           f"{result.refusal}{where} (data-model E2, offline)")]
 
 
 #: What the schema finding says beside each Phase 3 malformed refusal. Each
