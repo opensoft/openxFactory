@@ -998,6 +998,81 @@ def test_the_binding_refs_cap_holds_the_estate_and_refuses_a_seventeenth(context
         "refuse", "activation_evidence_malformed", ())
 
 
+# Twins in the configured set. Brett Heap, 2026-10-11T15:57:48Z, "Refuse
+# dual-role and twins (Recommended)": an activation or resume refuses a
+# configured binding set in which two bindings share a `subject_template`, as
+# `binding_malformed`, with no new code. The OIDC subject is what tells one
+# seat's job from another's, so twins would let either seat's job act as the
+# other (E12 step 3, before the per-entry checks).
+
+def _twin(bindings: list[dict], first: int = 1, second: int = 2) -> None:
+    bindings[second]["subject_template"] = bindings[first]["subject_template"]
+
+
+@pytest.mark.parametrize("act", ["activation", "resume"])
+@pytest.mark.parametrize("first, second", [(1, 2), (0, 3)], ids=["two-seats", "commission-and-seat"])
+def test_twin_subject_templates_in_the_configured_set_are_malformed(context, act, first,
+                                                                    second):
+    record, bindings, text = activation_case(act)
+    _twin(bindings, first, second)
+    assert _verdict(activate(context, record, bindings, text)) == (
+        "refuse", "binding_malformed", ())
+
+
+def test_twins_are_judged_across_councils_too(context):
+    record, bindings, text = activation_case(seats=(MERGE_READINESS_SEATS, GATE_RULES_SEATS))
+    gate_rules_seat = next(i for i, b in enumerate(bindings)
+                           if b["binding_id"] == "council-2-seat-lead-security")
+    _twin(bindings, 2, gate_rules_seat)
+    assert _verdict(activate(context, record, bindings, text)) == (
+        "refuse", "binding_malformed", ())
+
+
+def test_distinct_subject_templates_in_one_environment_family_are_not_twins(context):
+    """Only an equal `subject_template` is a twin: per-seat environments differ
+    by name, and that is what the ruling keeps apart."""
+    record, bindings, text = activation_case()
+    assert len({b["subject_template"] for b in bindings}) == len(bindings)
+    assert _verdict(activate(context, record, bindings, text)) == ("accept", None, ())
+
+
+@pytest.mark.parametrize("act", ["pause", "drain", "switch", "rollback"])
+def test_an_act_that_reads_no_binding_set_has_no_twins_to_judge(context, act):
+    assert _verdict(activate(context, evidence(act))) == ("accept", None, ())
+
+
+def test_incomplete_before_twins(context):
+    record, bindings, text = activation_case()
+    _twin(bindings)
+    record["binding_refs"].remove("council-1-seat-company-policy-lead")
+    assert _verdict(activate(context, record, bindings, text)) == (
+        "refuse", "activation_evidence_incomplete", ())
+
+
+def test_twins_before_unresolved(context):
+    record, bindings, text = activation_case()
+    _twin(bindings)
+    record["binding_refs"].insert(0, "council-9-seat-unknown")
+    assert _verdict(activate(context, record, bindings, text)) == (
+        "refuse", "binding_malformed", ())
+
+
+def test_twins_before_broker_capability(context):
+    record, bindings, text = activation_case()
+    _twin(bindings)
+    bindings[0]["broker"]["capability_verified"] = False
+    assert _verdict(activate(context, record, bindings, text)) == (
+        "refuse", "binding_malformed", ())
+
+
+def test_twins_before_the_pair(context):
+    record, bindings, text = activation_case()
+    _twin(bindings)
+    record["consumer"]["selection"]["mode"] = "rehearsal"
+    assert _verdict(activate(context, record, bindings, text)) == (
+        "refuse", "binding_malformed", ())
+
+
 # Multi-defect activations pin the order.
 
 def test_incomplete_before_unresolved(context):
@@ -1209,6 +1284,23 @@ def test_the_migration_vectors_probe_every_phase_6_code():
     assert "legacy_protocol_deprecated" in findings
 
 
+def test_the_twin_refusal_has_an_activation_and_a_resume_vector():
+    twins = {}
+    for row in _migration_rows():
+        vector = json.loads((INDEX.parent / row["path"]).read_text(encoding="utf-8"))
+        configured = corpus.join_parts(vector["inputs"].get("bindings", []))
+        templates = [b["subject_template"] for b in configured]
+        if len(set(templates)) != len(templates):
+            twins[row["case_id"]] = (vector["inputs"]["record"]["act"],
+                                     row["expected"]["refusal"])
+    acts = {act for act, refusal in twins.values() if refusal == "binding_malformed"}
+    assert acts == {"activation", "resume"}, twins
+    # The one twin vector that is not binding_malformed is the incomplete-first
+    # order case.
+    assert sorted(r for _a, r in twins.values()) == sorted(
+        ["binding_malformed"] * (len(twins) - 1) + ["activation_evidence_incomplete"])
+
+
 def test_the_migration_vectors_cover_every_boundary_and_act():
     rows = _migration_rows()
     assert {row["boundary"] for row in rows} == {"classification", "historical",
@@ -1267,8 +1359,10 @@ def test_every_configured_binding_passes_e10_offline(tmp_path):
         for configured in corpus.join_parts(vector["inputs"].get("bindings", [])):
             e10.check_offline(configured, identity_root=root)
             checked += 1
-    # 36 activation and resume vectors carry a configured set: 212 bindings.
-    assert checked == 212
+    # 41 activation and resume vectors carry a configured set: 237 bindings. Each
+    # twin vector's bindings pass E10 one by one; the twin is the set's defect
+    # (E12 step 3).
+    assert checked == 237
 
 
 def test_every_migration_vector_cites_fr_011_or_fr_012():
