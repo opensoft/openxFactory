@@ -3256,7 +3256,7 @@ Archived changes:
 
 - [retire-codexfactory-sibling-currency-dispositions](openspec/changes/archive/2026-10-11-retire-codexfactory-sibling-currency-dispositions/proposal.md)
   — **ARCHIVED 2026-10-11** by
-  [PR #ARCHIVE-PR-NUMBER-PENDING](https://github.com/opensoft/openxFactory/pull/ARCHIVE-PR-NUMBER-PENDING),
+  [PR #1295](https://github.com/opensoft/openxFactory/pull/1295),
   by lane `codexfactory-1` (display `codeXfactory-1`), to land by MERGE
   COMMIT, never squash, under lane-collision Rule 6, on Brett Heap's archive
   word, first-hand in that lane's own session at 2026-10-11T00:19:47Z, verbatim
