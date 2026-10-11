@@ -58,9 +58,13 @@ opendox land --repo-root PATH --branch BRANCH [--local] [--json]
 `tasks.md:2814-2815`), interactive by construction.
 
 - Asks for confirmation over `/dev/tty`, naming the branch and its head; the
-  answer mints the confirmation capability (12.6a). With no `/dev/tty`, it
-  refuses, naming the missing terminal; there is no bypass flag (decision N-11;
-  12.6a: "refuses when there is none").
+  answer mints the confirmation capability (12.6a). The prompt also states the
+  operation this invocation performs, decided before the prompt from the same
+  governance reading that `landing_refusal()` uses: a merge commit onto `main` on
+  the standalone path, and a submission to the host's instrument on the governed
+  path (the holder, `6103915259` item 10). With no `/dev/tty`, it refuses, naming
+  the missing terminal; there is no bypass flag (decision N-11; 12.6a: "refuses
+  when there is none").
 - `standalone` (which needs the explicit local install, `OPENDOX_INSTALL_MODE=local`
   or `--local`; FR-007): merges `--no-ff` in its own landing worktree, then
   fast-forwards the served checkout when it holds `main` and is clean (R2Q6 (a)).
@@ -136,7 +140,13 @@ route answers (OQ-12-14, refined by ADV-14).
 The submit control and the land confirm control live in a new
 `web/views/branch-actions.js`, never in the `doxbench-*.js` files FR-037's
 sentinels guard (OQ-12-14). The confirm control fetches a nonce, shows the
-branch and head it is bound to, and posts it once.
+branch and head it is bound to, and posts it once. It states the operation for
+this invocation as the terminal prompt does, decided from the same governance
+reading as `landing_refusal()`: a merge commit onto `main` on the standalone path,
+and a submission to the host's instrument on the governed path, where `actions.land`
+is also true (the holder, `6103915259` item 10). Governance-neutral wording is
+acceptable only if it misdescribes neither path. The capability's binding (branch
+and head), its single use and the static two-issuer check stay as they are.
 
 ## F12.2's named nodes (unchanged; 12.6a)
 

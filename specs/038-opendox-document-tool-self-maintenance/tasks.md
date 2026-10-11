@@ -151,6 +151,11 @@ worded, each cited by comment id or merge commit, with no new decision:
   `ascii()` text, with their accepted limits, and `6103336585` item 9, one more:
   the int-digit limit is an interpreter setting, so a huge-integer id's digest can
   differ between two settings;
+- the holder's ruling on T016's review at openDox-code#100 (`6103915259` item 10):
+  both land-confirmation issuers state the operation the invocation performs, so
+  `src/opendox/landing_confirm.py` is admitted into T016's Files for that wording
+  only, and the land confirm control's description in
+  `contracts/cli-http-submit-land.md` records it;
 - the tick of T015, which landed as openDox-code#96 → `c94878be` (the merge commit
   read through GraphQL).
 
@@ -684,9 +689,9 @@ hidden; F12.1 exits 0 composed (SC-001).
     capability test that `actions.land` is true for `standalone` with a lander
     and for `governed` with an instrument, and false otherwise.
   - **Ruled**: R2Q1, R2Q3, R2Q4, R2Q5, R2Q6, R2Q7, R2Q9 (item 7); the holder's
-    `6023619783` (item 1), `6027633398` (the collateral Files) and `6069024568`
-    (item 2, the chains). **Decisions**: CF-1, N-2, N-11, OQ-12-13, OQ-12-14,
-    OQ-12-17.
+    `6023619783` (item 1), `6027633398` (the collateral Files), `6069024568`
+    (item 2, the chains) and `6103915259` (item 10, the confirmation's wording).
+    **Decisions**: CF-1, N-2, N-11, OQ-12-13, OQ-12-14, OQ-12-17.
   - **After**: T015, T012, T013.
   - **Files**: `src/opendox/serve.py`, `src/opendox/cli.py`,
     `src/opendox/default_profile.py`, `src/opendox/cli_branch_actions.py`,
@@ -703,7 +708,13 @@ hidden; F12.1 exits 0 composed (SC-001).
     `tests/test_default_profile.py`, whose chain follows `default_profile.py`'s
     (`6023619783` item 1), and in `src/opendox/web/views/account-menu.js` and
     `pyproject.toml`'s line `:312`, whose chains run T015 → T016 → any later verb
-    (`6069024568` item 2).
+    (`6069024568` item 2). Also admitted (the holder, `6103915259` item 10):
+    `src/opendox/landing_confirm.py`, for the confirmation's wording only, which
+    is the prompt text plus the parameter that carries the operation kind, so
+    that both issuers, the terminal prompt (`confirm_at_terminal()`) and the
+    browser's `confirmQuestion()` in `branch-actions.js`, state the operation the
+    invocation performs: a merge commit onto `main` when standalone, a submission
+    to the host's instrument when governed (contracts/cli-http-submit-land.md).
   - **Lane**: 4.
 - [ ] T017 [oDc] **Phase 4's CI floors.** Re-pin `MIN_SELECTED` (`:272`) and
   `MIN_PASSED` (`:273`) to the counts the phase-4 tip measures; `EXPECT_SKIPPED`
