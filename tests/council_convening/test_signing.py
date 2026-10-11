@@ -310,16 +310,19 @@ def test_each_seat_registers_against_its_own_binding():
             fx.key(seat).public_key)
 
 
-def test_a_binding_shared_by_two_seats_with_distinct_principals_freezes_today():
-    # PINS CURRENT BEHAVIOUR, which an owner ruling may tighten (pre-review of
-    # 03cb77e29, M2). E4 step 7 refuses only a repeated `holder.principal_ref`,
-    # so two seats whose holders share one `binding_ref` and name distinct
-    # `principal_ref`s freeze, and E7 step 5 then resolves both to that one
-    # binding. Per-seat isolation then rests on the dispatcher's principal.
+def test_a_binding_shared_by_two_seats_is_refused_at_freeze():
+    # Brett Heap, 2026-10-11T00:19:34Z, "Refuse at freeze (Recommended)" (the
+    # pre-review of 03cb77e29, M2). E4 step 7 refuses a `binding_ref` repeated
+    # across seats as it refuses a repeated `principal_ref`, with the same code,
+    # after it. So no frozen snapshot shares a binding, and E7 step 5 never
+    # resolves two seats to one binding: registration never sees such a snapshot.
     shared_binding = fx.snapshot()
     for item in shared_binding["assignments"]:
         item["holder"]["binding_ref"] = fx.binding_id("seat-a")
-    assignments.check_snapshot(shared_binding)
+    with pytest.raises(Refused) as caught:
+        assignments.check_snapshot(shared_binding)
+    assert caught.value.code == "assignment_shared_holder"
+    assert caught.value.member.endswith("holder.binding_ref")
 
     shared_principal = fx.snapshot()
     for item in shared_principal["assignments"]:
@@ -327,15 +330,19 @@ def test_a_binding_shared_by_two_seats_with_distinct_principals_freezes_today():
     with pytest.raises(Refused) as caught:
         assignments.check_snapshot(shared_principal)
     assert caught.value.code == "assignment_shared_holder"
+    assert caught.value.member.endswith("holder.principal_ref")
 
-    # So at registration, seat-a's job registers for seat-b once the dispatcher
-    # names seat-b's principal: the shared binding admits seat-a's subject.
-    case = fx.registration_case("seat-b")
-    for item in case["snapshot"]["assignments"]:
-        item["holder"]["binding_ref"] = fx.binding_id("seat-a")
-    case["environment"]["identity"] = fx.identity("seat-a")
-    case["environment"]["identity"]["principal"]["principal_ref"] = fx.binding_id("seat-b")
-    assert register(case)["key_fingerprint"] == fx.fingerprint(fx.key("seat-b").public_key)
+
+def test_every_seat_holds_its_own_binding_in_the_fixtures():
+    # The registration, return and completion fixtures give each seat its own
+    # binding, as the ruling requires of any snapshot that freezes.
+    for case in (fx.registration_case(), fx.return_case(), fx.completion_case()):
+        holders = [item["holder"] for item in case["snapshot"]["assignments"]]
+        assert len({h["binding_ref"] for h in holders}) == len(holders)
+        assert [h["binding_ref"] for h in holders] == [fx.binding_id(s) for s in fx.SEATS]
+        assignments.check_snapshot(case["snapshot"])
+    assert [b["binding_id"] for b in fx.registration_case()["bindings"]] == [
+        fx.binding_id(s) for s in fx.SEATS]
 
 
 def test_registration_verifies_the_proof_with_the_stdlib_verifier(monkeypatch):

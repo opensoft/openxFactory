@@ -208,6 +208,23 @@ def test_a_signing_vector_whose_snapshot_e4_refuses_is_a_schema_finding(family_t
     assert "council-convening-schema" in _codes(family_tree)
 
 
+def test_no_signing_vector_freezes_a_shared_binding(family_tree):
+    # Brett Heap, 2026-10-11T00:19:34Z, "Refuse at freeze (Recommended)": a
+    # snapshot whose seats share a `binding_ref` never freezes, so a signing
+    # vector carrying one cannot be run, and is a schema finding.
+    for row in _rows(family_tree):
+        if row["area"] == "signing":
+            snapshot = _load(_vector_path(family_tree, row))["inputs"]["snapshot"]
+            refs = [a["holder"]["binding_ref"] for a in snapshot["assignments"]]
+            assert len(refs) == len(set(refs)), row["case_id"]
+
+    def mutate(vector):
+        for item in vector["inputs"]["snapshot"]["assignments"]:
+            item["holder"]["binding_ref"] = "binding-seat-a"
+    _replace_signing_vector(family_tree, "reg-accept-hand-known-answer", mutate)
+    assert "council-convening-schema" in _codes(family_tree)
+
+
 def test_the_rule_changed_completion_vector_puts_the_changed_rule_at_the_governed_tip():
     # Pre-review of 03cb77e29, L5. The vector must let an adapter that wrongly
     # re-resolves CURRENT rules see a different answer. So:

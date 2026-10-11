@@ -208,9 +208,10 @@ completion vectors apply to both sides. Key transport by member name and the
 § Consumer impacts).
 
 **Per-seat holders.** Each seat's holder names its own binding, by
-`binding_ref`, as its `principal_ref` (025 ruling (A)). E4 refuses a
-`principal_ref` that two seats share, and does not refuse a shared
-`binding_ref` (see the feature's evidence, § Phase 4).
+`binding_ref`, as its `principal_ref` (025 ruling (A)). E4 refuses, as
+`assignment_shared_holder`, a `principal_ref` and then a `binding_ref` that two
+seats share (Brett Heap, 2026-10-11, "Refuse at freeze (Recommended)"), so
+registration never resolves two seats to one binding.
 
 ## Classification comes first, and a legacy record is never passed
 
