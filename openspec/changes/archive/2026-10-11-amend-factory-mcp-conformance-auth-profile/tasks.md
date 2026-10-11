@@ -286,8 +286,62 @@ Boxes for work this change will never do carry `[~]`, in § 5.
     `contracts/releases/contract-v4.1.digests.yaml` and
     `contracts/CHANGELOG.md`.
   - The wrapper's run, the promotion measured by content, the retirement of
-    the `_LEDGER_SUBJECTS` row and the README record are recorded under this
-    item in the commit after the move.
+    the `_LEDGER_SUBJECTS` row and the README record are recorded below, in a
+    later commit of this archive's pull request.
+  - **The run.** Performed in commit `271013bd`, the commit that moves this
+    directory: `TZ=UTC python3 scripts/proposal-support.py . archive
+    amend-factory-mcp-conformance-auth-profile --yes`, exit 0,
+    2026-10-11T16:27:48Z to 16:28:03Z. Its decisive lines: `ORIGIN RETAINED
+    amend-factory-mcp-conformance-auth-profile (declaration unchanged since
+    the ratifying commit 93d13d6c8e14)`; `Totals: 1 passed, 0 failed (1
+    items)`; `Task status: ✓ Complete`; `factory-mcp-conformance: update`;
+    `Applying changes to openspec/specs/factory-mcp-conformance/spec.md: + 4
+    added ~ 1 modified`; `Totals: + 4, ~ 1, - 0, → 0`; `Change
+    'amend-factory-mcp-conformance-auth-profile' archived as
+    '2026-10-11-amend-factory-mcp-conformance-auth-profile'`; `NO SUPPORTING
+    DOCS ... (origin retained, nothing to package)`. The CLI was the
+    content-addressed `@fission-ai/openspec@1.12.0` pin. `--date` was not
+    passed, so the directory takes the UTC day of the run, which is also the
+    UTC day of its adding commit (author and committer 2026-10-11T16:32:31Z).
+  - **Promoted requirements, verified by content.** Each requirement block was
+    extracted by its `### Requirement:` heading from this archived delta, from
+    canon before the archive (`main` `b27ae7a2`) and from canon after it, and
+    hashed. The four ADDED blocks, *Hosted declarations carry an authorization
+    block* (2,345 bytes, 6 scenarios), *RS256 token-signing baseline* (1,086
+    bytes, 4), *Audience bound to the server's own resource* (1,508 bytes, 4)
+    and *Per-domain error vocabularies* (1,099 bytes, 2), are byte-identical
+    in canon. The MODIFIED *Lossless results and explicit failures* goes from
+    951 to 1,165 bytes, sha256 `6cf3989b62fa2167…` on the delta and canon
+    alike, with its 3 scenarios. The seven requirement blocks the delta does
+    not name are byte-identical before and after. The title, the Purpose and
+    the section headings are unchanged, and the four ADDED blocks are appended
+    after the eight in the delta's order. Canon holds twelve requirements, as
+    this item says, and 38 scenarios (22 before).
+  - **Provenance preserved.** The six packet files move as pure renames
+    (R100). The origin block is unchanged since ratification: `.openspec.yaml`
+    is blob `c61892ef` at the ratifying commit `98176693`, at the squash
+    `93d13d6c` on `main` and here. `98176693` stays reachable through
+    `refs/pull/1274/head`, and on `main` the ratifying commit is the squash,
+    which is the one the wrapper's origin check names. The delta is blob
+    `51fc770d`, the ratified blob, at #1274's landing head `8e56ac58` and
+    here.
+  - **The `_LEDGER_SUBJECTS` row retired** in `271013bd` on its own stated
+    condition, leaving 13 literal entries and 12 unique (14 and 13 before).
+    The `modified-block-currency` family reports exactly the 12 remaining INFO
+    subjects, and `tests/doc-health/test_modified_block_currency_self_gate.py`
+    passes 20 of 20.
+  - **The README record** moved from *Active changes* to the head of *Archived
+    changes* in `271013bd`. Its pull-request link was named in `ff50fa82`,
+    once [#1298](https://github.com/opensoft/openxFactory/pull/1298) existed.
+    The same commit seeded the sweep-ledger row with `--seed-ledger --moved-by
+    '#1298'`: one line moved, and `--ledger-diff` reads consistent at 238
+    rows.
+  - **Links.** `564589be` repointed the seven markdown links outside this
+    packet that named its active path, one in the runbook and six in Speckit
+    039. Every relative link in those files and in this packet resolves.
+  - **Not done here**, each owned elsewhere (§ 5): codexFactory's RS256 slice,
+    OpsxFactory's hosting-plan `issuer` correction, and the Ops gateway's
+    intake alignment.
 
 ## 5. Downstream acts this change does NOT perform
 
