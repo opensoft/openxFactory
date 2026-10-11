@@ -1095,6 +1095,20 @@ All at `a574144c9`, the merge of `origin/035-phase5-binding` at `d8c62dba4`, in 
    - **Full suite.** Not run locally, on the coordinator's instruction ("No local full suite"). The required `pytest-suite` check on PR-6 is the gate of record.
 5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty.
 
+### PR-2 and PR-3 landed, and the twin ruling (2026-10-11)
+
+- **Merged.** `origin/main` at `b27ae7a25` (PR-2 #1294 and PR-3 #1296 landed), as `471231bae`. `refusal_code` still holds 92 codes, with one copy each of `binding_unresolved` and `broker_capability_insufficient`, at Phase 4's position. Phase 4's tip has moved past `03cb77e29`, and Phase 5's past `d8c62dba4`. Neither is merged here: on the coordinator's instruction, that waits for PR-4.
+- **The ruling.** Brett Heap, first-hand, 2026-10-11T15:57:48Z, *"Refuse dual-role and twins (Recommended)"*. Phase 6 takes the E12 half. An activation or resume whose configured binding set holds two bindings sharing a `subject_template` is `binding_malformed`, with no new refusal code. The check opens E12 step 3: after step 2's completeness, and before any `binding_refs` entry is resolved. `check` names the rule as not checkable offline. data-model E12 carries the dated amendment. The dual-role half (one binding listing both `commission` and `seat_execution`) is E10's, and lands with Phase 5.
+  - Tests first (`6412ef097`): **10 failed, 6 passed**. The passes are the acts that read no binding set, the distinct-templates accept, and incomplete-before-twins. The `check` note test (`c53e34052`): 1 failed.
+  - Vectors (`f115ca977`): five, hand-authored and consumer-only. Two are malformed twins: `mig-act-activation-twin-subject-template-malformed` (two seats) and `mig-act-resume-twin-subject-template-malformed` (the commission binding and a seat). Three are order cases: `mig-act-order-incomplete-before-twins`, `mig-act-order-twins-before-unresolved` and `mig-act-order-twins-before-broker`. The other 124 migration vectors are byte-identical; the authoring script reproduced them before the five were added.
+  - Implementation (`3de9e32a2`). At that commit:
+    - `tests/council_convening` gave **4 failed, 2001 passed**. All 4 also fail at the main merge `471231bae` before it (4 failed, 1985 passed), and none is this phase's. Three are Phase 3's assignment builder against Phase 5's retry-vector edits, as § Phase 4 records: `test_the_assignment_area_is_exactly_what_its_builder_writes`, `test_every_retry_vector_copies_phase_2s_base_vector` and `test_binding.py::test_the_identical_retry_with_a_passing_token_returns_the_snapshot`. The fourth, `test_check_names_no_offline_rule_as_not_checkable`, is Phase 3's exact not-offline set against Phase 5's A1 and A4 notes, which Phase 4's tip fixes (`427e14c8b`).
+    - The self-test: exit 0, 646/646 vectors, 92/92 codes, 2/2 findings, 15/15 requirements and the full-floor note. The gate's eleven log assertions pass.
+    - `generate --check`: no drift.
+    - Corpus: 646 vectors, with an agreement set of 450.
+    - OpenSpec (pinned CLI): exit 0, 0 undispositioned.
+    - Doc-health, over exported trees of this commit and of main `b27ae7a25`: both read `27 critical, 22 error, 3 warning, 16 info`, and the only difference is the runbook's `ratified` census row, 34 to 35.
+
 ### The runbook (T062)
 
 `docs/council-convening-activation-runbook.md`, `Status: ratified`, `Ratified by: renew-resolved-council-protocol`, `Kind: runbook`, linked once from the `README.md` document index. Doc-health in single-repo mode, base `e1aab2af5` against head `29ee4a3d6`: `Findings: 31 critical, 22 error, 59 warning, 21 info` at both, `New regressions vs previous report: 0`; the only difference between the two reports is the census row for `ratified` documents, 34 to 35. The ruled rollback replaced the open question in `b24789199`.
