@@ -1814,7 +1814,6 @@ def test_the_review_round_vectors_pin_their_codes():
         assert binding.evaluate_vector(vector) == want, name
 
 
-
 # =========================================================================
 # The delta review of c46d981e..d8c62dba (lane codeXfactory-1): one LOW
 # fail-open regression. A pending spelling that folds equal to a COMPLETE
@@ -1854,6 +1853,7 @@ def test_a_workflow_in_a_colliding_pending_former_is_refused(map_root):
 @pytest.mark.parametrize("name", [
     "bind-caller-pending-collides-with-complete-refuse",
     "bind-workflow-pending-collides-with-complete-refuse",
+    "bind-workflow-pending-collides-governed-names-it-refuse",
 ])
 def test_the_collision_vectors_refuse_as_former(name):
     vector = _bind_vector(name)
@@ -1917,3 +1917,19 @@ def test_no_vector_carries_a_dual_role_binding_except_its_probes():
         ops = {e.get("operation") for e in b["permitted_workflows"] if isinstance(e, dict)}
         if {"commission", "seat_execution"} <= ops:
             assert raw["case_id"] in probes, raw["case_id"]
+
+
+def test_the_governed_collision_vector_would_accept_without_step_4(map_root):
+    # codeXfactory-1's minor: this vector's `governed` names the colliding
+    # spelling, so steps 7 to 14 all pass, and only step 4 refuses it. With the
+    # map's step-4 answer taken away, the same binding is ACCEPTED: the old
+    # fail-open path, reproduced.
+    vector = _bind_vector("bind-workflow-pending-collides-governed-names-it-refuse")
+    b = vector["inputs"]["binding"]
+    assert vector["inputs"]["governed"]["repository"] == COLLIDING_PENDING_FORMER
+    entry = binding.check_claims(b, operation="commission",
+                                 identity=vector["environment"]["identity"],
+                                 evaluation_time=vector["evaluation_time"])
+    binding.check_workflow_revision(entry, identity=vector["environment"]["identity"],
+                                    governed=vector["inputs"]["governed"],
+                                    governed_history=None)
