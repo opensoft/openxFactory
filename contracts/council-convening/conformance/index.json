@@ -5,6 +5,1606 @@
         "producer",
         "consumer"
       ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-assignment-malformed-missing-holder-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_malformed"
+      },
+      "path": "vectors/assignment/asg-assignment-malformed-missing-holder-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:af0eb551dec71b18c674b9393d84679b8c0d3cbfa2df3c5bbbb88c398d395ab8"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-assignment-malformed-principal-kind-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_malformed"
+      },
+      "path": "vectors/assignment/asg-assignment-malformed-principal-kind-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-006"
+      ],
+      "sha256": "sha256:13d1bb4de03ff152e7f6dbb54f111e3d588a5ec45e42bbfb1d74c1f94f34dda9"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-ceiling-21601-seconds-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_malformed"
+      },
+      "path": "vectors/assignment/asg-ceiling-21601-seconds-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:ac2aae131334effb24f0463e78e6d5af5597509a60585143a4a24cb9e44d1c2d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-ceiling-exactly-21600-seconds-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-ceiling-exactly-21600-seconds-accept.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:4dd5ad02099054e6e4bd5259c2925a0326f820a83e39e32e9aa0b08f74978359"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-ceiling-negative-lifetime-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_malformed"
+      },
+      "path": "vectors/assignment/asg-ceiling-negative-lifetime-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:56f5e898cb26d524e61ae73c6acf101a41398b62ea713f15e5b612cdefb2b285"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-ceiling-zero-lifetime-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_malformed"
+      },
+      "path": "vectors/assignment/asg-ceiling-zero-lifetime-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:aab906f4037031238644d55eca3990529c1f078e12b5471e23bbb162b9bf4665"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-digest-convening-edited-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "digest_construction_mismatch"
+      },
+      "path": "vectors/assignment/asg-digest-convening-edited-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:ec6a4e52951e9036d796187191d85be04a149d39878838d99a35a034d8564b5e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-digest-value-wrong-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "digest_construction_mismatch"
+      },
+      "path": "vectors/assignment/asg-digest-value-wrong-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:d00d24fe99775f11c49b7fbfb9809b303e6ace56e0518ab12ff046afa7cd8c3b"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-duplicate-assignment-id-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_duplicate"
+      },
+      "path": "vectors/assignment/asg-duplicate-assignment-id-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:1dfbaeba562b73ef9ff5f10dc0bd01b5591477c0dc258f526fa37bfea1b46372"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-lifetime-one-hour-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-lifetime-one-hour-accept.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:98000662e0bce8225b864f64f924819c4134af2c46d3142b11e12b1b553a599c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-lifetime-one-second-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-lifetime-one-second-accept.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:24df41c4d8b5d34e9765b3b67b50bfd033f8edac1058c0bccb87f2c465b78876"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-operations-empty-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_malformed"
+      },
+      "path": "vectors/assignment/asg-operations-empty-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:87fb5cd3ecb42c4a9ec85dbc999c516cbc3f654eceeb6527fae4db8148b4a0b5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-operations-registration-only-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-operations-registration-only-accept.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:78f79b0628df06c0654a9646a17adbb7da0f26221ea1af881a237623688d287f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-operations-reordered-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_malformed"
+      },
+      "path": "vectors/assignment/asg-operations-reordered-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:b2ab70a847401400476507743ed6c078dcfc8fa2ca8b1a3d5521e6952a742e19"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-operations-repeated-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_malformed"
+      },
+      "path": "vectors/assignment/asg-operations-repeated-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:46149685a342e5aa197da8d5c67a1434a4a627c98ab47048bd06329384f0e1fb"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-operations-return-only-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-operations-return-only-accept.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:fa34872c259b8073725ccb3352498e6da094107d98fa6c06f931725190fa6768"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-operations-unknown-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_malformed"
+      },
+      "path": "vectors/assignment/asg-operations-unknown-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-007"
+      ],
+      "sha256": "sha256:a67d21b1c6e047512cda9f57469e1b497e5a02d43ccec0f583d3156f48b95be7"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-assignment-malformed-before-digest-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_malformed"
+      },
+      "path": "vectors/assignment/asg-order-assignment-malformed-before-digest-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:9e98ccca83980b9b90f5e1819185765a453c7656940d8ec814050ead2af4771c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-assignment-malformed-before-not-canonicalizable-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_malformed"
+      },
+      "path": "vectors/assignment/asg-order-assignment-malformed-before-not-canonicalizable-refuse.json",
+      "requirement_ids": [
+        "FR-005"
+      ],
+      "sha256": "sha256:84fb66ffa8b249874983cc77a1ba356a2d0dc23d471f3404144dd34b3456bdd8"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-classification-before-shape-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "legacy_protocol_refused"
+      },
+      "path": "vectors/assignment/asg-order-classification-before-shape-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-011"
+      ],
+      "sha256": "sha256:86c67fd6eefaaddcc4e381bbddce198e15a5f6e85c95531ed00033671ef53222"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-convening-roster-before-assignment-malformed-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-order-convening-roster-before-assignment-malformed-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005"
+      ],
+      "sha256": "sha256:b411e68d4d37b8fab6082d4888267117613e691c75c3eb0f49360c95455afc7d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-digest-before-set-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "digest_construction_mismatch"
+      },
+      "path": "vectors/assignment/asg-order-digest-before-set-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:c9fc212608a30ef571484ab1d9e4edd7bbc63949d0bb862ced63c6846f9bc86f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-duplicate-before-shared-binding-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_duplicate"
+      },
+      "path": "vectors/assignment/asg-order-duplicate-before-shared-binding-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-006"
+      ],
+      "sha256": "sha256:d5c82c6a6fceef0c52c2ba71ef0092d6f3cc9294944e17dca73f45bb6f795139"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-duplicate-before-shared-holder-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_duplicate"
+      },
+      "path": "vectors/assignment/asg-order-duplicate-before-shared-holder-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:a18fc0776d10dbaf3c2406d54b3e4a1142a651f6f45afb8410b37da8f83c8458"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-not-canonicalizable-before-digest-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "value_not_canonicalizable"
+      },
+      "path": "vectors/assignment/asg-order-not-canonicalizable-before-digest-refuse.json",
+      "requirement_ids": [
+        "FR-005"
+      ],
+      "sha256": "sha256:580a3582afad11f5dc03f5aa28c77453666714b4d43d8aa888419ea9a28adff1"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-set-before-duplicate-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_set_mismatch"
+      },
+      "path": "vectors/assignment/asg-order-set-before-duplicate-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:36b9fa6e5c0a362e981cbe49dba7090b914a060f0359b1f71c36a14cc8ec2607"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-shared-principal-before-shared-binding-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_shared_holder"
+      },
+      "path": "vectors/assignment/asg-order-shared-principal-before-shared-binding-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-006"
+      ],
+      "sha256": "sha256:a6e0e6c19472f41083b7c64349ecc3a1e6d88b1436a6689cb412a2282849419d"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-order-snapshot-before-assignment-malformed-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-order-snapshot-before-assignment-malformed-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:f8416d11df03decf8a9ac201a53cf2d89cfe0dac760c81216d0d061ec196adca"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-conflict-packet-refs-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_conflict"
+      },
+      "path": "vectors/assignment/asg-retry-conflict-packet-refs-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "SC-002"
+      ],
+      "sha256": "sha256:05c76559ef369a8a56fe911764b57120c5cd7c5dc57c1aab1c350dad1127c1f8"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-conflict-pull-number-only-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_conflict"
+      },
+      "path": "vectors/assignment/asg-retry-conflict-pull-number-only-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "SC-002"
+      ],
+      "sha256": "sha256:39265ca79299bf4179ec6bb6d712918a5e5cd8badef472e423397cb14d457a3a"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-conflict-subject-path-only-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_conflict"
+      },
+      "path": "vectors/assignment/asg-retry-conflict-subject-path-only-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "SC-002"
+      ],
+      "sha256": "sha256:68f8e0cb18f96fe338e2baf5f65801b1fda4a04d3f8f5cc88a7dce7450f0a36d"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-identical-after-head-moved-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
+          },
+          "convening_id": "convening-0001",
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ],
+          "snapshot_digest": "sha256:77f9d58314fc6351fe436fba4b408476c82ce13496befed4bd9925e16c8ac0b1"
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-retry-identical-after-head-moved-accept.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005"
+      ],
+      "sha256": "sha256:22c8a4e50d77a19b5b8ced0d4f8da7af0f8961869f9aabd8065d886e216ac3cf"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-identical-after-tip-moved-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
+          },
+          "convening_id": "convening-0001",
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ],
+          "snapshot_digest": "sha256:77f9d58314fc6351fe436fba4b408476c82ce13496befed4bd9925e16c8ac0b1"
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-retry-identical-after-tip-moved-accept.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005"
+      ],
+      "sha256": "sha256:601a279dd488cf6c8df5d2247e7ebe4f585f990cf8c2d9388dfc5a7bb07b2847"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-identical-not-pre-empted-by-once-per-pin-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
+          },
+          "convening_id": "convening-0001",
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ],
+          "snapshot_digest": "sha256:77f9d58314fc6351fe436fba4b408476c82ce13496befed4bd9925e16c8ac0b1"
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-retry-identical-not-pre-empted-by-once-per-pin-accept.json",
+      "requirement_ids": [
+        "FR-004",
+        "SC-002"
+      ],
+      "sha256": "sha256:11fb08f6be88dbfe8b4a164b7e1a86cfccf2d5cc9f3640dbe66cdee8462cf79f"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-identical-returns-snapshot-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
+          },
+          "convening_id": "convening-0001",
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ],
+          "snapshot_digest": "sha256:77f9d58314fc6351fe436fba4b408476c82ce13496befed4bd9925e16c8ac0b1"
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-retry-identical-returns-snapshot-accept.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:60ffaac6d86a6c91d87602f7132bb3253434a2ac8fc484dd426f59d24eb51ecc"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-order-conflict-before-head-moved-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_conflict"
+      },
+      "path": "vectors/assignment/asg-retry-order-conflict-before-head-moved-refuse.json",
+      "requirement_ids": [
+        "FR-004"
+      ],
+      "sha256": "sha256:480b7133e7ebd0144475a39e8cb2a35db2b1545b26cabe0f841832d9c8562cdc"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-order-conflict-before-secret-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_conflict"
+      },
+      "path": "vectors/assignment/asg-retry-order-conflict-before-secret-refuse.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-004"
+      ],
+      "sha256": "sha256:34f4266c6479ac64e81bffc1ee0fa0a160686218ed5333cc1fada1a8fbe5cd68"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-order-shape-before-conflict-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/assignment/asg-retry-order-shape-before-conflict-refuse.json",
+      "requirement_ids": [
+        "FR-004"
+      ],
+      "sha256": "sha256:661eb8bab1108024ac94d43f89dee777235d497f788985f84d08b0270eba14c6"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-other-council-same-pin-not-conflict-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-retry-other-council-same-pin-not-conflict-accept.json",
+      "requirement_ids": [
+        "FR-004"
+      ],
+      "sha256": "sha256:f37f09138d588546f19224a4664d36a862f4f777e5e5c4ff6ab780e1130bb5b5"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-same-council-other-pin-not-conflict-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1caef41b8ca90e27bc6cac4b7bc38940959eb7a0d851df8690e81731791449c"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-retry-same-council-other-pin-not-conflict-accept.json",
+      "requirement_ids": [
+        "FR-004"
+      ],
+      "sha256": "sha256:e642ba15262a7c1267390dd70cd1851ca7b2ea2a5a849e801a0c37a1fd01f653"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-set-extra-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_set_mismatch"
+      },
+      "path": "vectors/assignment/asg-set-extra-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:173d3bf1154e339f27d0420dca6e762f63cb706cac948afd8ab2abe61a7721cf"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-set-member-candidate-differs-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_set_mismatch"
+      },
+      "path": "vectors/assignment/asg-set-member-candidate-differs-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:3f6c24b23000b3a9f5d37beba65a1c89aa38930fd42fc072c46fff378dd17d4e"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-set-member-convening-digest-differs-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_set_mismatch"
+      },
+      "path": "vectors/assignment/asg-set-member-convening-digest-differs-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:04acdb3c3aa5dba86ab17e9c97160c95c94e18f571e9b2d0ddf424d496ed3d17"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-set-member-convening-id-differs-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_set_mismatch"
+      },
+      "path": "vectors/assignment/asg-set-member-convening-id-differs-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:61ab932169447293ab0ad688aea6379f5ec6c4cabf9070a412b019226fe26b7a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-set-member-council-id-differs-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_set_mismatch"
+      },
+      "path": "vectors/assignment/asg-set-member-council-id-differs-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:5ae921403f5ae02ee4f9033e5ff4217e2f5e7f2d6be95d42bf9dd97235c25c79"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-set-member-protocol-differs-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_set_mismatch"
+      },
+      "path": "vectors/assignment/asg-set-member-protocol-differs-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:868d94f6e61121fb133e16989ad8625ad8697a4ed502c23ad51d59959f9dd616"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-set-missing-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_set_mismatch"
+      },
+      "path": "vectors/assignment/asg-set-missing-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:04154f97901b933ef03d5479d8a576d9ffe201f5c83d06dfe5def88bcde549a3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-set-reordered-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_set_mismatch"
+      },
+      "path": "vectors/assignment/asg-set-reordered-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:5184ece095f57183265d0c2dad35534cbf6a3a073ef96e1ff8839c3071a593c8"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-set-same-count-wrong-seat-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_set_mismatch"
+      },
+      "path": "vectors/assignment/asg-set-same-count-wrong-seat-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:6fc078f99d23a4ba8023d57d2d2ae7f010345bc0bf5bd8e0f236350a33544737"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-shared-binding-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_shared_holder"
+      },
+      "path": "vectors/assignment/asg-shared-binding-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "SC-002"
+      ],
+      "sha256": "sha256:f97513aaec334c8c71fc71410702fc3b05e7a903db9fc69d0c4958cb677615e5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-shared-holder-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "assignment_shared_holder"
+      },
+      "path": "vectors/assignment/asg-shared-holder-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "FR-006",
+        "SC-002"
+      ],
+      "sha256": "sha256:54c16e7a6ee55275c0d4f5f08aa464fa805b42336824c2a49efbdb6d55b1384f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-accept-conditional-seat-held",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:3bcbf2b90be6353eae325056ffb7066301015d981427c371de6d48a469e5a172"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b",
+            "seat-c"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-snapshot-accept-conditional-seat-held.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:9afe8623385adaf6606ce8725d73915376c3ab692444c49a308bf2ef8eed3c35"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-accept-three-seats",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:a58818611695bb8350be8ef4a2b39b68faec755fa17502d5045939587634d7cb"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b",
+            "seat-c"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-snapshot-accept-three-seats.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:fddf04ecb4b92d053d97cad6d028dbadea6a3509f83434d06dd4d1f25136787c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-accept",
+      "expected": {
+        "derived": {
+          "convening_digest": {
+            "construction": "xfc-jcs-sha256-1",
+            "subject": "council_convening",
+            "value": "sha256:d1f42938970ad468215fa0069ac1b578f2277d4e923beedeab112a00cc4289af"
+          },
+          "required_seats": [
+            "seat-a",
+            "seat-b"
+          ]
+        },
+        "derived_origin": "generated",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/assignment/asg-snapshot-accept.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "SC-002"
+      ],
+      "sha256": "sha256:6a07c63fcbcbab71336b618e4cdceb5723f716bce3db325fe6339e99677b0d6f"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-changed-paths-unsorted-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-changed-paths-unsorted-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:1e35bb158c42800b4d150cf82aa306c2f2969b70202bafd74d43492cf42f76e3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-class-inputs-without-matched-class-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-class-inputs-without-matched-class-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:affa9f55abe6db323922ca4aab0b275375b19c5ced24af7312a441a686c93113"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-fails-e2-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-fails-e2-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:a8610872d804733dc7c10d69b412fb967e8f56d908f2dc5229de376e128567be"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-held-seat-unbound-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-held-seat-unbound-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:25cb6a75d8167f5f49e256557853cbdb165ceb8895c1ef31ec3bfea211c36b79"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-roster-duplicate-seat-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-roster-duplicate-seat-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:1435a363a1008aa413cd8ddfa9fd35a2023755907f1da7c6047fa9b7c5fa41c6"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-roster-mismatch-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-roster-mismatch-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:e81b94528e132bec96a04cb947c62db90184f9be18932d9202f4497e6a018f0c"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-rule-touched-paths-repeated-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-rule-touched-paths-repeated-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:36b7fae79a6c6db201fb5fd70ac0c482d2b696925edd5f940d069aa4c4323c95"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-rule-touched-paths-unsorted-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-rule-touched-paths-unsorted-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:51dc00ce588d7a2ff2d325bcb0f93c02630e2f77c9b97006d5e304038578b3fe"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-sources-unsorted-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-sources-unsorted-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:2feaf67ff5bfe514ad6f27a7ff3583fed8a40d13bb165a159dbee099f0cd42ca"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-convening-zero-seats-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-convening-zero-seats-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:a28a1bd8123fcf338a7f91fa84c280eaeb0e15a288b16692b4aa2a9d3a2b8bd3"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-missing-member-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-missing-member-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:d7d30b96788f6638ddedbcaf30a0f63000007ee50661311a9fc6859730e9285a"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-snapshot-malformed-trailing-newline-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "snapshot_malformed"
+      },
+      "path": "vectors/assignment/asg-snapshot-malformed-trailing-newline-refuse.json",
+      "requirement_ids": [
+        "FR-005",
+        "SC-002"
+      ],
+      "sha256": "sha256:3314ed9db0eef4e986eb26b2b606b03d51625c8c9c0b99d3fe1b106ec0c305eb"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
       "area": "foundation",
       "boundary": "classification",
       "case_id": "cls-legacy-selection-legacy-protocol-id-route",
@@ -2219,7 +3819,7 @@
       "requirement_ids": [
         "FR-001"
       ],
-      "sha256": "sha256:ba6783e6051519b351a2b4367001c131880e251a07ed9aff0ddfd8f99d8aed32"
+      "sha256": "sha256:3bb119a4bb532905fc11bf4556a0fd14a61c17b4439d90b2d00d04ca1d383566"
     },
     {
       "applies_to": [
@@ -4312,6 +5912,50 @@
       ],
       "area": "resolution",
       "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-rule-touched-paths-repeated",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-rule-touched-paths-repeated.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:abddce0be2e18dd8b706b80db3519e0e608a7cbbf86c2863f4f6aca26e138db5"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
+      "case_id": "commission-refuse-convening-malformed-rule-touched-paths-unsorted",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/commission-refuse-convening-malformed-rule-touched-paths-unsorted.json",
+      "requirement_ids": [
+        "FR-002",
+        "SC-001"
+      ],
+      "sha256": "sha256:7c6975aaed3daa70fe5d8959ac71ce2cc0293de34b0b1b38d565f33c02829635"
+    },
+    {
+      "applies_to": [
+        "producer",
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "commission",
       "case_id": "commission-refuse-convening-malformed-sources-out-of-order",
       "expected": {
         "derived": {},
@@ -6378,23 +8022,27 @@
     "FR-002",
     "FR-003",
     "FR-004",
+    "FR-005",
+    "FR-006",
     "FR-011",
-    "SC-001"
+    "SC-001",
+    "SC-002"
   ],
   "kind": "openxfactory-council-convening-conformance-index",
   "protocol": "xfc-resolved-council-1",
   "schema_version": 1,
   "totals": {
-    "both_sides": 266,
+    "both_sides": 322,
     "by_area": {
+      "assignment": 66,
       "foundation": 133,
-      "resolution": 149
+      "resolution": 151
     },
     "by_outcome": {
-      "accept": 58,
-      "refuse": 216,
+      "accept": 72,
+      "refuse": 270,
       "route": 8
     },
-    "vectors": 282
+    "vectors": 350
   }
 }

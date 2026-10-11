@@ -268,7 +268,7 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
 
 ### Tests first
 
-- [ ] T035 [P] [US2] Write failing `tests/council_convening/test_assignments.py`:
+- [x] T035 [P] [US2] Write failing `tests/council_convening/test_assignments.py`:
   - E4 and E5 shapes, and the E4 order;
   - one assignment per seat, in roster order: extra, missing and reordered refused as `assignment_set_mismatch`, as is an assignment whose convening members differ from the snapshot's;
   - duplicate `assignment_id`;
@@ -278,15 +278,15 @@ No task of this feature's phases edits `openspec/changes/renew-resolved-council-
   - `permitted_operations`: a non-empty, duplicate-free subset of `[seat_key_registration, seat_return]` in that order; an empty, repeated, reordered or unknown list refused as `assignment_malformed`;
   - retry, as E2 step A3 over `environment.issued.live_snapshots`: an identical E2 returns the same snapshot; a different one is `convening_conflict`, keyed on `(protocol, council_id, subject_pin)` (025's once-per-pin key), including a record that differs only in `candidate.pull_number` or `candidate.subject_path`, while a record for the same council at another pin is not a conflict; an identical E2 resent after a governed source changed at the tip, or after the live head moved, still returns the same snapshot, because retry identity runs before every drift check (US1 scenario 4; 025 FR-006); and once-per-pin never pre-empts an identical retry;
   - `assignment_malformed` at its E4 position, before the digest and set checks.
-- [ ] T036 [US2] Author the `assignment` vectors, creating `contracts/council-convening/conformance/vectors/assignment/` with the first of them, with their expected outcomes first, including the four ceiling vectors. Raise `coverage_floor` to add FR-005, FR-006 and SC-002, and regenerate the index.
-- [ ] T037 [P] [US2] Extend `tests/council_convening/test_validator_cli.py`: `check` on a snapshot recomputes its digest and its assignment set.
+- [x] T036 [US2] Author the `assignment` vectors, creating `contracts/council-convening/conformance/vectors/assignment/` with the first of them, with their expected outcomes first, including the four ceiling vectors. Raise `coverage_floor` to add FR-005, FR-006 and SC-002, and regenerate the index.
+- [x] T037 [P] [US2] Extend `tests/council_convening/test_validator_cli.py`: `check` on a snapshot recomputes its digest and its assignment set.
 
 ### Implementation
 
-- [ ] T038 [US2] Author `contracts/council-convening/convening-snapshot.schema.yaml` and `contracts/council-convening/seat-assignment.schema.yaml`, per data-model E4 and E5, with the assignment lifetime ceiling of 21600 seconds. Extend `refusal_code` in `contracts/council-convening/shared-definitions.schema.yaml` with the Phase 3 codes.
-- [ ] T039 [US2] Implement `scripts/council_convening/assignments.py`, including retry identity and once-per-pin (E2 step A3).
-- [ ] T040 [US2] Register the snapshot-at-`admission` handler in `scripts/council_convening/corpus.py`, insert retry identity (E2 step A3) into the Phase 2 `admission` handler (T032) right after E2 step 2, and extend `check` in `scripts/validate-council-convening.py`. From Phase 5, T055 puts binding (A1) before it. The `completion` handler is Phase 4's (T048).
-- [ ] T041 [US2] Run quickstart steps 1–5, record them in `evidence.md` § Phase 3, and open PR-3 as a draft.
+- [x] T038 [US2] Author `contracts/council-convening/convening-snapshot.schema.yaml` and `contracts/council-convening/seat-assignment.schema.yaml`, per data-model E4 and E5, with the assignment lifetime ceiling of 21600 seconds. Extend `refusal_code` in `contracts/council-convening/shared-definitions.schema.yaml` with the Phase 3 codes.
+- [x] T039 [US2] Implement `scripts/council_convening/assignments.py`, including retry identity and once-per-pin (E2 step A3).
+- [x] T040 [US2] Register the snapshot-at-`admission` handler in `scripts/council_convening/corpus.py`, insert retry identity (E2 step A3) into the Phase 2 `admission` handler (T032) right after E2 step 2, and extend `check` in `scripts/validate-council-convening.py`. From Phase 5, T055 puts binding (A1) before it. The `completion` handler is Phase 4's (T048).
+- [x] T041 [US2] Run quickstart steps 1–5, record them in `evidence.md` § Phase 3, and open PR-3 as a draft.
 
 ---
 

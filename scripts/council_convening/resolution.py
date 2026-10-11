@@ -29,7 +29,9 @@ PR-2 (Recommended)": the rule projection declares each council's or class's
 fact sources, and step 9 refuses a record whose `fact_sources` differ from them,
 entry for entry and in order, as `fact_source_mismatch`. "Sorted and unique
 (Recommended)": a consumed `changed_paths` is bytewise sorted and duplicate-free,
-and step 2 refuses any other as `convening_malformed`.
+and step 2 refuses any other as `convening_malformed`. Brett Heap's ruling of
+2026-10-11T00:19:34Z, "Same rule, in PR-3 (Recommended)", gives a consumed
+`rule_touched_paths` the same rule (Phase 3).
 
 THE ORACLES ARE INJECTED (R8). `resolve` reads authority, facts and heads only
 through an `Oracles` object. `VectorOracles` answers from a corpus vector's
@@ -56,7 +58,7 @@ from pathlib import Path
 from typing import Any, Iterator, Mapping
 
 from ..signed_execution_chain import canonical
-from . import classification, predicates, records
+from . import assignments, classification, predicates, records
 from .records import Refused
 
 REPLACEMENT = "xfc-resolved-council-1"
@@ -95,6 +97,14 @@ class Routed(Exception):
 class Resolution:
     required_seats: list
     convening_digest: dict
+    #: Set only when admission RETURNED a live snapshot (E2 step A3): that
+    #: snapshot's consumer-issued id. A fresh admission has none, because the
+    #: consumer issues the id when it writes the snapshot.
+    convening_id: str | None = None
+    #: Set with `convening_id`: the `xfc-jcs-sha256-1` digest value of the whole
+    #: returned snapshot, so "the same assignments" is compared as well as the
+    #: same id (Phase 3 pre-review M1, 2026-10-09).
+    snapshot_digest: str | None = None
 
 
 # --------------------------------------------------------------------------
@@ -128,15 +138,20 @@ class Oracles:
     def resolved_candidate(self) -> Any:
         raise NotImplementedError
 
+    def live_snapshots(self) -> list:
+        """The consumer's snapshots that have not failed, for E2 step A3."""
+        raise NotImplementedError
+
 
 class VectorOracles(Oracles):
     """Answers from a vector's `environment`, recording each read as
     `(oracle, key)`. Messages name the oracle, never a key or a value."""
 
-    def __init__(self, environment: Mapping):
+    def __init__(self, environment: Mapping, schemas: records.SchemaSet | None = None):
         if not isinstance(environment, Mapping):
             raise HarnessError("the vector's environment is not an object")
         self._environment = environment
+        self._schemas = schemas
         self.reads: list[tuple[str, Any]] = []
 
     def _oracle(self, name: str):
@@ -181,6 +196,44 @@ class VectorOracles(Oracles):
     def resolved_candidate(self):
         self.reads.append(("resolved_candidate", None))
         return self._oracle("resolved_candidate")
+
+    def live_snapshots(self) -> list:
+        """`environment.issued.live_snapshots`.
+
+        An absent `issued`, or an `issued` without `live_snapshots`, is a
+        consumer holding no live snapshot (reading 3, now a dated note in
+        conformance-corpus § Vector). So an admission vector authored before
+        Phase 3, and a shared commission vector a consumer runs through
+        admission, keep their outcomes.
+
+        Each entry is the consumer's own state, so it must be a sound snapshot,
+        passing E4 steps 2 to 7, and no two may share a convening key, which
+        once-per-pin forbids (Phase 3 pre-review M2 and L2, 2026-10-09).
+        Otherwise the vector cannot be adjudicated: a `HarnessError`, never a
+        refusal.
+        """
+        self.reads.append(("issued", "live_snapshots"))
+        issued = self._environment.get("issued", {})
+        if not isinstance(issued, Mapping):
+            raise HarnessError("the `issued` oracle is not an object")
+        live = issued.get("live_snapshots", [])
+        if not isinstance(live, list):
+            raise HarnessError("`issued.live_snapshots` is not a list of live snapshots")
+        keys = set()
+        for snapshot in live:
+            if not isinstance(snapshot, Mapping):
+                raise HarnessError("a live snapshot in `issued.live_snapshots` is not an object")
+            try:
+                assignments.check_snapshot(snapshot, self._schemas)
+            except Refused:
+                raise HarnessError("a live snapshot in `issued.live_snapshots` is not a "
+                                   "sound snapshot (data-model E4)") from None
+            key = assignments.convening_key(snapshot["convening"])
+            if key in keys:
+                raise HarnessError("two live snapshots share one convening key, which "
+                                   "once-per-pin forbids (data-model E2 step A3)")
+            keys.add(key)
+        return live
 
 
 def _mapping(value, name):
@@ -381,6 +434,19 @@ def _shape(record, run: _Run) -> None:
     then canonicalizability."""
     if run.schemas.errors(SCHEMA_ID, record):
         raise Refused("convening_malformed", "record")
+    structural_rules(record)
+    try:
+        canonical.serialize(record)
+    except canonical.ConstructionError:
+        raise Refused("value_not_canonicalizable", "record") from None
+
+
+def structural_rules(record) -> None:
+    """Step 2's rules that JSON Schema cannot state, over a record that has passed
+    the E2 schema: `convening_malformed`, naming the member.
+
+    The snapshot half runs them too, over the record a snapshot embeds (E4 step
+    2; Phase 3 pre-review M3, 2026-10-09)."""
     prov = record["required_seats_provenance"]
     if ("class_inputs" in prov) != ("matched_class" in prov):
         raise Refused("convening_malformed", "class_inputs")
@@ -402,10 +468,12 @@ def _shape(record, run: _Run) -> None:
     pr_facts = prov["consumed_facts"].get(predicates.PR_FACTS, {})
     if "changed_paths" in pr_facts and not _strictly_ascending(pr_facts["changed_paths"]):
         raise Refused("convening_malformed", "changed_paths")
-    try:
-        canonical.serialize(record)
-    except canonical.ConstructionError:
-        raise Refused("value_not_canonicalizable", "record") from None
+    # Brett Heap, 2026-10-11T00:19:34Z, "Same rule, in PR-3 (Recommended)": the
+    # rule's touched paths take `changed_paths`'s rule, one order, no repeat.
+    rule_facts = prov["consumed_facts"].get(predicates.RULE_FACTS, {})
+    if "rule_touched_paths" in rule_facts and not _strictly_ascending(
+            rule_facts["rule_touched_paths"]):
+        raise Refused("convening_malformed", "rule_touched_paths")
 
 
 def _listed(entry: str, listing) -> bool:
@@ -631,12 +699,23 @@ def _authoritative(record, in_use, sources, run: _Run):
 
 def _held_and_roster(record, reference, run: _Run) -> None:
     """Steps 11 and 12."""
-    prov = record["required_seats_provenance"]
-    conditions = prov["conditions"]
+    conditions = record["required_seats_provenance"]["conditions"]
     if not run.skip("condition_result_mismatch"):
         for condition, held in zip(conditions, reference):
             if condition["held"] is not held:
                 raise Refused("condition_result_mismatch", "held")
+    roster_rules(record)
+
+
+def roster_rules(record) -> None:
+    """Step 11's offline half and step 12: `condition_seat_unbound`, then the
+    roster the record's own standing seats and held conditions fix. No oracle is
+    read.
+
+    The snapshot half runs them too, over the record a snapshot embeds (E4 step
+    2; Phase 3 pre-review M3, 2026-10-09)."""
+    prov = record["required_seats_provenance"]
+    conditions = prov["conditions"]
     for condition in conditions:
         if condition["held"] and condition["seat"] is None:
             raise Refused("condition_seat_unbound", "seat")
@@ -684,9 +763,32 @@ def _classify(record, run: _Run, selected_protocol, statuses) -> None:
     # refuse at step 2 (`convening_malformed`), never a harness error.
 
 
+def _retry_identity(record, run: _Run) -> Resolution | None:
+    """E2 step A3, admission only (Phase 3, T040): retry identity, then
+    once-per-pin, over the consumer's live snapshots. It runs after
+    classification and shape and before every check that reads something that
+    can drift, so a lost response followed by tip or head drift still returns
+    the same snapshot (US1 scenario 4; 025 FR-006). From Phase 5, binding (A1)
+    runs before it."""
+    if run.boundary != "admission":
+        run.skip("convening_conflict (retry identity and once-per-pin, E2 step A3: "
+                 "the consumer's live snapshots)")
+        return None
+    live = assignments.retry_identity(record, run.oracles.live_snapshots())
+    if live is None:
+        return None
+    return Resolution(required_seats=list(record["required_seats"]),
+                      convening_digest=convening_digest(record),
+                      convening_id=live["convening_id"],
+                      snapshot_digest=canonical.digest(live))
+
+
 def _order(record, run: _Run, selected_protocol, statuses):
     _classify(record, run, selected_protocol, statuses)               # 1
     _shape(record, run)                                               # 2
+    returned = _retry_identity(record, run)                           # A3
+    if returned is not None:
+        return returned
     _secrets(record)                                                  # 3
     _candidate(record, run)                                           # 4
     projection = _governed(record, run)                               # 5
@@ -754,6 +856,7 @@ INPUT_MEMBERS = {
 #: `repository_identity`.
 ORACLES_READ = ("governed_history", "governed", "governed_repositories", "rules", "facts",
                 "live_heads", "head_refs", "resolved_candidate", "registry_status")
+ADMISSION_ORACLES_READ = ORACLES_READ + ("issued",)
 
 
 def _outcome_at(vector, boundary, schemas, registry) -> records.Outcome:
@@ -764,7 +867,7 @@ def _outcome_at(vector, boundary, schemas, registry) -> records.Outcome:
         raise HarnessError("a resolution vector lacks `inputs.record` or `selected_protocol`")
     if not isinstance(environment, Mapping):
         raise HarnessError("the vector's environment is not an object")
-    oracles = VectorOracles(environment)
+    oracles = VectorOracles(environment, schemas)
     run = _Run(boundary=boundary, oracles=oracles,
                expected_candidate=inputs.get("expected_candidate") if boundary == "commission"
                else None, schemas=schemas, registry=registry)
@@ -775,9 +878,14 @@ def _outcome_at(vector, boundary, schemas, registry) -> records.Outcome:
         return records.Outcome("refuse", refused.code, status_read=run.status_read)
     except Routed as routed:
         return routed.outcome
-    return records.Outcome("accept", derived={"required_seats": result.required_seats,
-                                              "convening_digest": result.convening_digest},
-                           status_read=run.status_read)
+    derived = {"required_seats": result.required_seats,
+               "convening_digest": result.convening_digest}
+    if result.convening_id is not None:
+        # A returned snapshot (E2 step A3). A fresh admission derives neither
+        # member (conformance-corpus § derived, dated note of 2026-10-09).
+        derived["convening_id"] = result.convening_id
+        derived["snapshot_digest"] = result.snapshot_digest
+    return records.Outcome("accept", derived=derived, status_read=run.status_read)
 
 
 def _adjudicate(vector: Mapping, schemas, registry) -> records.Outcome:

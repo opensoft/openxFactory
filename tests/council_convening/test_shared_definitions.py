@@ -391,14 +391,21 @@ PHASE_2_REFUSALS = [
     "roster_mismatch"]
 
 
-def test_refusal_code_holds_exactly_the_phase_1_and_phase_2_codes(definitions_doc, schemas):
-    landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS
+#: Phase 3's codes (T038), in data-model § Refusal vocabulary order.
+PHASE_3_REFUSALS = [
+    "snapshot_malformed", "digest_construction_mismatch", "assignment_malformed",
+    "assignment_set_mismatch", "assignment_duplicate", "assignment_shared_holder",
+    "convening_conflict"]
+
+
+def test_refusal_code_holds_exactly_the_phase_1_to_phase_3_codes(definitions_doc, schemas):
+    landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS + PHASE_3_REFUSALS
     assert definitions_doc["$defs"]["refusal_code"]["enum"] == landed
     assert schemas.enum("refusal_code") == landed
     for code in landed:
         assert accepts(schemas, "refusal_code", code)
-    # A Phase 3 code is not a member at this commit.
-    assert malformed(schemas, "refusal_code", "snapshot_malformed")
+    # A Phase 4 code is not a member at this commit.
+    assert malformed(schemas, "refusal_code", "assignment_unknown")
 
 
 def test_finding_code_holds_exactly_the_phase_1_finding(definitions_doc, schemas):
