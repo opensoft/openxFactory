@@ -29,7 +29,9 @@ PR-2 (Recommended)": the rule projection declares each council's or class's
 fact sources, and step 9 refuses a record whose `fact_sources` differ from them,
 entry for entry and in order, as `fact_source_mismatch`. "Sorted and unique
 (Recommended)": a consumed `changed_paths` is bytewise sorted and duplicate-free,
-and step 2 refuses any other as `convening_malformed`.
+and step 2 refuses any other as `convening_malformed`. Brett Heap's ruling of
+2026-10-11T00:19:34Z, "Same rule, in PR-3 (Recommended)", gives a consumed
+`rule_touched_paths` the same rule (Phase 3).
 
 THE ORACLES ARE INJECTED (R8). `resolve` reads authority, facts and heads only
 through an `Oracles` object. `VectorOracles` answers from a corpus vector's
@@ -466,6 +468,12 @@ def structural_rules(record) -> None:
     pr_facts = prov["consumed_facts"].get(predicates.PR_FACTS, {})
     if "changed_paths" in pr_facts and not _strictly_ascending(pr_facts["changed_paths"]):
         raise Refused("convening_malformed", "changed_paths")
+    # Brett Heap, 2026-10-11T00:19:34Z, "Same rule, in PR-3 (Recommended)": the
+    # rule's touched paths take `changed_paths`'s rule, one order, no repeat.
+    rule_facts = prov["consumed_facts"].get(predicates.RULE_FACTS, {})
+    if "rule_touched_paths" in rule_facts and not _strictly_ascending(
+            rule_facts["rule_touched_paths"]):
+        raise Refused("convening_malformed", "rule_touched_paths")
 
 
 def _listed(entry: str, listing) -> bool:
