@@ -1861,3 +1861,59 @@ def test_the_collision_vectors_refuse_as_former(name):
     assert (vector["expected"]["outcome"], vector["expected"]["refusal"]) == (
         "refuse", "repository_identity_former")
     assert binding.evaluate_vector(vector) == ("refuse", "repository_identity_former")
+
+
+# =========================================================================
+# Brett Heap, 2026-10-11T15:57:48Z, "Refuse dual-role and twins
+# (Recommended)". This phase's half: E10 step 1 refuses a binding listing BOTH
+# `commission` and `seat_execution`, as `binding_malformed`, with no new code.
+# (The twins half, two configured bindings sharing a `subject_template`, is
+# E12's, Phase 6.)
+# =========================================================================
+
+
+def _dual_role():
+    commission = commission_binding()["permitted_workflows"][0]
+    seat = seat_binding()["permitted_workflows"][0]
+    return commission_binding(permitted_workflows=[commission, seat])
+
+
+def test_a_dual_role_binding_is_malformed(map_root):
+    b = _dual_role()
+    assert binding.schema_errors(b)
+    assert refusal(binding.check_offline, b, identity_root=map_root) == "binding_malformed"
+    # Either order of the two entries, and whichever operation the job claims.
+    b["permitted_workflows"].reverse()
+    assert code_of(b, map_root) == "binding_malformed"
+    assert code_of(b, map_root, operation="seat_execution") == "binding_malformed"
+
+
+def test_one_role_with_several_workflows_is_still_well_formed(map_root):
+    # The ruling refuses two ROLES in one binding, not two workflows in one role.
+    first = commission_binding()["permitted_workflows"][0]
+    second = dict(first, job_workflow_ref=first["job_workflow_ref"].replace(
+        "corpus-commission.yml", "corpus-commission-2.yml"))
+    b = commission_binding(permitted_workflows=[first, second])
+    assert binding.schema_errors(b) == []
+    assert code_of(b, map_root) is None
+
+
+def test_the_dual_role_vector_refuses_binding_malformed():
+    vector = _bind_vector("bind-dual-role-refuse")
+    ops = {e["operation"] for e in vector["inputs"]["binding"]["permitted_workflows"]}
+    assert ops == {"commission", "seat_execution"}
+    assert (vector["expected"]["outcome"], vector["expected"]["refusal"]) == (
+        "refuse", "binding_malformed")
+    assert binding.evaluate_vector(vector) == ("refuse", "binding_malformed")
+
+
+def test_no_vector_carries_a_dual_role_binding_except_its_probes():
+    probes = {"bind-dual-role-refuse"}
+    for path in sorted(BINDING_VECTORS.parent.glob("*/*.json")):
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        b = raw.get("inputs", {}).get("binding")
+        if not isinstance(b, dict) or not isinstance(b.get("permitted_workflows"), list):
+            continue
+        ops = {e.get("operation") for e in b["permitted_workflows"] if isinstance(e, dict)}
+        if {"commission", "seat_execution"} <= ops:
+            assert raw["case_id"] in probes, raw["case_id"]
