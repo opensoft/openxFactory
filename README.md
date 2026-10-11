@@ -543,58 +543,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [retire-codexfactory-sibling-currency-dispositions](openspec/changes/retire-codexfactory-sibling-currency-dispositions/proposal.md)
-  — authored 2026-10-09, lane `codexfactory-1` (display `codeXfactory-1`), as
-  DRAFT [PR #1288](https://github.com/opensoft/openxFactory/pull/1288),
-  **`Status: ratified`** — Brett Heap, 2026-10-09T21:00:16.594Z, first-hand, in
-  lane `codeXfactory-1`'s own session, as a selection in a multiple-choice
-  round, verbatim ***"Ratify + land when green (Recommended)"***, offered as
-  *"Ratify and land it in openxFactory under Rule 6 when green"* (not taken:
-  *"Ratify only"*, *"Hold"*), given over head `ed0c67ad`. Recorded on
-  [PR #1288, comment 6089181718](https://github.com/opensoft/openxFactory/pull/1288#issuecomment-6089181718)
-  and on the lane register (`opensoft/brett-wip` commit `78488f6c`, RULED
-  2026-10-09T21:01:42Z on #1286). **RATIFIED AS DRAFTED**: the word is bare as
-  to this text, so OQ-1 to OQ-4 land at their defaults, flagged rather than
-  resolved. Its *"land when green"* component is the landing word; the landing
-  is the coordinator's act under Rule 6, read green on the head that lands.
-  **The word is not the merge**, and the record is
-  [`review/ratification-2026-10-09.md`](openspec/changes/retire-codexfactory-sibling-currency-dispositions/review/ratification-2026-10-09.md).
-  Drafted on his earlier first-hand word *"This lane drafts it (Recommended)"*
-  (2026-10-09T17:35:29Z, gate G-1, recorded on
-  [codeXfactory/codexFactory#549](https://github.com/codeXfactory/codexFactory/issues/549#issuecomment-6086047985)),
-  which authorized the draft only. Governing issue
-  [#1286](https://github.com/opensoft/openxFactory/issues/1286), claimed by this
-  lane; coordination notice on
-  [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-6086181440).
-  **DELETES the two `repo: codexFactory` dispositions on
-  `merge-master-approval/spec.md`** that
-  `disposition-codexfactory-regular-pr-council-clearance-archive` added (PR
-  #1004), for `extend-merge-master-envelope-to-floor-bot-lanes` and
-  `relocate-review-authority-floor`, with their dated comment block:
-  `contracts/openspec-cli-pin.yaml` goes **5 → 3**. The deletion comes AHEAD of
-  the sibling re-derivations each entry's `retires_when:` names, because
-  codexFactory reads this pin at the commit it declares, and so the two can only
-  move together in one codexFactory pull request. **Measured over codexFactory
-  `main` `33b916c1`**
-  ([`evidence/codexfactory-sibling-currency-retirement-2026-10-09.md`](openspec/changes/retire-codexfactory-sibling-currency-dispositions/evidence/codexfactory-sibling-currency-retirement-2026-10-09.md)):
-  blocks re-derived with the entries present is **exit 2** (stale); blocks as
-  they are with the entries gone is **exit 1** (undispositioned); blocks
-  re-derived with the entries gone is **exit 0**, 2 applied. **Safe to land
-  first**: openxFactory's own gate never applies or stales a
-  `repo: codexFactory` entry, and codexFactory keeps reading its own declared
-  pin. Once it lands as **D**, codexFactory #549's SECOND advance (after its
-  first, to `93d13d6c`, on Brett's *"Two-step: 93d13d6c now (Recommended)"*)
-  must carry both re-derivations in the same pull request that advances past
-  D. The `relocate-review-authority-floor` / `repository-gate-floor/spec.md`
-  entry is untouched. Three tests move deliberately (the count-pinning test 5 → 3
-  and its per-entry maps, the doc-health adapter's live count 5 → 3, and the
-  pin-registration referent floor 4 → 3). `CANON_MOVED` stays declared with no
-  member (OQ-1). **NO SPEC DELTA, DECLARED** (`skip_specs: true`). The
-  template's `tasks.md` 6.3 is not edited (OQ-2). `sequenced_after: []`.
-  ~~Ratification, landing and archive each wait for Brett Heap's own word.~~ —
-  struck 2026-10-09: the ratification and the landing word are given (above);
-  the landing act and the archive, on its own word, are still owed.
-
 - [amend-factory-mcp-conformance-auth-profile](openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md)
   — filed 2026-10-08, lane `openxfactory-5` (display `openXfactory-5`), as
   DRAFT [PR #1274](https://github.com/opensoft/openxFactory/pull/1274),
@@ -3306,6 +3254,70 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [retire-codexfactory-sibling-currency-dispositions](openspec/changes/archive/2026-10-11-retire-codexfactory-sibling-currency-dispositions/proposal.md)
+  — **ARCHIVED 2026-10-11** by
+  [PR #1295](https://github.com/opensoft/openxFactory/pull/1295),
+  by lane `codexfactory-1` (display `codeXfactory-1`), to land by MERGE
+  COMMIT, never squash, under lane-collision Rule 6, on Brett Heap's archive
+  word, first-hand in that lane's own session at 2026-10-11T00:19:47Z, verbatim
+  ***"Archive + land when green (Recommended)"***, recorded on
+  [#1286, comment 6103700924](https://github.com/opensoft/openxFactory/issues/1286#issuecomment-6103700924).
+  As offered, the archive is a pull request landed under Rule 6, and successor
+  rows 5.1 to 5.3 stay open in the archived packet. Authored 2026-10-09 on his
+  word *"This lane drafts it (Recommended)"* (2026-10-09T17:35:29Z, gate G-1
+  of
+  [codeXfactory/codexFactory#549](https://github.com/codeXfactory/codexFactory/issues/549#issuecomment-6086047985)),
+  which authorized the draft only; **RATIFIED AS DRAFTED by Brett Heap at
+  2026-10-09T21:00:16.594Z**, verbatim *"Ratify + land when green
+  (Recommended)"*, over head `ed0c67ad` (PR
+  [#1288](https://github.com/opensoft/openxFactory/pull/1288) comment
+  `6089181718`; record
+  [`review/ratification-2026-10-09.md`](openspec/changes/archive/2026-10-11-retire-codexfactory-sibling-currency-dispositions/review/ratification-2026-10-09.md)),
+  OQ-1 to OQ-4 landing at their defaults, flagged rather than resolved; and
+  landed under Rule 6 by the coordinator as #1288 →
+  `841e86f06cc9cce245560026ed02a3628ace35e4` (2026-10-09T23:12:42Z, an admin
+  merge commit on his word), which is **D**. It DELETED the two
+  `repo: codexFactory` dispositions on `merge-master-approval/spec.md` that
+  `disposition-codexfactory-regular-pr-council-clearance-archive` added, for
+  `extend-merge-master-envelope-to-floor-bot-lanes` and
+  `relocate-review-authority-floor`, ahead of the sibling re-derivations
+  (`contracts/openspec-cli-pin.yaml` 5 → 3, three tests moved deliberately;
+  measurements in
+  [`evidence/codexfactory-sibling-currency-retirement-2026-10-09.md`](openspec/changes/archive/2026-10-11-retire-codexfactory-sibling-currency-dispositions/evidence/codexfactory-sibling-currency-retirement-2026-10-09.md)).
+  **NO SPEC DELTA, DECLARED** (`skip_specs: true`), so the archive promotes
+  nothing and writes nothing under `openspec/specs/`. **`code_surface:` is
+  non-empty, so under `release-realization` it archives on merged-plus-green
+  realization evidence** (`tasks.md` 5.4): merged as #1288 → `841e86f0`;
+  every push run on `main` at `841e86f0` reads `success`, which covers all
+  five push-triggered workflows (`pytest-suite` 38003270892,
+  `doc-health-py314` 38003271040, `clearing-dispatch-gate` 38003270870,
+  `council-convening-gate` 38003270891, `signed-execution-chain-gate`
+  38003270916); and `openspec-cli-pin`, which runs on pull requests only, read
+  `success` on the landed head `f2b98b7e` (run 38001206989). **THROUGH THE
+  PINNED CLI, BECAUSE THE GOVERNED WRAPPER REFUSES AN OPEN BOX.** The archive
+  word keeps five boxes open: the owner boxes 0.2 and 0.3, whose acts are
+  recorded as dated notes and which an agent does not tick, and the successor
+  rows 5.1 to 5.3. The wrapper, `TZ=UTC python3 scripts/proposal-support.py .
+  archive retire-codexfactory-sibling-currency-dispositions --yes`, was run
+  first and refused without moving anything: *"ORIGIN RETAINED
+  retire-codexfactory-sibling-currency-dispositions (declaration unchanged
+  since the ratifying commit 1dee56db3486)"*, *"change has incomplete
+  tasks"*, exit 1. The archive was then taken through the content-addressed
+  `@fission-ai/openspec@1.12.0` pin directly, from the repository root with
+  `TZ=UTC` and `OPENSPEC_TELEMETRY=0`, as `govern-archived-record-edits` was
+  archived with its successor rows open (`faeabe22`): exit 0, *"Task status:
+  21/26 tasks"*, *"Warning: 5 incomplete task(s) found. Continuing due to
+  --yes flag."*, *"Change 'retire-codexfactory-sibling-currency-dispositions'
+  archived as '2026-10-11-retire-codexfactory-sibling-currency-dispositions'"*.
+  The six packet files move as pure renames, `tasks.md` carrying 5.4's tick
+  and the closure note from the commit before the move. Still owed, and named
+  so nobody reads them as done: codexFactory #549's second advance with both
+  re-derivations (5.1), which must advance to `841e86f0` or later; the
+  template's 6.3 (5.2); and the `Fission-AI/OpenSpec#1793` watch (5.3), that
+  issue reading CLOSED, `not_planned`, since 2026-09-25.
+  `contracts/openspec-cli-pin.yaml`'s header still names the evidence file at
+  its active path, and is left as written.
 
 - [prefer-triad-project-shape](openspec/changes/archive/2026-10-09-prefer-triad-project-shape/proposal.md)
   — **ARCHIVED 2026-10-09** by

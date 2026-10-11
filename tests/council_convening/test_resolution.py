@@ -895,14 +895,24 @@ def test_consumed_facts_must_equal_the_authoritative_facts():
     assert code(vector) == "consumed_facts_mismatch"
 
 
-def test_rule_touched_paths_compare_in_order():
-    """Reading 6, which the M3 ruling leaves standing for `rule_facts`: no order is
-    specified for `rule_touched_paths`, so none is normalized."""
+@pytest.mark.parametrize("arrange", [
+    pytest.param(lambda paths: paths.reverse(), id="permuted"),
+    pytest.param(lambda paths: paths.insert(1, paths[0]), id="repeated"),
+])
+def test_rule_touched_paths_are_sorted_and_unique_at_step_2(arrange):
+    """Brett Heap, 2026-10-11T00:19:34Z, "Same rule, in PR-3 (Recommended)":
+    `rule_touched_paths` takes `changed_paths`'s rule, bytewise sorted and
+    duplicate-free, refused at step 2 as `convening_malformed`. It supersedes
+    reading 6 for `rule_facts`, which had left the list's order unspecified, so a
+    permutation was `consumed_facts_mismatch` at step 10. The authoritative facts
+    are arranged the same way, so only step 2 can refuse the record."""
     vector = load(UNCLASSED)
     touched = prov(vector)["consumed_facts"]["rule_facts"]["rule_touched_paths"]
     assert len(touched) == 2
-    touched.reverse()
-    assert code(vector) == "consumed_facts_mismatch"
+    arrange(touched)
+    for facts in env(vector)["facts"].values():
+        facts["rule_touched_paths"] = list(touched)
+    assert code(vector) == "convening_malformed"
 
 
 # Brett Heap, 2026-10-09T17:35:34Z, "Bind it in PR-2 (Recommended)" (H1).
