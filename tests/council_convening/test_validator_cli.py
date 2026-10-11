@@ -433,6 +433,13 @@ PREDICATE_REGISTRY = PROTOCOL_REGISTRY.parent / "predicate.registry.yaml"
 #: Every E2 rule a classed commission record reaches that needs an environment
 #: oracle, as `check` names it. None of them is ever reported as passed.
 ORACLE_RULES = [
+    # Phase 5 (T055; the first review's LOW 4): E2 steps A1 and A4 read the
+    # commission job's verified claims and the consumer's binding and map, so
+    # offline `check` names both and never passes them.
+    "binding (E2 step A1: E10 steps 1 to 13 on the commission job's verified "
+    "claims, against the consumer's binding and identity map)",
+    "workflow_revision_ungoverned (E2 step A4: E10 step 14, the commission job's "
+    "verified job_workflow_sha against `governed`)",
     # Phase 3 (T040): retry identity and once-per-pin read the consumer's live
     # snapshots, so offline `check` names E2 step A3 and never passes it.
     "convening_conflict (retry identity and once-per-pin, E2 step A3: "
