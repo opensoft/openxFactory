@@ -434,3 +434,84 @@ No codex schema byte, private path or internal name entered this repository.
 T028, the draft pull request, its reviews and its threads, follows this
 record. The realization lands only on Brett Heap's realization word (change
 task 3.2).
+
+## 11. The landing round: every gate and the full suite at the head that lands (change task 2.7)
+
+Change task 2.7 asks for every gate and the full suite "at the head that
+lands". Sections 6 to 10 record the verification head, `6300772b`, against
+`main` `9a272c6d`. This section records the heads after it.
+
+On 2026-10-10 (23:2xZ) Brett Heap gave the realization word, choosing the
+option labelled *"Land when green, waive Codex (Recommended)"*. The option
+reads:
+
+- merge `main` into the branch;
+- re-cut forward-only if `main` moved the release files;
+- land by merge commit once green, with Copilot clean at the final head.
+
+`main` was merged twice, never by rebase:
+
+| Head | Merges `main` at | Pull requests it takes |
+| --- | --- | --- |
+| `07623c7a` | `841e86f0` | #1290, #1287, #1288 |
+| `cb9b27f3` | `33d2a56a` | #1294 |
+
+**No re-cut.** None of those pull requests touches a release file.
+
+- `contracts/manifest.yaml`, `contracts/releases/`, `contracts/CHANGELOG.md`
+  and `contracts/README.md` are unchanged.
+- No `contract-v4.1` inventory member moved.
+- The three manifest rows whose files moved (`openspec-cli-pin` by #1288,
+  `openxwallet-pin` by #1290, `domain-factory-conformance-validator` by #1287)
+  carry no per-file `sha256`.
+
+At each head, `scripts/validate-contract-release.py build --tag contract-v4.1`
+was run to a scratch path, and its output is byte-identical to the committed
+`contracts/releases/contract-v4.1.digests.yaml` (342 entries). The number is
+still free: no `contract-v4.1` tag exists on the remote, and #630's latest
+comment is the row-4 claim.
+
+**The clone.** #1290 made openXwallet a nested chain (`openXwallet/openWallet`,
+then `openWallet/code`), which CI initializes in three scoped steps. The first
+gate run at `07623c7a` refused six wallet-consuming gates with
+`pin-submodule-uninitialized`, because the clone lacked those steps. Once the
+clone was initialized as CI initializes it, every gate passed. A suite started
+before that initialization was stopped and run again.
+
+| Gate | `07623c7a` | `cb9b27f3` |
+| --- | --- | --- |
+| Pinned OpenSpec `--all --strict`, and `--no-cache` | 0 | 0 |
+| openXwallet pin (with nested parity), openXdox, openDox, openRepoShape pins | 0 | 0 |
+| clearing dispatch, former-id arrival, factory identity, signed execution chain, openXwallet, wallet YAML syntax | 0 | 0 |
+| proposal support, sequenced-after (and `--ledger-diff`), code surface, target release | 0 | 0 |
+| manifest digests | 0 (185 verify) | 0 (185 verify) |
+| `verify-commit --commit HEAD` | PASS | PASS |
+| `release-tag-gate` on a recreated merge tree (`main` + `--no-ff` head) | `e2ca4121`: no error, no warning; `TAG OWED: contract-v4.1` notice | `2a38806b`: the same |
+| doc-health `--single-repo` | 0: 31 critical, 22 error, 69 warning, 17 info, the `cc9e1441` set | 0: 31 critical, 22 error, 86 warning, 17 info (note below) |
+| `tests/factory-mcp/` | 108 passed, 300 subtests | 108 passed, 300 subtests |
+| Full suite, `pytest tests/ -q -m "not postgres"` | local, run alone under `setsid`: 1 failed, 9556 passed, 7 skipped, 338 deselected, 703 subtests | CI's `pytest-suite` (run `38100661463`): 10195 passed, 6 skipped, 338 deselected, 724 subtests, 0 failures; its pinned triple reads selected 10925, passed 10919, skipped 6 |
+| CI's checks on the pull request | all success (15 check runs, `pytest-suite` among them) | all success (15 contexts, `pytest-suite` among them) |
+
+Notes on the table:
+
+- **Local full suite at `07623c7a`.** Its single failure is § 8's
+  environmental test (`tests/doc-health/test_tag_hygiene_pinned_targets.py`,
+  the checkout-path substring), which `main` fails identically in the same
+  clone kind. Its skips are `main`'s. Its 10 extra passes over `6300772b` come
+  from `main`'s merged tests (`tests/openxwallet_pin/` and the openXwallet
+  consumer-gate, trust-anchor and OpenSpec-pin tests).
+- **doc-health at `cb9b27f3`.** The 17 extra warnings are all *staged topic
+  untouched 30 days*. They depend on the clock: the 17 staging topics were last
+  touched on 2026-09-11 and crossed the 30-day mark between the two runs. The
+  merge touches no `ideation/` file.
+- **CI's full suite at `cb9b27f3`.** It is larger than the local run at
+  `07623c7a`. It carries #1294's tests, and CI checks out the pinned decision
+  core (`PINNED_CORE_CHECKOUT`) that a local run lacks. The local
+  checkout-path artifact does not arise on CI's path.
+
+**The head that lands.** The commit adding this section differs from
+`cb9b27f3` only in this record, which is neither a release-inventory member
+nor code. CI's required checks, `pytest-suite` among them, run again on that
+head's merge with `main` before it lands. The lane's coordinator lands it by
+merge commit and publishes the `contract-v4.1` annotated tag at the landing
+merge commit, after the merge.
