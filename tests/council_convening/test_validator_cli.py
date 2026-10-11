@@ -448,6 +448,12 @@ PREDICATE_REGISTRY = PROTOCOL_REGISTRY.parent / "predicate.registry.yaml"
 ORACLE_RULES = [
     # Phase 3 (T040): retry identity and once-per-pin read the consumer's live
     # snapshots, so offline `check` names E2 step A3 and never passes it.
+    # Phase 5 (T055): binding runs inside admission, E10 steps 1 to 13 as E2
+    # step A1 and step 14 as A4, and both read verified claims, so offline
+    # `check` names them. (Merged here from Phase 5's tip into Phase 3's exact
+    # set, which neither phase's tip carries alone.)
+    "binding (E2 step A1: E10 steps 1 to 13 on the commission job's verified claims, "
+    "against the consumer's binding and identity map)",
     "convening_conflict (retry identity and once-per-pin, E2 step A3: "
     "the consumer's live snapshots)",
     "candidate_mismatch (expected candidate)",
@@ -460,6 +466,8 @@ ORACLE_RULES = [
     "rule_unauthorized (governed source)",
     "rule_digest_mismatch",
     "rule_superseded",
+    "workflow_revision_ungoverned (E2 step A4: E10 step 14, the commission job's "
+    "verified job_workflow_sha against `governed`)",
     "council_unknown",
     "class_mismatch",
     "class_unresolved",
