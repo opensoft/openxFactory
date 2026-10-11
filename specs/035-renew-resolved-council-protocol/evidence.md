@@ -831,7 +831,8 @@ The red runs of T050 to T055, the vectors by area and outcome, the gates at the 
   - `origin/035-phase2-membership` at `fdc0b0601` (`0041a8654`);
   - `origin/035-phase5-binding` at `52a801306` (`cb739a530`);
   - `origin/main` at `9a272c6db`, where PR-1 landed (`fdd5d160c`), which changed no file;
-  - `origin/035-phase3-assignments` at `eb6bf6bff` (`2564a1b1d`).
+  - `origin/035-phase3-assignments` at `eb6bf6bff` (`2564a1b1d`);
+  - after the independent pre-review of `03cb77e29` (H1): `origin/035-phase5-binding` at `d8c62dba4`, which carries Phase 3's `c0e77e12b` (`0517b5bc3`), and at `61a646a31` (`9faf6a79a`); and `origin/035-phase3-assignments` at `a9caf1f4c`, which carries Phase 2's `79e957e53` and through it `main` at `a8ab30396` (`c592c6a0d`).
 - **No code is copied from codexFactory (R4).** `signing.py` and `signing_vectors.py` are written from data-model E6–E9 and research R3 and R12. Neither imports a signing library (`test_the_module_imports_no_signing_library`). Verification is the stdlib `ed25519.verify`.
 
 ### Tests first, run red
@@ -893,7 +894,7 @@ T042 (`test_signing.py`), T043 (`test_corpus_regeneration.py`) and T045 (the `ch
   - The identity map is the environment's `repository_identity` oracle, materialized under a temporary root by `binding.materialize_identity`, never the live map (R7-M1).
   - An oracle that cannot be materialized is `InconsistentEnvironment`, a harness error, never a refusal.
 - **The refusal vocabulary in landing order.** `refusal_code` holds 85 codes: Phase 1's 5, Phase 2's 29, Phase 3's 7, Phase 5's 13, then Phase 4's 31. This is the landing order Phase 5's test names (1, 2, 3, 5, 4, 6). Phase 4's codes are pinned as one contiguous run in `test_signing.py`, as Phase 5 pins its own codes in `test_binding.py`.
-- **The floor.** `coverage_floor` adds FR-007, FR-008 and SC-003. With Phase 3's FR-005, FR-006 and SC-002, the floor is FR-001 to FR-008, FR-011 and SC-001 to SC-003, 12 requirements. The gate's requirements grep names all 12.
+- **The floor.** `coverage_floor` adds FR-007, FR-008 and SC-003. With Phase 3's FR-005, FR-006 and SC-002, the floor is FR-001 to FR-008, FR-011 and SC-001 to SC-003, 12 requirements. The gate's requirements grep names all 12. *Amended 2026-10-10:* Phase 5's review round added FR-009, so after the H1 merges the floor is 13 requirements, FR-001 to FR-009, FR-011 and SC-001 to SC-003. `generate.COVERAGE_FLOOR`, the gate's requirements grep (`council-convening-gate.yml:118`) and the index pins all name all 13.
 - **Phase 3 moved three Phase 1 pins onto Phase 4's names, and they moved again here**, because Phase 4 lands those names.
   - **The kind-not-landed `check` case.** Phase 4 lands the last protocol-carrying schemas, so the case is now a replacement record that names no family record kind. It also asserts that `classification.PROTOCOL_CARRYING_KINDS` lies within `LANDED_RECORD_SCHEMAS`.
   - **The later-phase code probes.** These are `def-refusal-code-refuse-later-phase-code`, the out-of-vocabulary refusal test and the prefix test's non-member. Each now uses `selection_malformed`, a Phase 6 code (data-model § Refusal vocabulary).
@@ -905,7 +906,8 @@ T042 (`test_signing.py`), T043 (`test_corpus_regeneration.py`) and T045 (the `ch
   - `COVERAGE_FLOOR` and the gate's requirements grep;
   - in `generate.py`, `BUILT_AREAS` and the built area. Each built vector also passes through Phase 5's `_with_fixture_text`;
   - the tests that pin those: `test_corpus_index.py`, `test_shared_definitions.py`, `test_validator_cli.py` and `test_gate_wiring.py`;
-  - the one foundation vector named above.
+  - the one foundation vector named above;
+  - in the fix round, the family README (L7), and `conformance-corpus.md` and `provider-interface.md` by dated amendments (L3, L6). `resolution.py` was edited only to resolve the Phase 3 merge, where both sides' admission steps are kept.
 - **Not edited:**
   - `records.py`;
   - the family README was not edited at first; it did not list the Phase 4 schemas. *Corrected 2026-10-10, on the independent pre-review of `03cb77e29` (L7): this bullet called the README "Phase 1's", but Phase 5 had already added its own rows. Following that precedent, the README now lists the four Phase 4 schemas and the `signing` area, and gains a § Key registration and signed returns (Phase 4).*
@@ -919,7 +921,7 @@ T042 (`test_signing.py`), T043 (`test_corpus_regeneration.py`) and T045 (the `ch
 
 Per-seat environments need no change to this phase's model. The isolation they rely on is complete only when each seat's holder names its own binding, which the shared-binding bullet above qualifies.
 
-### Quickstart steps 1–5 (T049)
+### Quickstart steps 1–5 at `2564a1b1d` (T049)
 
 All at `2564a1b1d` unless another commit is named. Py-bench container, Python 3.12.3, in this phase's worktree.
 
@@ -959,6 +961,89 @@ All at `2564a1b1d` unless another commit is named. Py-bench container, Python 3.
      - An earlier run at `719cc8107` also failed `test_pin_reachability.py::test_this_repository_can_consult_the_retention_namespace`, on a transient `git ls-remote`. It passed twice when rerun, and it passed in the run above.
      - No doc-health code or test differs between `52a801306` and this head.
    - **Full suite.** Not run locally, on the coordinator's instruction ("No local full suite"). The required `pytest-suite` check on PR-4 is the gate of record.
+5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty.
+
+### The independent pre-review's fixes (2026-10-10, review of `03cb77e29`)
+
+The pre-review of `03cb77e29` returned READY AFTER FIXES. It found nothing blocking and no fail-open path, and it judged all six of this phase's decisions acceptable. Each fix with a behaviour change was written test-first. Each item below gives its commit.
+
+- **H1, the landing precondition.** Phase 5 and Phase 3 had moved since PR-4 merged them. Their tips were merged in, never rebased: `0517b5bc3`, `9faf6a79a` and `c592c6a0d` (§ Authority and base). Then:
+  - `refusal_code` still holds exactly one copy of each code, 85 in all;
+  - FR-009 is in `COVERAGE_FLOOR`, the gate's requirements grep and the index pins;
+  - the corpus was regenerated each time. The frozen identity fixture gained a row at `61a646a31`, so the 48 registration vectors moved in that member alone.
+  - One more fix followed from the merges, in a test file this phase may extend (`427e14c8b`). Phase 3's fix round compares `check`'s not-offline rules with `ORACLE_RULES` exactly, and Phase 5's tip names E2 steps A1 and A4. The merged set now lists both.
+- **M1, a PEM private-key block used as a member name** (`3e3375557`).
+  - `refuse_key_transport` now searches every member name too.
+  - The refusal names the object that carries the name, never the name, because the name is the key material.
+  - Red: 2 failed. A return gave `return_digest_mismatch` where `return_malformed` was expected, and a direct call did not raise.
+  - Unit-only, like the other member-name cases (U10).
+- **M2, a binding shared by two seats** (`9cf3f5418`).
+  - § The per-seat binding check carries a dated correction: E4 step 7 refuses only a repeated `principal_ref`.
+  - `test_a_binding_shared_by_two_seats_with_distinct_principals_freezes_today` pins today's behaviour, including its consequence at registration.
+  - No contract change. The tightening is an owner decision, put to Brett Heap and not ruled at this record's commit.
+- **L1, L3 and L4, the oracles the orders read** (`9fe590728`).
+  - An oracle a step reads and the environment lacks is `InconsistentEnvironment`, a harness error, never a refusal. These are `identity` and `governed_history` at E7 step 5, `identity.principal`, and `issued` with each list the order reads.
+  - So is an issued entry of another shape, and a repeated `binding_id`, `challenge_id`, or registered or accepted `assignment_id`.
+  - An oracle the order never reaches is not required.
+  - `_check_holder_binding` runs Phase 5's three step functions in `check_binding`'s order, so `identity` is required only once E10 steps 1 to 6 pass.
+  - Red: 19 failed, 1 passed. The one pass pins today's behaviour for an oracle the order never reaches.
+- **L2, a malformed frozen instant** (`9fe590728`).
+  - It raises `InconsistentEnvironment` in `_use_assignment`.
+  - Every signing vector's snapshot must be one Phase 3's `check_snapshot` (E4 steps 2 to 7) accepts, or the vector is a `council-convening-schema` finding.
+  - `_signed` maps `ValueError` to that finding, never a traceback.
+  - Red at the corpus level: 2 failed (the completion snapshot cases), 2 passed. The registration and return cases ran after the signing fix, whose unit test had gone red first.
+- **L3, documented** (`45b03100c`). [contracts/conformance-corpus.md](contracts/conformance-corpus.md) § Environment oracles, `issued`, carries the entry shapes in a dated amendment.
+- **L5, the rule-changed completion vector** (`7f1ff0ccb`).
+  - It now carries the frozen projection at the snapshot's revision, and the changed one at a later revision.
+  - `governed_history` marks that revision on the first-parent history at or after the frozen one.
+  - A `governed` entry's `tip_sha256` differs from the frozen rule file's digest.
+  - Completion's allowed oracles widen to `rules`, `governed` and `governed_history`, none of which it reads.
+  - Red: 1 failed.
+- **L6, the two unit-only MUSTs** (`da4e35500`). [contracts/provider-interface.md](contracts/provider-interface.md) § Consumer impacts gains a dated row: key transport by member name, and the 1 MiB bound, are proven in 025's and 049's own tests.
+- **L7, the README** (`12fbaa4df`).
+  - The family README lists the four Phase 4 schemas and the `signing` area.
+  - It gains § Key registration and signed returns (Phase 4).
+  - The stale "Phase 1's" remark carries a dated correction.
+
+### Quickstart steps 1–5 at the fix-round head
+
+All at `427e14c8b` unless another commit is named. Py-bench container, Python 3.12.3, in this phase's worktree, with the submodules uninitialized.
+
+1. **Red.** Each fix's red count is in the section above.
+2. **Green.**
+   - At `c592c6a0d` (2026-10-10T23:46:56Z–23:58:58Z), `python3 -m pytest tests/council_convening -q -m "not postgres"` gave **3 failed, 1702 passed**.
+     - `427e14c8b` fixed one: `test_check_names_no_offline_rule_as_not_checkable`.
+     - Over `test_validator_cli.py` and `test_assignments.py` at this head: **2 failed, 271 passed**.
+     - **The 2 remaining failures are Phase 3's and Phase 5's, not this phase's:** `test_the_assignment_area_is_exactly_what_its_builder_writes` and `test_every_retry_vector_copies_phase_2s_base_vector`.
+     - Phase 3's fix round builds the `assignment` area with `tests/council_convening/assignment_vectors.py`, and writes 12 retry vectors.
+     - Phase 5's tip re-authored those retry vectors with the binding inside admission, and added two (`asg-retry-order-binding-before-*`), giving 14.
+     - Git merges the two sides' vector edits cleanly, so Phase 3's builder no longer reproduces the merged area: 14 files drift.
+     - Both are other phases' files (R4: "Do NOT edit the earlier phases' files"), so the reconciliation belongs to whichever of PR-3 and PR-5 lands second, before PR-4.
+   - `python3 scripts/validate-council-convening.py`: exit 0. It printed:
+     - `schemas loaded: 11 (family) + digest-construction`;
+     - `vectors adjudicated: 512/512`;
+     - `refusal codes probed: 85/85`;
+     - `finding codes probed: 1/1`;
+     - `requirements probed: 13/13 (FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-011, SC-001, SC-002, SC-003)`;
+     - `generator reproduced corpus byte-for-byte`;
+     - `self-test: 0 error(s), 0 warning(s)`.
+3. **Corpus reproducible.**
+   - `python3 -m scripts.council_convening.generate --check`: no drift, exit 0.
+   - `python3 scripts/validate-council-convening.py corpus`:
+     - 512 vectors, with an agreement set of **355**;
+     - by area: assignment 63, binding 65, foundation 133, resolution 163, signing 88;
+     - by outcome: accept 93, refuse 410, route 9.
+   - Index `sha256:1843a1738a7e4140343a030ec8f7e054fc296c720be0b89ea40d8a1e60a495ea`, unpublished until Phase 7.
+   - The signing area is still 88 vectors (48 registration, 29 return, 11 completion).
+4. **Repository gates.**
+   - **OpenSpec.** `python3 scripts/validate-openspec-cli-pin.py --all --strict` at `c592c6a0d`: exit 0, `Totals: 113 passed, 1 failed (114 items)`, 0 undispositioned. The one failure is `add-chain-attestation`'s accepted exception.
+   - **Doc-health.** `python3 scripts/doc-health.py --single-repo . --report-out <scratch>/…` was run over exported trees of `c592c6a0d`, of Phase 3's tip `a9caf1f4c` and of Phase 5's tip `61a646a31`.
+     - Each read `Findings: 27 critical, 22 error, 3 warning, 16 info`, with 0 regressions.
+     - With the root label normalized, the head report differs from each only in the canon word counts.
+     - Against Phase 5's tip that is the 632 words this phase's README section adds (`ratified` 88965 against 88333).
+     - Against Phase 3's tip, Phase 5's README words are included too (88965 against 87582).
+     - There are no new findings.
+   - **Full suite.** Not run locally, on the coordinator's instruction. CI's `pytest-suite` on PR-4 is the gate of record.
 5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty.
 
 **The PR.** T049 says to open PR-4 as a draft. The lane's coordinator instructed that it opens as a **draft only after PR-5 has landed**, and that Phase 4's boxes in `tasks.md` stay unticked until then and until `origin/main` is merged. PR-4 is not open at this record's commit, and its landing needs Brett Heap's own word.
