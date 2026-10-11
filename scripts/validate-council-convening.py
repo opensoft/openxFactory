@@ -358,8 +358,8 @@ def _check_activation(path: Path, document: Any, schemas: records.SchemaSet,
         _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: the passing "
              f"matched rehearsal behind rehearsal_ref")
         _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: binding_refs "
-             f"against the consumer's configured binding set, and each binding's "
-             f"broker capability")
+             f"against the consumer's configured binding set, no two of its bindings "
+             f"sharing a subject_template, and each binding's broker capability")
     return []
 
 

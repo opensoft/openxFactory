@@ -20,8 +20,9 @@ boundaries are registered here:
     5. `rejected_without_fallback`: a later attempt that names any protocol other
        than the one a refusal was recorded under.
 * `activation` (E12), in its order: `activation_evidence_malformed`;
-  `activation_evidence_incomplete`; for an activation or resume, each
-  `binding_refs` entry in order, `binding_unresolved` then
+  `activation_evidence_incomplete`; for an activation or resume,
+  `binding_malformed` when two configured bindings share a `subject_template`,
+  then each `binding_refs` entry in order, `binding_unresolved` then
   `broker_capability_insufficient`; `pair_mismatched`; and
   `historical_reinterpretation_refused`.
 * `historical`: a record classified by its recorded protocol, never
@@ -32,7 +33,10 @@ BROKER CAPABILITY HAS ONE SOURCE OF TRUTH: each producer binding's `broker`
 member, read through the activation's `binding_refs` against the consumer's
 configured binding set. An activation record carries no broker state of its own.
 Under Brett Heap's 025 ruling (A), "Per-seat environments (Recommended)", that set
-is the commission binding plus one binding per seat.
+is the commission binding plus one binding per seat. Under his ruling of
+2026-10-11T15:57:48Z, "Refuse dual-role and twins (Recommended)", no two of them
+may share a `subject_template`: the OIDC subject is what tells one seat's job from
+another's, so twins are `binding_malformed`, with no code of their own.
 
 THE BACKING REHEARSAL. `rehearsal_ref` is the raw SHA-256 of the exact UTF-8 text
 of a rehearsal record. It is backed only by a rehearsal record that this order
@@ -268,6 +272,9 @@ def activation(record: Any, registry: classification.Registry, schemas: records.
         configured = {binding["binding_id"]: binding for binding in bindings}
         if set(configured) - set(record["binding_refs"]):
             return records.Outcome("refuse", "activation_evidence_incomplete")
+        templates = [binding["subject_template"] for binding in bindings]
+        if len(set(templates)) != len(templates):                   # twins (ruled)
+            return records.Outcome("refuse", "binding_malformed")
         for ref in record["binding_refs"]:
             if ref not in configured:
                 return records.Outcome("refuse", "binding_unresolved")
