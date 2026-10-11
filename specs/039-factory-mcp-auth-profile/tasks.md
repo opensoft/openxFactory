@@ -68,7 +68,7 @@ All of Phase 2 is ONE commit. It changes only the test module.
 
 - [x] T026 One candidate commit: the declaration's manifest row with its digest, the `contracts/CHANGELOG.md` entry, `contracts/releases/<version>.digests.yaml`, the schema title and the runbook's release paragraph moved to the version. Run `release-tag-gate` (`scripts/validate-release-tag-gate.py`) (change task 2.6; FR-019). Done as `38c78817`, then re-cut forward-only as `6300772b` after #1284 moved two inventory members (`verification.md` § 6).
 - [x] T027 Verification record (`verification.md`): every gate CI runs, on the branch and on `main` in the same clone kind; `tests/factory-mcp/`; the full suite under `setsid` with its log polled; `git diff --check`; the closing-keyword scan; and the out-of-tree engineering check by `--snapshot`, or "owed" (change task 2.7; SC-006, SC-008).
-- [ ] T028 Push and open the DRAFT pull request with `--body-file`; request Copilot; post the Codex trigger once; fix, reply to and resolve every thread. It lands only on Brett Heap's realization word (change task 3.2).
+- [x] T028 Push and open the DRAFT pull request with `--body-file`; request Copilot; post the Codex trigger once; fix, reply to and resolve every thread. It lands only on Brett Heap's realization word (change task 3.2). Done as [#1289](https://github.com/opensoft/openxFactory/pull/1289): Copilot's review at the final head `aed40d2d` reports 0 open findings and its one thread is resolved; the one Codex trigger (2026-10-09T21:34:58Z) drew the usage-limit notice, and the realization word waived Codex; it landed by merge commit as `b27ae7a2` (2026-10-11T02:17:36Z) on Brett Heap's realization word *"Land when green, waive Codex (Recommended)"* (change task 3.2).
 
 ## Dependencies
 
