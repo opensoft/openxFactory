@@ -1074,3 +1074,44 @@ def test_check_names_the_binding_steps_in_the_admission_order(checked_commission
     a4 = next(i for i, r in enumerate(rules) if "E2 step A4" in r)
     superseded = rules.index("rule_superseded")
     assert a1 < a3 < superseded < a4
+
+
+# `check` on a snapshot runs every offline rule of its embedded record (PR-3
+# review LOW 1; validator-cli.md, "every offline rule").
+
+def _snapshot_of(record):
+    from .assignment_fixtures import snapshot
+
+    return snapshot(record)
+
+
+def test_check_refuses_a_snapshot_whose_embedded_pin_is_not_the_head(tmp_path):
+    from .assignment_fixtures import convening_record
+
+    record = convening_record()
+    record["subject_pin"] = "9" * 40      # candidate.head_sha is another commit
+    assert record["subject_pin"] != record["required_seats_provenance"]["candidate"]["head_sha"]
+    path = _write(tmp_path, "snapshot.json", _snapshot_of(record))
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-candidate-mismatch]" in result.stdout
+
+
+def test_check_refuses_a_snapshot_whose_embedded_record_carries_a_secret(tmp_path):
+    from .assignment_fixtures import convening_record
+
+    token = "gh" + "p_" + "B" * 36
+    record = convening_record(packet_refs=[token])
+    path = _write(tmp_path, "snapshot.json", _snapshot_of(record))
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-secret-bearing-fact]" in result.stdout
+    assert token not in result.stdout + result.stderr
+
+
+def test_check_names_the_embedded_records_oracle_rules_as_not_checkable(tmp_path):
+    result = run_validator("check", str(_snapshot_file(tmp_path)), cwd=tmp_path)
+    assert result.returncode == 0, result.stdout + result.stderr
+    notes = [line for line in result.stdout.splitlines()
+             if line.startswith("note  [council-convening-not-offline-checkable] ")]
+    assert any("rule_superseded" in line for line in notes), result.stdout
