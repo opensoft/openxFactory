@@ -931,8 +931,8 @@ def test_the_live_pin_carries_citations_and_every_in_tree_path_resolves(
     RESOLVED BY IDENTITY, NOT BY RAW PATH — the same swap
     `test_the_live_pin_registration_citations_still_resolve` below makes for
     the same reason, restated here rather than left as a second, unmoved
-    assertion that would red the day one of this pin's four actively-cited
-    packets archives. An assertion written against `.exists()` breaks on
+    assertion that would red the day one of the active packets this pin cites
+    archives. An assertion written against `.exists()` breaks on
     exactly the lawful act this slice exists to stop breaking; one written
     against the resolver keeps its meaning on both sides of the relocation.
     (Copilot `PRRT_kwDOTAvnrs6iTGJw`.)
@@ -2180,6 +2180,21 @@ def test_the_live_pin_registration_citations_still_resolve() -> None:
     keeps its meaning on both sides of the relocation, where an assertion
     written against `.exists()` would have to be edited by the archive that
     broke it.
+
+    THE FLOOR MOVED FROM FOUR TO THREE WITH
+    `retire-codexfactory-sibling-currency-dispositions`. Four was the number of
+    active packets the live referents pointed into. The six were five from
+    2026-09-16, when `add-composed-view-authoring`'s entry left with its packet
+    and took one `prepare-openspec-1-12-readiness` citation with it, and two of
+    those five named `disposition-codexfactory-regular-pr-council-clearance-archive`.
+    That change DELETED the two entries carrying those two citations, so the
+    live pin now carries THREE packet referents, one in each of three active
+    packets (measured with this checker's own reader: 5 referents in 4 packets
+    before the deletion, 3 in 3 after). A DELETION of citing entries is not an
+    archive of a cited packet, so this is the floor moving with the corpus,
+    deliberately and in the same pull request, and not the relocation this
+    assertion exists to survive. The floor equals the live count, so the next
+    deletion of a citing entry fires it again.
     """
     module = _load_checker()
     text = (REPO_ROOT / LIVE_PIN_PATH).read_text(encoding="utf-8")
@@ -2202,7 +2217,7 @@ def test_the_live_pin_registration_citations_still_resolve() -> None:
         if resolution.identity is not None:
             packet_referents.append(resolution.identity)
     assert unresolved == [], unresolved
-    assert len(packet_referents) >= 4, packet_referents
+    assert len(packet_referents) >= 3, packet_referents
 
 
 def test_the_checker_reaches_the_resolver_and_not_a_second_copy_of_the_rule(

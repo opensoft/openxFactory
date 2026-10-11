@@ -38,7 +38,9 @@ description: >-
   entry that is not a file directly inside the listing with one of its
   suffixes, a repeated `fact_sources` contract, or a consumed
   `pr_facts.changed_paths` that is not bytewise sorted and duplicate-free
-  (Brett Heap, 2026-10-09T17:35:34Z, "Sorted and unique (Recommended)"); those
+  (Brett Heap, 2026-10-09T17:35:34Z, "Sorted and unique (Recommended)"), or
+  a consumed `rule_facts.rule_touched_paths` that is not (Brett Heap,
+  2026-10-11T00:19:34Z, "Same rule, in PR-3 (Recommended)"); those
   structural rules are the reference implementation's, at step 2, because
   JSON Schema cannot state them.
 
@@ -130,7 +132,11 @@ $defs:
         description: >-
           One entry per input contract a condition uses. A repeated contract is
           `convening_malformed`; a contract in use with no entry, or an entry for
-          a contract no condition uses, is `fact_source_mismatch` (step 9).
+          a contract no condition uses, is `fact_source_mismatch` (step 9). So
+          is any inequality with the fact sources the rule projection declares
+          for the selected class or the unclassed council, entry for entry and
+          in order (Brett Heap, 2026-10-09T17:35:34Z, "Bind it in PR-2
+          (Recommended)").
         type: array
         maxItems: 16
         items: {$ref: '#/$defs/fact_source'}

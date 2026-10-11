@@ -37,7 +37,10 @@ description: >-
        `protocol`, `convening_id`, `convening_digest`, `council_id` or
        `candidate` differs from the snapshot's;
     6. `assignment_duplicate`: a repeated `assignment_id`;
-    7. `assignment_shared_holder`: one `holder.principal_ref` on two seats.
+    7. `assignment_shared_holder`: one `holder.principal_ref` on two seats;
+       then one `holder.binding_ref` on two seats (Brett Heap,
+       2026-10-11T00:19:34Z, "Refuse at freeze (Recommended)"), so each
+       seat holder has its own E10 binding.
 
   `assignments` IS TYPED AS AN ARRAY OF OBJECTS AND NOTHING MORE. Each element
   is judged at step 3, and their count, order and membership at step 5, so this

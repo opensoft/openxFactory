@@ -33,6 +33,11 @@ BRETT HEAP'S RULINGS OF 2026-10-08 ENCODED HERE.
   subject_pin)`, 025's once-per-pin key with the protocol added.
 * "Byte-identical" means equal `xfc-jcs-sha256-1` canonical bytes.
 
+BRETT HEAP'S RULING OF 2026-10-11T00:19:34Z, "Refuse at freeze (Recommended)":
+E4 step 7 refuses a `holder.binding_ref` repeated across seats as
+`assignment_shared_holder`, after every repeated `principal_ref`, so each seat
+holder has its own E10 binding.
+
 ONE ORDER POSITION THE DATA MODEL LEAVES IMPLICIT. E4 names no step for
 `value_not_canonicalizable`, and § Shared definitions says such a value "is
 refused ... before any digest is taken". This module runs that pre-check after
@@ -216,14 +221,17 @@ def check_snapshot(snapshot: Any, schemas: records.SchemaSet | None = None) -> d
                           member=f"assignments[{index}].assignment_id")
         seen.add(item["assignment_id"])
 
-    # 7. No principal holds two seats.
-    holders: set[str] = set()
-    for index, item in enumerate(items):
-        principal = item["holder"]["principal_ref"]
-        if principal in holders:
-            raise Refused("assignment_shared_holder",
-                          member=f"assignments[{index}].holder.principal_ref")
-        holders.add(principal)
+    # 7. No principal holds two seats, and then no binding serves two (Brett
+    #    Heap, 2026-10-11T00:19:34Z, "Refuse at freeze (Recommended)"): every
+    #    repeated `principal_ref` is named before any repeated `binding_ref`.
+    for ref in ("principal_ref", "binding_ref"):
+        held: set[str] = set()
+        for index, item in enumerate(items):
+            value = item["holder"][ref]
+            if value in held:
+                raise Refused("assignment_shared_holder",
+                              member=f"assignments[{index}].holder.{ref}")
+            held.add(value)
 
     return {"required_seats": list(convening["required_seats"]),
             "convening_digest": expected_digest}

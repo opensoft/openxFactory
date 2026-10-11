@@ -294,6 +294,7 @@ rows:
   repromote-engineering-vocabulary: {state: archived, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1103", moved_on: "2026-09-18"}
   require-adjudicated-validation-entrypoint: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1141", moved_on: "2026-09-22"}
   restructure-factory-repo-boundaries: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  retire-codexfactory-sibling-currency-dispositions: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1288", moved_on: "2026-10-09"}
   retire-doxbench-chat-turn-v1: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#1066", moved_on: "2026-09-16"}
   retire-hermes-flat-keys-and-openworkflow-tokens: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   rule-inherited-unit-naming-marker-spent: {state: archived, class: co-modifier, declares: [amend-merged-into-empty-tail-standing], depth: 1, prose: false, moved_by: "#1012", moved_on: "2026-09-12"}
