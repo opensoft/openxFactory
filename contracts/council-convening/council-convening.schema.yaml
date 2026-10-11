@@ -1,0 +1,287 @@
+schema_version: 1
+kind: openxfactory-council-convening-contract-schema
+name: xfactory_council_convening
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/council-convening/v1/council-convening.schema.yaml"
+contract_id: council-convening-commission-record
+contract_schema_version: 1
+title: The commission record and its reproducible provenance
+description: >-
+  THE RECORD A PRODUCER SUBMITS AND A CONSUMER VERIFIES BEFORE ANY WRITE
+  (renew-resolved-council-protocol D1 and D2; feature 035 data-model E2). It
+  names the council, the subject pin and the packet references, the ordered,
+  non-empty, unique `required_seats`, and the provenance that lets the consumer
+  REPRODUCE that roster independently instead of trusting it: the candidate,
+  every governed source the rule projection was built from at one immutable
+  revision, the class-selection inputs for a classed council, the projection's
+  standing seats and typed conditions, where each input contract's facts were
+  read, and the facts actually consumed.
+
+  `convening_digest` is the `xfc-jcs-sha256-1` digest, subject
+  `council_convening`, over the whole record. It is derived, never carried: the
+  snapshot and every assignment bind it (Phase 3), and a corpus vector carries
+  it as a known answer.
+
+  THIS SCHEMA CHECKS SHAPE ONLY WHERE NO NAMED SEMANTIC REFUSAL EXISTS. One
+  failing check names one code (data-model, conventions), so the schema leaves
+  to the evaluation order every condition a semantic code already names: an
+  empty, duplicated or reordered roster (step 12), the governed revision's
+  grammar (`mutable_rule_reference`, step 5), each governed source path's
+  grammar (`rule_path_malformed`, step 5), a condition's predicate and input
+  contract and its parameters (`predicate_unknown` and
+  `predicate_parameters_malformed`, step 8), an absent consumed fact
+  (`opaque_conclusion`, step 9), and a declared total above 3000
+  (`condition_unevaluable`, step 10). A record that fails this schema is
+  `convening_malformed`, and so is one that carries only one of `class_inputs`
+  and `matched_class`, a listing entry that is not also a file source, sources
+  out of bytewise path order or repeated, unsorted listing entries, a listing
+  entry that is not a file directly inside the listing with one of its
+  suffixes, a repeated `fact_sources` contract, or a consumed
+  `pr_facts.changed_paths` that is not bytewise sorted and duplicate-free
+  (Brett Heap, 2026-10-09T17:35:34Z, "Sorted and unique (Recommended)"); those
+  structural rules are the reference implementation's, at step 2, because
+  JSON Schema cannot state them.
+
+  THE NORMATIVE EVALUATION ORDER is data-model E2's, steps 1 to 13 at both
+  commission and admission, with admission-only steps between them. It begins
+  with classification (data-model E1): a record is judged under these rules only
+  after it has classified as a replacement record under a replacement
+  selection. `rule_superseded`, for a governed source changed at the governed
+  tip, is normative at admission only, under Brett Heap's OPEN-3 ruling of
+  2026-10-08, "History + unchanged rule file (Recommended)", and its follow-up
+  1, "Every governed source (Recommended)": every governed source the record
+  cites is held to that test, not only the rule file.
+
+  Every object is closed at every depth. `parameters` is typed as an object
+  here and closed per predicate by the predicate registry; `consumed_facts` is
+  closed per input contract below, by exactly the facts
+  `predicate.registry.yaml` declares.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - protocol
+  - council_id
+  - subject_pin
+  - packet_refs
+  - required_seats
+  - required_seats_provenance
+properties:
+  schema_version: {const: 1}
+  kind: {const: xfactory_council_convening}
+  protocol: {const: xfc-resolved-council-1}
+  council_id:
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/council_id"
+  subject_pin:
+    description: The candidate's head, which step 4 requires to equal `candidate.head_sha`.
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/full_sha"
+  packet_refs:
+    description: >-
+      One to 64 packet references, each 1 to 2048 characters with no control
+      character. THIS IS NOT THE LEGACY RULE: the replacement accepts no bare
+      string, skips no malformed entry, and never derives the pull number from
+      a packet reference; the pull number is `candidate.pull_number`.
+    type: array
+    minItems: 1
+    maxItems: 64
+    items: {$ref: '#/$defs/packet_ref'}
+  mix_id:
+    description: The existing optional deliberation-mix selector, carried for the consumer's own mix check.
+    $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/opaque_id"
+  required_seats:
+    description: >-
+      The resolved roster, at most 64 seats. Emptiness, duplicates and order are
+      the semantic checks of step 12 (`roster_empty`, `roster_duplicate_seat`,
+      `roster_mismatch`), not shape.
+    type: array
+    maxItems: 64
+    items: {$ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/seat_id"}
+  required_seats_provenance: {$ref: '#/$defs/provenance'}
+
+$defs:
+  packet_ref:
+    type: string
+    minLength: 1
+    maxLength: 2048
+    not: {pattern: '[\u0000-\u001f\u007f-\u009f]'}
+
+  provenance:
+    type: object
+    additionalProperties: false
+    required: [candidate, governed, standing_seats, conditions, fact_sources, consumed_facts]
+    properties:
+      candidate:
+        $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/candidate"
+      governed: {$ref: '#/$defs/governed'}
+      class_inputs: {$ref: '#/$defs/class_inputs'}
+      matched_class:
+        description: Present exactly when `class_inputs` is; an unclassed council carries neither.
+        $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/matched_class"
+      standing_seats:
+        type: array
+        maxItems: 64
+        items: {$ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/seat_id"}
+      conditions:
+        type: array
+        maxItems: 64
+        items: {$ref: '#/$defs/condition'}
+      fact_sources:
+        description: >-
+          One entry per input contract a condition uses. A repeated contract is
+          `convening_malformed`; a contract in use with no entry, or an entry for
+          a contract no condition uses, is `fact_source_mismatch` (step 9).
+        type: array
+        maxItems: 16
+        items: {$ref: '#/$defs/fact_source'}
+      consumed_facts: {$ref: '#/$defs/consumed_facts'}
+
+  governed:
+    description: >-
+      Every governed source the projection was built from, at ONE immutable
+      revision of ONE governed repository (research R7). The revision is typed
+      as a string because its grammar is `mutable_rule_reference` at step 5.
+    type: object
+    additionalProperties: false
+    required: [repository, revision, sources]
+    properties:
+      repository:
+        $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/repository"
+      revision: {type: string}
+      sources:
+        description: >-
+          One to 64 sources in bytewise UTF-8 path order, unique by path. Each
+          path is typed as a string because its grammar is `rule_path_malformed`
+          at step 5.
+        type: array
+        minItems: 1
+        maxItems: 64
+        items: {$ref: '#/$defs/source'}
+
+  source:
+    oneOf:
+      - type: object
+        additionalProperties: false
+        required: [kind, path, sha256]
+        properties:
+          kind: {const: file}
+          path: {type: string}
+          sha256:
+            description: SHA-256 over the file's raw bytes at the revision.
+            $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/raw_sha256"
+      - type: object
+        additionalProperties: false
+        required: [kind, path, suffixes, entries]
+        properties:
+          kind: {const: listing}
+          path:
+            description: A directory the projection reads.
+            type: string
+          suffixes:
+            description: >-
+              The file suffixes read from the directory, for example
+              `[".yaml", ".yml"]`.
+            type: array
+            minItems: 1
+            maxItems: 16
+            items:
+              type: string
+              pattern: '^\.[A-Za-z0-9][A-Za-z0-9._-]{0,30}$'
+          entries:
+            description: >-
+              The sorted paths of the files directly inside the directory with
+              those suffixes, at the revision. Each is also a `file` source. A
+              listing is not a git tree id, because the directory may also hold
+              files the projection never reads (R7).
+            type: array
+            maxItems: 64
+            items: {type: string}
+
+  class_inputs:
+    description: >-
+      The candidate facts the class is selected from (data-model E3
+      `class_selector`). `head_ref` must equal the candidate's authoritative
+      head ref, read by the trusted gather at commission and by the consumer at
+      admission (`candidate_mismatch`, step 4).
+    type: object
+    additionalProperties: false
+    required: [repository, head_ref]
+    properties:
+      repository:
+        $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/repository"
+      head_ref:
+        $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/head_ref"
+
+  condition:
+    description: >-
+      One condition of the projection, with the record's `held`. `predicate`,
+      `input_contract` and `parameters` are typed loosely here because step 8
+      names their failures.
+    type: object
+    additionalProperties: false
+    required: [seat, predicate, input_contract, parameters, held]
+    properties:
+      seat:
+        oneOf:
+          - $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/seat_id"
+          - type: 'null'
+      predicate: {type: string}
+      input_contract: {type: string}
+      parameters: {type: object}
+      held: {type: boolean}
+
+  fact_source:
+    type: object
+    additionalProperties: false
+    required: [input_contract, source]
+    properties:
+      input_contract: {enum: [pr_facts, rule_facts]}
+      source:
+        description: >-
+          `candidate_pull` reads `pr_facts` from the candidate pull request at
+          `candidate.head_sha`; `candidate_subject` reads `rule_facts` from
+          `candidate.subject_path` at `candidate.head_sha`; `{governed_path}`
+          reads `rule_facts` from a governed source at `governed.revision`.
+        oneOf:
+          - enum: [candidate_pull, candidate_subject]
+          - type: object
+            additionalProperties: false
+            required: [governed_path]
+            properties:
+              governed_path: {type: string}
+
+  consumed_facts:
+    description: >-
+      The facts the record's conditions consumed, closed per input contract by
+      exactly the facts `predicate.registry.yaml` declares. No fact is required
+      here: a fact a condition reads that is absent is `opaque_conclusion`, and
+      a consumed fact no condition reads is `facts_unused` (step 9).
+    type: object
+    additionalProperties: false
+    properties:
+      pr_facts:
+        type: object
+        additionalProperties: false
+        properties:
+          changed_paths:
+            type: array
+            maxItems: 6000
+            items:
+              $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/relative_path"
+          changed_files_total:
+            description: Above 3000 is `condition_unevaluable` (step 10), not shape.
+            type: integer
+            minimum: 0
+          changed_paths_entry_count:
+            type: integer
+            minimum: 0
+            maximum: 3000
+      rule_facts:
+        type: object
+        additionalProperties: false
+        properties:
+          rule_touched_paths:
+            type: array
+            maxItems: 6000
+            items:
+              $ref: "https://xforge.us/schemas/openxfactory/council-convening/v1/shared-definitions.schema.yaml#/$defs/relative_path"

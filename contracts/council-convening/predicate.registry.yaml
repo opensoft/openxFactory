@@ -1,0 +1,98 @@
+# THE CLOSED PREDICATE REGISTRY — the one instance (feature 035, Phase 2, T028).
+#
+# Realization of the ratified change `renew-resolved-council-protocol`, design
+# D1 ("the closed predicate registry and input type contracts are shared
+# specifications and vectors"), as data-model E3 and research R5 specify it.
+# DORMANT AND UNREGISTERED: this family has no manifest row until the Phase 7
+# cut, and nothing here selects or activates a protocol.
+#
+# THE IDENTIFIERS ARE THE GOVERNED RULE FILES' OWN. Brett Heap ruled OPEN-5 on
+# 2026-10-08, "Keep the existing names (Recommended)": `changed_paths_intersect`
+# over `pr_facts` and `rule_touches_security_posture` over `rule_facts`, with no
+# mapping layer. The domain owns which seats a rule conditions on and with which
+# parameters; the evaluation mechanism below is neutral.
+#
+# TWO PREDICATES AND TWO INPUT CONTRACTS, AND THE SET IS CLOSED. Adding or
+# renaming a predicate, an input contract or a fact, or widening a bound, is a
+# governed contract change, NOT an edit to this file:
+# `scripts/council_convening/predicates.py` carries this registry as a frozen
+# value, and `scripts/validate-council-convening.py` refuses any instance that
+# differs from it (`council-convening-registry-closure`). The same set is pinned
+# by `tests/council_convening/test_predicates.py`, by the commission record's
+# closed `consumed_facts` in `council-convening.schema.yaml`, and by the CI
+# gate's proof-of-work note "predicate registry closed: 2 predicates, 2 input
+# contracts". All of them move together, or the change is red.
+#
+# THE HONEST LIMIT, as the clearing register states it: this file, the
+# validator and the tests share a repository with the changes they police, so
+# one diff can edit every side. The closure refusal makes an addition visible
+# and costly; review of the diff is what catches it.
+schema_version: 1
+kind: xfactory_council_predicate_registry
+registry_id: council-convening-predicate-registry
+registry_version: 1
+
+input_contracts:
+  - input_contract: pr_facts
+    description: >-
+      Facts read from the candidate pull request at its head: the changed paths,
+      the declared number of changed files, and the number of listing entries
+      read. A rename is one entry that contributes both its paths. The bounds
+      are the producer's listing bound, 3000 entries, which a rename can double
+      to 6000 paths.
+    facts:
+      - fact: changed_paths
+        value: path_list
+        max_items: 6000
+      - fact: changed_files_total
+        value: count
+      - fact: changed_paths_entry_count
+        value: count
+        maximum: 3000
+    completeness:
+      rule: entry_count_equals_total
+      count_fact: changed_paths_entry_count
+      total_fact: changed_files_total
+      total_maximum: 3000
+  - input_contract: rule_facts
+    description: >-
+      Facts read from a path-shaped rule subject: the candidate's
+      `subject_path` at its head, or a governed source at the governed revision.
+      The one fact is the set of paths the rule touches.
+    facts:
+      - fact: rule_touched_paths
+        value: path_list
+        max_items: 6000
+    completeness:
+      rule: every_read_fact_present
+
+predicates:
+  - predicate: changed_paths_intersect
+    description: >-
+      Holds when any changed path of the candidate pull request matches any
+      protected-path pattern.
+    input_contract: pr_facts
+    parameter: protected_paths
+    reads: [changed_paths, changed_files_total, changed_paths_entry_count]
+    matches: changed_paths
+    patterns:
+      min_items: 1
+      max_items: 256
+    holds_when: any_read_path_matches_any_pattern
+  - predicate: rule_touches_security_posture
+    description: >-
+      Holds when any path the rule subject touches matches any security-surface
+      pattern.
+    input_contract: rule_facts
+    parameter: security_surfaces
+    reads: [rule_touched_paths]
+    matches: rule_touched_paths
+    patterns:
+      min_items: 1
+      max_items: 256
+    holds_when: any_read_path_matches_any_pattern
+
+pattern_grammar:
+  exact: relative_path
+  tree: relative_path_then_slash_double_star
+  bare_directory_evidence: refused

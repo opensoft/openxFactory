@@ -97,7 +97,8 @@ def test_the_index_header():
     assert index["kind"] == "openxfactory-council-convening-conformance-index"
     assert index["corpus_id"] == "council-convening-conformance"
     assert index["protocol"] == REPLACEMENT
-    assert index["coverage_floor"] == ["FR-001", "FR-011"]
+    assert index["coverage_floor"] == ["FR-001", "FR-002", "FR-003", "FR-004",
+                                       "FR-011", "SC-001"]
 
 
 def test_every_row_digest_is_over_the_raw_bytes():
@@ -129,11 +130,23 @@ def test_the_totals_recount():
 
 def test_phase_1_vectors_are_foundation_vectors_for_both_sides():
     for row in _index_doc()["cases"]:
-        assert row["area"] == "foundation"
+        if row["area"] != "foundation":
+            continue
         assert row["boundary"] in ("definition", "classification")
         assert row["applies_to"] == ["producer", "consumer"]
         vector = _load(CONFORMANCE / row["path"])
         assert vector["expected"]["derived_origin"] == "hand"
+
+
+def test_the_areas_landed_at_this_commit_are_foundation_and_resolution():
+    """Phase 2 adds the `resolution` area, at boundaries `commission` and
+    `admission`; every resolution vector is hand-authored."""
+    rows = _index_doc()["cases"]
+    assert {row["area"] for row in rows} == {"foundation", "resolution"}
+    for row in rows:
+        if row["area"] == "resolution":
+            assert row["boundary"] in ("commission", "admission")
+            assert _load(CONFORMANCE / row["path"])["expected"]["derived_origin"] == "hand"
 
 
 # --------------------------------------------------------------------------
@@ -260,7 +273,7 @@ def test_applies_to_is_a_non_empty_ordered_subset(family_tree, applies_to):
 def test_an_expected_refusal_outside_the_vocabulary_is_refused(family_tree):
     row = _first_row(family_tree, outcome="refuse")
     vector = _load(_vector_path(family_tree, row))
-    vector["expected"]["refusal"] = "convening_malformed"     # a Phase 2 code
+    vector["expected"]["refusal"] = "snapshot_malformed"      # a Phase 3 code
     _rewrite_vector(family_tree, row, vector)
     assert "council-convening-schema" in _codes(family_tree)
 
@@ -391,10 +404,12 @@ def test_every_coverage_floor_requirement_needs_a_probe(family_tree):
 
 def test_the_landed_coverage_counts():
     report = corpus.check_corpus()
-    assert report.refusals_probed == (5, 5)
+    # Phase 1's five refusal codes plus Phase 2's twenty-nine (T028).
+    assert report.refusals_probed == (34, 34)
     assert report.findings_probed == (1, 1)
-    assert report.requirements_probed == (2, 2)
-    assert report.coverage_floor == ["FR-001", "FR-011"]
+    assert report.requirements_probed == (6, 6)
+    assert report.coverage_floor == ["FR-001", "FR-002", "FR-003", "FR-004",
+                                     "FR-011", "SC-001"]
 
 
 # --------------------------------------------------------------------------
@@ -456,7 +471,8 @@ def test_generate_check_reports_a_stale_index(family_tree):
 
 
 def test_generate_writes_the_coverage_floor():
-    assert generate.COVERAGE_FLOOR == ("FR-001", "FR-011")
+    assert generate.COVERAGE_FLOOR == ("FR-001", "FR-002", "FR-003", "FR-004",
+                                       "FR-011", "SC-001")
 
 
 def test_labelled_test_keys_are_deterministic_and_distinct():
