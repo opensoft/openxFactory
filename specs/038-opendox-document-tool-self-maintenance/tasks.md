@@ -155,7 +155,9 @@ worded, each cited by comment id or merge commit, with no new decision:
   both land-confirmation issuers state the operation the invocation performs, so
   `src/opendox/landing_confirm.py` is admitted into T016's Files for that wording
   only, and the land confirm control's description in
-  `contracts/cli-http-submit-land.md` records it;
+  `contracts/cli-http-submit-land.md` records it, with the nonce answer's
+  `operation` field and the `operation-changed` refusal, whose names are read from
+  T016's work in progress (openDox-code `wip/r2-t016-park-0110`, `743bb8b3`);
 - the tick of T015, which landed as openDox-code#96 → `c94878be` (the merge commit
   read through GraphQL).
 
@@ -675,7 +677,10 @@ hidden; F12.1 exits 0 composed (SC-001).
   `cli_branch_actions.py` (prompt over `/dev/tty`, no bypass, N-11), contributed
   through `default_profile.py`; `POST /actions/session/land-nonce` and `POST
   /actions/session/land` in `serve_branch_actions.py` (OQ-12-13), contributed
-  through the default profile's route facets; `actions.land` present only under
+  through the default profile's route facets, the nonce answer stating the
+  `operation` the landing performs (`merge` or `submit`) and `land` refusing a
+  nonce whose operation changed as `operation-changed` (`6103915259` item 10;
+  contracts/cli-http-submit-land.md); `actions.land` present only under
   openDox's own profile, its value derived from those bindings and true where
   `land` can act: a lander is bound, or the repository is `governed` with a
   contributed instrument (Copilot review); the confirm control in
