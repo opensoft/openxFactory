@@ -280,12 +280,29 @@ properties:
   permitted_workflows:
     description: >-
       1 to 8 entries. Matched against the verified `job_workflow_ref` claim,
-      never against `sub` (step 13).
+      never against `sub` (step 13). ONE ROLE PER BINDING: the entries may not
+      list both `commission` and `seat_execution` (`binding_malformed`, step
+      1; Brett Heap, 2026-10-11T15:57:48Z, "Refuse dual-role and twins
+      (Recommended)"), so the commission binding is never a seat's.
     type: array
     minItems: 1
     maxItems: 8
     items:
       $ref: "#/$defs/permitted_workflow"
+    # Two match predicates, not object definitions: each entry is already
+    # closed by `$defs/permitted_workflow`.
+    not:
+      allOf:
+        - contains:
+            required: [operation]
+            properties:
+              operation:
+                const: commission
+        - contains:
+            required: [operation]
+            properties:
+              operation:
+                const: seat_execution
   broker:
     $ref: "#/$defs/broker"
 if:

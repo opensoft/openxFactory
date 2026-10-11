@@ -2150,6 +2150,26 @@
       ],
       "area": "binding",
       "boundary": "binding",
+      "case_id": "bind-dual-role-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/binding/bind-dual-role-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:60a61b089a6199a7e73e2b9357df246d60294d030edbe68f0a8ebb088eafa130"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
       "case_id": "bind-identity-map-absent-refuse",
       "expected": {
         "derived": {},
@@ -5936,7 +5956,7 @@
       "requirement_ids": [
         "FR-009"
       ],
-      "sha256": "sha256:beff68a579991c6532bb67c515c6e2492b28582a3e880645b0ef12dc86379d21"
+      "sha256": "sha256:955f030329386143f506687434ac5d69faf126d5d733d1dde28fdf460e1bc233"
     },
     {
       "applies_to": [
@@ -9682,15 +9702,15 @@
     "both_sides": 322,
     "by_area": {
       "assignment": 68,
-      "binding": 65,
+      "binding": 66,
       "foundation": 133,
       "resolution": 165
     },
     "by_outcome": {
       "accept": 84,
-      "refuse": 339,
+      "refuse": 340,
       "route": 8
     },
-    "vectors": 431
+    "vectors": 432
   }
 }

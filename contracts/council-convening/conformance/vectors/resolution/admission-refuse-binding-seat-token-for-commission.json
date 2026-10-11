@@ -309,11 +309,6 @@
           "job_workflow_ref": "example-org/governed-rules/.github/workflows/corpus-commission.yml@refs/heads/main",
           "operation": "commission",
           "workflow_revision_rule": "equals_governed_revision"
-        },
-        {
-          "job_workflow_ref": "example-org/governed-rules/.github/workflows/corpus-seat.yml@refs/heads/main",
-          "operation": "seat_execution",
-          "workflow_revision_rule": "on_governed_history_since_revision"
         }
       ],
       "principal_kind": "github_oidc_job",
