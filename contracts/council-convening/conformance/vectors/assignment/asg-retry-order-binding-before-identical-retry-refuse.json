@@ -114,7 +114,7 @@
               "council_id": "review-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
-                "binding_ref": "binding-seat",
+                "binding_ref": "binding-seat-a",
                 "principal_kind": "github_oidc_job",
                 "principal_ref": "principal-seat-a"
               },
@@ -144,7 +144,7 @@
               "council_id": "review-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
-                "binding_ref": "binding-seat",
+                "binding_ref": "binding-seat-b",
                 "principal_kind": "github_oidc_job",
                 "principal_ref": "principal-seat-b"
               },
@@ -358,12 +358,14 @@
             "classes": {
               "docs": {
                 "conditions": [],
+                "fact_sources": [],
                 "standing_seats": [
                   "seat-a"
                 ]
               },
               "hotfix": {
                 "conditions": [],
+                "fact_sources": [],
                 "standing_seats": [
                   "seat-a"
                 ]
@@ -379,6 +381,12 @@
                     },
                     "predicate": "changed_paths_intersect",
                     "seat": "seat-c"
+                  }
+                ],
+                "fact_sources": [
+                  {
+                    "input_contract": "pr_facts",
+                    "source": "candidate_pull"
                   }
                 ],
                 "standing_seats": []
@@ -406,6 +414,12 @@
                     "seat": "seat-d"
                   }
                 ],
+                "fact_sources": [
+                  {
+                    "input_contract": "pr_facts",
+                    "source": "candidate_pull"
+                  }
+                ],
                 "standing_seats": [
                   "seat-a",
                   "seat-b",
@@ -424,6 +438,12 @@
                     },
                     "predicate": "changed_paths_intersect",
                     "seat": "seat-c"
+                  }
+                ],
+                "fact_sources": [
+                  {
+                    "input_contract": "pr_facts",
+                    "source": "candidate_pull"
                   }
                 ],
                 "standing_seats": [
@@ -592,8 +612,7 @@
   "requirement_ids": [
     "FR-004",
     "FR-005",
-    "FR-009",
-    "SC-002"
+    "FR-009"
   ],
   "schema_version": 1
 }
