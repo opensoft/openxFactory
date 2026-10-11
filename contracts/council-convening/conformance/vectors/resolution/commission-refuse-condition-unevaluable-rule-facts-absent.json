@@ -103,6 +103,12 @@
                 "seat": "seat-r2"
               }
             ],
+            "fact_sources": [
+              {
+                "input_contract": "rule_facts",
+                "source": "candidate_subject"
+              }
+            ],
             "standing_seats": [
               "seat-r1"
             ]

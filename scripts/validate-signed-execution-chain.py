@@ -155,7 +155,10 @@ EXAMPLES_DIR = CONTRACT_DIR / "examples"
 NEGATIVE_DIR = EXAMPLES_DIR / "negative"
 ACTOR_SUBJECT_SCHEMA = (
     ROOT / "contracts" / "identity-brokering" / "actor-subject-reference.schema.yaml")
-PINNED_WALLET_DIR = ROOT / "openXwallet" / "contracts" / "openxwallet"
+# Two nested levels below the gitlink since `xwallet-v1.0`: the openWallet code
+# leg holds the contracts (openXwallet `split-openwallet-neutral-core`, D6/D7).
+PINNED_WALLET_DIR = (ROOT / "openXwallet" / "openWallet" / "code" / "contracts"
+                     / "openxwallet")
 
 SCHEMA_FILENAMES = [
     "digest-construction.schema.yaml",
@@ -439,7 +442,9 @@ def load_carried_schemas(f: Findings, required: bool) -> dict[str, dict]:
             f"{PINNED_WALLET_DIR.relative_to(ROOT)} ({', '.join(sorted(missing))}); "
             f"carried wallet blocks are checked against the members this "
             f"capability RESTRICTS and not against the shipped shapes. Run "
-            f"`git submodule update --init openXwallet`")
+            f"`git submodule update --init openXwallet`, then `git -C "
+            f"openXwallet submodule update --init openWallet`, then `git -C "
+            f"openXwallet/openWallet submodule update --init code`")
         if required:
             f.error("pinned-wallet-vocabulary-unavailable", message)
         else:

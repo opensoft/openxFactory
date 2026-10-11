@@ -94,6 +94,15 @@ jobs:
       - name: Init the openXwallet gitlink only
         run: git submodule update --init openXwallet
 
+      # The nested openWallet root, then its code leg, each by name and never
+      # the spec leg (openXwallet `split-openwallet-neutral-core`, design D6):
+      # the pin verifier checks nested-checkout parity at both levels.
+      - name: Init openXwallet's nested openWallet root only
+        run: git -C openXwallet submodule update --init openWallet
+
+      - name: Init the openWallet code leg only (never the spec leg)
+        run: git -C openXwallet/openWallet submodule update --init code
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

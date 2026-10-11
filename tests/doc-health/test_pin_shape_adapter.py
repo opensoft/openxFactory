@@ -199,7 +199,7 @@ def test_record_leg_removing_any_table_member_refuses_and_names_it(pin_id):
     ONE SPELLING THAT RECORD'S OWN VERIFIER READS, not an alternation of two:
     `contracts/openxwallet-pin.yaml` carries BOTH product-identity spellings, so
     an entry satisfied by either would accept it with `submodule_path` deleted
-    while `verify-openxwallet-pin.py:194` refuses it — the adapter NARROWER than
+    while `verify-openxwallet-pin.py:225` refuses it — the adapter NARROWER than
     the guard it tracks, which is the exact defect this leg exists to catch."""
     record = RECORDS[pin_id]
     _shape, rows = _tracked_table(pin_id, record)
@@ -498,7 +498,7 @@ def test_shape_a_judges_its_two_lists_by_two_rules_and_not_by_one():
 
 def test_pinned_by_commit_only_treats_every_falsey_value_as_empty():
     """(PR #1040 fix round 1, R4). Both shape-(a) verifiers read
-    `pin.get("pinned_by_commit_only") or []` (`verify-openxwallet-pin.py:443`,
+    `pin.get("pinned_by_commit_only") or []` (`verify-openxwallet-pin.py:551`,
     `validate-openreposhape-pin.py:487`): every FALSEY value — not only
     absence — is EMPTY and admitted, so an adapter refusing `None` or `""`
     would be WIDER than the guard it tracks. `None` and `[]` are ACCEPTED; a
@@ -756,7 +756,7 @@ def test_optional_arm_the_guard_admits_the_entry_and_so_does_the_adapter(
 def test_the_real_record_still_resolves_at_both_the_guard_and_the_adapter(
         cli_verifier):
     """§ 3.8's record leg for this member: `contracts/openspec-cli-pin.yaml` as
-    it stands — FIVE entries, all admitted by the guard today — is admitted by
+    it stands — THREE entries, all admitted by the guard today — is admitted by
     the entry-grain form unchanged. The realization moves no record byte, and
     this is the assertion that says so.
 
@@ -765,10 +765,15 @@ def test_the_real_record_still_resolves_at_both_the_guard_and_the_adapter(
     request, the pin having refused `pin-disposition-stale` on it. The count is
     the LIVE record's and moves with the record; this realization deletes no
     entry and adds none, and the reading the test exists for — every entry the
-    guard admits, the adapter admits — is the same at five as it was at six."""
+    guard admits, the adapter admits — is the same at five as it was at six.
+
+    FIVE UNTIL `retire-codexfactory-sibling-currency-dispositions` DELETED the
+    two canon-moved codexFactory entries on `merge-master-approval/spec.md`,
+    ahead of their re-derivations, in a coordinated order with codexFactory's
+    pin advance. The reading is the same at three."""
     record = RECORDS["openspec-cli"]
-    assert len(record["dispositions"]) == 5
-    assert len(cli_verifier.pinned_dispositions(record)) == 5
+    assert len(record["dispositions"]) == 3
+    assert len(cli_verifier.pinned_dispositions(record)) == 3
     assert ps.judge(record, "openspec-cli").accepted
 
 

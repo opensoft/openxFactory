@@ -74,25 +74,6 @@
     "head_refs": {
       "example-org/example-app#42": "feature/login"
     },
-    "identity": {
-      "claims": {
-        "aud": "council-convening-corpus-audience",
-        "exp": 1791507900,
-        "iat": 1791507540,
-        "iss": "https://token.actions.githubusercontent.com",
-        "job_workflow_ref": "example-org/governed-rules/.github/workflows/corpus-commission.yml@refs/heads/main",
-        "job_workflow_sha": "565baeb830bd8d861ee4bfc759b068498cb9a300",
-        "nbf": 1791507540,
-        "repository": "opensoft/xFactory",
-        "repository_id": "424242",
-        "sub": "repo:opensoft/xFactory:ref:refs/heads/main"
-      },
-      "principal": {
-        "principal_kind": "github_oidc_job",
-        "principal_ref": "corpus-commission-binding"
-      },
-      "verified": true
-    },
     "issued": {
       "live_snapshots": [
         {
@@ -114,7 +95,7 @@
               "council_id": "review-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
-                "binding_ref": "binding-seat",
+                "binding_ref": "binding-seat-a",
                 "principal_kind": "github_oidc_job",
                 "principal_ref": "principal-seat-a"
               },
@@ -144,7 +125,7 @@
               "council_id": "review-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
-                "binding_ref": "binding-seat",
+                "binding_ref": "binding-seat-b",
                 "principal_kind": "github_oidc_job",
                 "principal_ref": "principal-seat-b"
               },
@@ -285,13 +266,13 @@
               "convening_digest": {
                 "construction": "xfc-jcs-sha256-1",
                 "subject": "council_convening",
-                "value": "sha256:128a567c963fb7605381c0265ffbe219118840b2fdaa1c936826178387fc762a"
+                "value": "sha256:743a38956d54a459d0b0f58933518eae36ae883caf2baa981b0d551f25f4a5f2"
               },
-              "convening_id": "convening-0000",
-              "council_id": "review-council",
+              "convening_id": "convening-0008",
+              "council_id": "other-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
-                "binding_ref": "binding-seat",
+                "binding_ref": "binding-seat-a",
                 "principal_kind": "github_oidc_job",
                 "principal_ref": "principal-seat-a"
               },
@@ -315,13 +296,13 @@
               "convening_digest": {
                 "construction": "xfc-jcs-sha256-1",
                 "subject": "council_convening",
-                "value": "sha256:128a567c963fb7605381c0265ffbe219118840b2fdaa1c936826178387fc762a"
+                "value": "sha256:743a38956d54a459d0b0f58933518eae36ae883caf2baa981b0d551f25f4a5f2"
               },
-              "convening_id": "convening-0000",
-              "council_id": "review-council",
+              "convening_id": "convening-0008",
+              "council_id": "other-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
-                "binding_ref": "binding-seat",
+                "binding_ref": "binding-seat-b",
                 "principal_kind": "github_oidc_job",
                 "principal_ref": "principal-seat-b"
               },
@@ -337,10 +318,10 @@
             }
           ],
           "convening": {
-            "council_id": "review-council",
+            "council_id": "other-council",
             "kind": "xfactory_council_convening",
             "packet_refs": [
-              "example-org/example-app#41"
+              "example-org/example-app#42"
             ],
             "protocol": "xfc-resolved-council-1",
             "required_seats": [
@@ -442,9 +423,9 @@
           "convening_digest": {
             "construction": "xfc-jcs-sha256-1",
             "subject": "council_convening",
-            "value": "sha256:128a567c963fb7605381c0265ffbe219118840b2fdaa1c936826178387fc762a"
+            "value": "sha256:743a38956d54a459d0b0f58933518eae36ae883caf2baa981b0d551f25f4a5f2"
           },
-          "convening_id": "convening-0000",
+          "convening_id": "convening-0008",
           "kind": "xfactory_council_convening_snapshot",
           "protocol": "xfc-resolved-council-1",
           "schema_version": 1
@@ -468,7 +449,7 @@
               "council_id": "review-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
-                "binding_ref": "binding-seat",
+                "binding_ref": "binding-seat-a",
                 "principal_kind": "github_oidc_job",
                 "principal_ref": "principal-seat-a"
               },
@@ -498,7 +479,7 @@
               "council_id": "review-council",
               "expires_at": "2026-10-09T06:00:00Z",
               "holder": {
-                "binding_ref": "binding-seat",
+                "binding_ref": "binding-seat-b",
                 "principal_kind": "github_oidc_job",
                 "principal_ref": "principal-seat-b"
               },
@@ -631,10 +612,6 @@
     "live_heads": {
       "example-org/example-app#42": "5ea2baa390e53e741a718626e522b7cf3bd33523"
     },
-    "repository_identity": {
-      "state": "text",
-      "text": "# The frozen identity fixture of the council-convening conformance corpus.\n# Corpus-owned and NOT the live contracts/policies/repository-identity.yaml:\n# one complete transfer row and two pending rows, in the live map's shape. The\n# second pending row's former equals the complete row's current spelling when\n# ASCII case is ignored, and is not byte-equal to it: the precedence probe.\nschema_version: 1\nkind: repository_identity\npolicy_id: repository-identity-v1\ntransfers:\n  - former: opensoft/codexFactory\n    current: codeXfactory/codexFactory\n    transferred_on: 2026-09-09\n    transfer_state: complete\n  - former: opensoft/ExampleFactory\n    current: ExampleOrg/ExampleFactory\n    transferred_on: null\n    transfer_state: pending\n  - former: codeXfactory/CodexFactory\n    current: ExampleOrg/CollidingFactory\n    transferred_on: null\n    transfer_state: pending\n"
-    },
     "resolved_candidate": {
       "head_sha": "5ea2baa390e53e741a718626e522b7cf3bd33523",
       "pull_number": 42,
@@ -712,12 +689,14 @@
             "classes": {
               "docs": {
                 "conditions": [],
+                "fact_sources": [],
                 "standing_seats": [
                   "seat-a"
                 ]
               },
               "hotfix": {
                 "conditions": [],
+                "fact_sources": [],
                 "standing_seats": [
                   "seat-a"
                 ]
@@ -733,6 +712,12 @@
                     },
                     "predicate": "changed_paths_intersect",
                     "seat": "seat-c"
+                  }
+                ],
+                "fact_sources": [
+                  {
+                    "input_contract": "pr_facts",
+                    "source": "candidate_pull"
                   }
                 ],
                 "standing_seats": []
@@ -760,6 +745,12 @@
                     "seat": "seat-d"
                   }
                 ],
+                "fact_sources": [
+                  {
+                    "input_contract": "pr_facts",
+                    "source": "candidate_pull"
+                  }
+                ],
                 "standing_seats": [
                   "seat-a",
                   "seat-b",
@@ -778,6 +769,12 @@
                     },
                     "predicate": "changed_paths_intersect",
                     "seat": "seat-c"
+                  }
+                ],
+                "fact_sources": [
+                  {
+                    "input_contract": "pr_facts",
+                    "source": "candidate_pull"
                   }
                 ],
                 "standing_seats": [
@@ -811,7 +808,8 @@
       "required_seats": [
         "seat-a",
         "seat-b"
-      ]
+      ],
+      "snapshot_digest": "sha256:77f9d58314fc6351fe436fba4b408476c82ce13496befed4bd9925e16c8ac0b1"
     },
     "derived_origin": "generated",
     "findings": [],
@@ -819,35 +817,6 @@
     "refusal": null
   },
   "inputs": {
-    "binding": {
-      "audience": "council-convening-corpus-audience",
-      "binding_id": "corpus-commission-binding",
-      "broker": {
-        "broker_ref": "corpus-broker",
-        "capability_verified": true,
-        "evidence_ref": "corpus-broker-evidence"
-      },
-      "caller_repository": "opensoft/xFactory",
-      "issuer": "https://token.actions.githubusercontent.com",
-      "kind": "xfactory_council_producer_binding",
-      "permitted_workflows": [
-        {
-          "job_workflow_ref": "example-org/governed-rules/.github/workflows/corpus-commission.yml@refs/heads/main",
-          "operation": "commission",
-          "workflow_revision_rule": "equals_governed_revision"
-        }
-      ],
-      "principal_kind": "github_oidc_job",
-      "protocol": "xfc-resolved-council-1",
-      "repository_id": 424242,
-      "schema_version": 1,
-      "subject_claim_keys": [
-        "repo",
-        "context"
-      ],
-      "subject_template": "repo:opensoft/xFactory:ref:refs/heads/main"
-    },
-    "operation": "commission",
     "record": {
       "council_id": "review-council",
       "kind": "xfactory_council_convening",

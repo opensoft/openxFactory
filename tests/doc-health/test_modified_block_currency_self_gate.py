@@ -1254,7 +1254,7 @@ _LEDGER_SUBJECTS = {
     # absence is. `pinned_by_commit_only:` is NOT reached: it has no pure,
     # source-free guard, both verifiers judging it inside their
     # source-dependent `verify()` (`validate-openreposhape-pin.py:481-508`,
-    # `verify-openxwallet-pin.py:443-457`), which is why this adapter's own
+    # `verify-openxwallet-pin.py:551-565`), which is why this adapter's own
     # citations for it carry no `guard` name (`pin_shapes.py:355-365`). NOTHING
     # ABOUT THAT MEMBER MOVES HERE: `_is_path_only_list` still accepts any
     # falsey value outright, before it ever checks for a list
@@ -1263,7 +1263,7 @@ _LEDGER_SUBJECTS = {
     # scalars as strings (`:201`), so `null`, `false`, `0` and `{}` reach
     # `verify()` as truthy strings and are refused there and only a quoted `""`
     # parses empty, whereas the `yaml.safe_load`-ed wallet verifier
-    # (`verify-openxwallet-pin.py:171`) does see Python falsey values. Its
+    # (`verify-openxwallet-pin.py:202`) does see Python falsey values. Its
     # disjointness bullet gains the matching exclusion for a
     # present-and-malformed optional member the clause reaches. The refusal scenario, D-1, D-2,
     # D-3 and every other promoted unit of the requirement are unchanged.

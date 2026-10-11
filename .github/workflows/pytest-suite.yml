@@ -428,6 +428,8 @@ jobs:
       - name: Init the openXwallet, openXdox and openDox gitlinks (openDox and openXdox RECURSIVELY — § 5.2 reads their code legs)
         run: |
           git submodule update --init openXwallet
+          git -C openXwallet submodule update --init openWallet
+          git -C openXwallet/openWallet submodule update --init code
           git submodule update --init --recursive openXdox openDox
 
       # THE PINNED DECISION CORE, FETCHED SO A REQUIRED CHECK CAN VERIFY A

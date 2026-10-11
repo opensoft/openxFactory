@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "kind": "factory_mcp_conformance",
+  "profile": "advisory-v1",
+  "domain": "sample",
+  "contract_version": "unreleased",
+  "source": {
+    "repository": "synthetic",
+    "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "artifacts": [
+      {
+        "repository": "synthetic",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "path": "outcome.json",
+        "sha256": "02dc0a9fa24cca2ba87ef662bb1f88dfbb93c476e628f79b8580feafec0c8af1"
+      }
+    ]
+  },
+  "service": {
+    "deployment": "deployed",
+    "installation": "synthetic-install",
+    "environment": "test",
+    "canonical_resource_uri": "https://mcp.example.test/mcp",
+    "auth": {
+      "issuer": "https://issuer.example.test/synthetic",
+      "algorithms": [
+        "RS256",
+        "EdDSA"
+      ],
+      "audience": {
+        "binding": "resource_uri",
+        "value": "https://mcp.example.test/mcp"
+      },
+      "metadata_path": "/.well-known/oauth-protected-resource/mcp",
+      "evidence_ids": [],
+      "gap_ids": [
+        "auth-gap"
+      ]
+    }
+  },
+  "tools": [
+    {
+      "id": "sample_check",
+      "owner": "sample",
+      "input": {
+        "repository": "synthetic",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "path": "outcome.json",
+        "sha256": "02dc0a9fa24cca2ba87ef662bb1f88dfbb93c476e628f79b8580feafec0c8af1"
+      },
+      "output": {
+        "repository": "synthetic",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "path": "outcome.json",
+        "sha256": "02dc0a9fa24cca2ba87ef662bb1f88dfbb93c476e628f79b8580feafec0c8af1"
+      },
+      "error": {
+        "repository": "synthetic",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "path": "outcome.json",
+        "sha256": "02dc0a9fa24cca2ba87ef662bb1f88dfbb93c476e628f79b8580feafec0c8af1"
+      },
+      "binding": {
+        "authority_source": "trusted_host",
+        "principal": "verified",
+        "subject": "host-resolved",
+        "operation": "sample_check",
+        "policy": "host policy",
+        "scope_references": [
+          "Hermes installation/stack/layer"
+        ],
+        "scope_status": "mapped",
+        "revocation": "startup_frozen"
+      },
+      "effects": {
+        "authority_effect": "none",
+        "external_reads": false,
+        "execution": false,
+        "persistence": false,
+        "mutation": false,
+        "boundary": "trusted_host",
+        "execution_bounded": false,
+        "execution_host_controlled": false
+      },
+      "outcomes": {
+        "structured_content": "verbatim",
+        "inventories": [
+          {
+            "kind": "result",
+            "schema": "output",
+            "pointer": "/properties/status",
+            "gap_id": null
+          },
+          {
+            "kind": "error",
+            "schema": "error",
+            "pointer": "/properties/code",
+            "gap_id": null
+          }
+        ],
+        "mapping": [
+          {
+            "inventory": 0,
+            "value": "positive",
+            "class": "completed_evaluation",
+            "is_error": false
+          },
+          {
+            "inventory": 0,
+            "value": "negative",
+            "class": "completed_evaluation",
+            "is_error": false
+          },
+          {
+            "inventory": 1,
+            "value": "UNAVAILABLE",
+            "class": "execution_failure",
+            "is_error": true
+          },
+          {
+            "inventory": 1,
+            "value": "INVALID",
+            "class": "execution_failure",
+            "is_error": true
+          }
+        ]
+      },
+      "evidence_policy": {
+        "input_identity": true,
+        "context_identity": true,
+        "evaluation_time": true,
+        "observation_time": false,
+        "artifact_provenance": "protected_host_record",
+        "allowed_output": [
+          "bounded status"
+        ],
+        "raw_credentials": false,
+        "raw_provider_payload": false,
+        "audit": "not_implemented"
+      },
+      "repetition": {
+        "mode": "reevaluate",
+        "deadline": "host_monotonic",
+        "trace_ids_are_authority": false
+      },
+      "limits": {
+        "request_bytes": 262144,
+        "result_bytes": 262144,
+        "boundary": "host"
+      },
+      "evidence_ids": [
+        "synthetic-observation"
+      ],
+      "gap_ids": [
+        "audit-gap"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "synthetic-observation",
+      "concerns": [
+        "binding",
+        "effects",
+        "outcomes",
+        "evidence",
+        "repetition",
+        "limits"
+      ],
+      "source": {
+        "repository": "synthetic",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "path": "outcome.json",
+        "sha256": "02dc0a9fa24cca2ba87ef662bb1f88dfbb93c476e628f79b8580feafec0c8af1"
+      },
+      "summary": "Synthetic declaration consistency only."
+    }
+  ],
+  "gaps": [
+    {
+      "id": "audit-gap",
+      "concerns": [
+        "audit"
+      ],
+      "description": "No resolving audit sink."
+    },
+    {
+      "id": "auth-gap",
+      "concerns": [
+        "auth"
+      ],
+      "description": "Synthetic block; no server's token verification was observed."
+    }
+  ]
+}
