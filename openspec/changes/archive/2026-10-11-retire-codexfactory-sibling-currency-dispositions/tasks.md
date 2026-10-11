@@ -12,6 +12,20 @@ agent does not tick an owner's-act box, so an owner's word or act is recorded
 as a dated note beneath its box instead. Group 5 is owed work belonging to OTHER repositories
 and OTHER packets, and is deliberately unticked, each box naming whose it is.
 
+**CLOSURE NOTE, 2026-10-11, AT THE ARCHIVE.** Of the 26 boxes in this file,
+**21 are ticked and 5 stay open.** The five open boxes are the `[OWNER]` boxes
+0.2 and 0.3, whose owner's word and act are recorded as dated notes beneath
+them and which an agent does not tick, and the successor rows 5.1, 5.2 and 5.3,
+which belong to other repositories and other packets and stay open in the
+archived packet, as Brett Heap's archive word was offered (5.4 records it). 5.4
+is the only box the archive ticks. One sentence above is now true only of the
+boxes it was written about, so it is quoted here and not edited: *"Group 5 is
+owed work belonging to OTHER repositories and OTHER packets, and is
+deliberately unticked, each box naming whose it is."* 5.4 was this packet's own
+archive and is ticked by the archive act, and 5.1 to 5.3 are exactly as that
+sentence says. The heading of Group 5, *"Owed, and not this packet's to tick"*,
+is kept as historical surface on the same reading.
+
 ---
 
 ## 0. [OWNER] gates
@@ -61,6 +75,19 @@ and OTHER packets, and is deliberately unticked, each box naming whose it is.
       coordinator's acts under Rule 6, never this authoring seat's. **Box kept
       UNTICKED: an agent does not tick an owner's-act box, and the landing has
       not happened.**
+      **2026-10-11, RECORDED AT THE ARCHIVE: THE ACT WAS TAKEN.** The
+      coordinator, lane `codeXfactory-1`, posted `LANDING` on PR #1288 at
+      2026-10-09T23:12:37Z (comment 6090841081, at head `f2b98b7e` over `main`
+      `85516e0d`, which records its register line as verified on origin). The
+      pull request merged at 2026-10-09T23:12:42Z as
+      `841e86f06cc9cce245560026ed02a3628ace35e4`, an admin merge commit on
+      Brett Heap's word and not an approving review, and `LANDED` followed at
+      2026-10-09T23:13:03Z (comment 6090845496). That merge commit is **D**.
+      Every check on the landed head `f2b98b7e` passed, `openspec-cli-pin`
+      (run 38001206989) and `pytest-suite` (run 38001207040) among them. The
+      sentence above that says the landing has not happened was true when
+      written and is kept. **Box kept UNTICKED: an agent does not tick an
+      owner's-act box.**
 
 ## 1. The deletion
 
@@ -150,11 +177,59 @@ and OTHER packets, and is deliberately unticked, each box naming whose it is.
       (gate G-2: extend- `tasks.md` 1.7 with its owner box 4.2a; a new dated
       amendment row in relocate-). Its `validate` must read 4.6. Lane
       `codeXfactory-1`'s act in codexFactory.
+      **2026-10-11, AT THE ARCHIVE: OPEN, AND NOT OWED BY THE ARCHIVE.**
+      codeXfactory/codexFactory#549 reads OPEN, measured on the day. D is
+      `841e86f0`, so the hard constraint in `proposal.md` § Impact now binds
+      every codexFactory pin advance to `841e86f0` or later. The box stays open
+      in the archived packet, as the archive word was offered (5.4).
 - [ ] 5.2 **The template's 6.3**
       (`disposition-codexfactory-regular-pr-council-clearance-archive`): its
       re-derivations are 5.1's. Ticking or annotating it is that packet's own
       act (OQ-2).
+      **2026-10-11, AT THE ARCHIVE: OPEN, AND NOT OWED BY THE ARCHIVE.** The
+      template's 6.3 still reads `[ ]` at openxFactory `main` `841e86f0`, and
+      the archive does not edit that packet (OQ-2's default). The box stays
+      open in the archived packet, as the archive word was offered.
 - [ ] 5.3 **Watch `Fission-AI/OpenSpec#1793`.** It reaches the three surviving
       marker-blindness entries, and this packet changes nothing about it.
-- [ ] 5.4 **This packet's archive**, on merged plus green realization evidence
+      **2026-10-11, AT THE ARCHIVE: OPEN, AND NOT OWED BY THE ARCHIVE, WITH ONE
+      FACT MEASURED AND NOT JUDGED.** `Fission-AI/OpenSpec#1793` reads CLOSED,
+      `state_reason: not_planned`, closed at 2026-09-25T18:21:14Z, which is
+      before this packet was authored. Nothing in this packet's text depends on
+      the issue's state, and what the closure means for the three surviving
+      marker-blindness entries is not the archive's to decide. The box stays
+      open in the archived packet, as the archive word was offered.
+- [x] 5.4 **This packet's archive**, on merged plus green realization evidence
       under `release-realization`, on its own word.
+      **2026-10-11: TICKED ON THE ARCHIVE WORD AND THE ARCHIVE ACT.** Brett
+      Heap, first-hand in lane `codeXfactory-1`'s own session at
+      2026-10-11T00:19:47Z (the session transcript's timestamp), chose
+      ***"Archive + land when green (Recommended)"***. As offered, the archive
+      is a pull request in openxFactory, landed under lane-collision Rule 6,
+      and successor rows 5.1 to 5.3 stay open in the archived packet. Recorded
+      on #1286 (comment 6103700924). **THE REALIZATION EVIDENCE**, owed because
+      `code_surface:` is non-empty. Merged: #1288 → `841e86f0`
+      (2026-10-09T23:12:42Z). Green: every push run on `main` at `841e86f0`,
+      which covers all five of this repository's push-triggered workflows,
+      reads `success`: `pytest-suite` 38003270892, `doc-health-py314`
+      38003271040, `clearing-dispatch-gate` 38003270870,
+      `council-convening-gate` 38003270891 and `signed-execution-chain-gate`
+      38003270916. `openspec-cli-pin`, which runs on pull requests only, read
+      `success` on the landed head `f2b98b7e` (run 38001206989). **THE ROUTE.**
+      The governed wrapper refuses any packet whose `tasks.md` still carries an
+      open box, and it has no bypass flag. The archive word keeps five open.
+      The wrapper was run first, over this file as ticked here, and refused
+      without moving anything. `TZ=UTC python3 scripts/proposal-support.py .
+      archive retire-codexfactory-sibling-currency-dispositions --yes`, started
+      2026-10-11T00:33:50Z, printed *"ORIGIN RETAINED
+      retire-codexfactory-sibling-currency-dispositions (declaration unchanged
+      since the ratifying commit 1dee56db3486)"* and then *"change has
+      incomplete tasks"*, exit 1. So the archive is taken
+      through the content-addressed pinned CLI directly, from the repository
+      root with `TZ=UTC` and `OPENSPEC_TELEMETRY=0`, in the commit after this
+      one. That is the route `govern-archived-record-edits` took when it
+      archived with its successor rows open (`faeabe22`). That commit moves the
+      packet as pure renames and edits no byte of it, and its run is recorded
+      in its own message and in the archive pull request's body. Nothing under
+      `openspec/specs/` is written: `skip_specs: true`, and no `specs/`
+      directory.
