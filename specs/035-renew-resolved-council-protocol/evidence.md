@@ -964,7 +964,7 @@ At the PR head, `python3 scripts/validate-council-convening.py corpus` reports 4
 
 1. **Tests first, red.** Recorded above, phase item by phase item.
 2. **Green**, at `9202ee6d4`, at a load average above 120:
-   - `python3 -m pytest tests/council_convening -q -m "not postgres"`, run in parallel slices: SUITE_COUNTS.
+   - `python3 -m pytest tests/council_convening -q -m "not postgres"`, run in parallel slices: **1478 passed**. That is `test_binding.py` 353, `test_resolution.py` + `test_predicates.py` 609, `test_validator_cli.py` 137 (re-run at `831a615e6`, after PR-2's exact-set test took A1 and A4), `test_assignments.py` 122, and the rest 257.
    - `python3 scripts/validate-council-convening.py`: exit 0. 433 vectors, 322 both-sides, index `sha256:e6ab4e93e3895d3c026adfdf671b46761560042b57296becab25cf6fa1971e5b`; 433/433 adjudicated; refusal codes 54/54; finding codes 1/1; requirements 10/10 (FR-001 to FR-006, FR-009, FR-011, SC-001, SC-002); generator reproduced.
 3. **Corpus reproducible.**
    - `python3 -m scripts.council_convening.generate --check`: exit 0.
@@ -972,8 +972,8 @@ At the PR head, `python3 scripts/validate-council-convening.py corpus` reports 4
    - `python3 scripts/validate-council-convening.py corpus`: the totals above.
 4. **Repository gates.**
    - `python3 scripts/validate-openspec-cli-pin.py --all --strict`: exit 0, `Totals: 113 passed, 1 failed (114 items)`. The one failure is the accepted exception (Brett Heap, 2026-09-05, *"take exit 2"*).
-   - Doc-health in single-repo mode at the PR head: DOCHEALTH_RESULT.
-   - The doc-health pin tests: DH_COUNTS.
+   - Doc-health in single-repo mode, `python3 scripts/doc-health.py --single-repo . --report-out <scratch>` at `af2d9def5`: exit 0, `Findings: 31 critical, 22 error, 76 warning, 18 info`, 0 new regressions. Against Phase 5's previous head `61a646a31` the only differences are calendar aging (two days later) and the four `contract-v4.0` drift errors that main's contract-v4.1 cut cleared. None is on a Phase 5 path.
+   - `tests/doc-health/test_pin_reachability.py` and `test_sentinel_vocabulary.py`: 129 passed.
    - The full suite was not run locally, on the coordinator's instruction. The required `pytest-suite` check on PR-5 is the gate of record.
 5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty, at the PR head.
 
