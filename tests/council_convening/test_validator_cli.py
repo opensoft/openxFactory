@@ -1020,6 +1020,18 @@ def test_check_reports_the_activation_rules_it_cannot_run_offline(tmp_path):
     assert "rehearsal_ref" in result.stdout and "binding_refs" in result.stdout
 
 
+def test_check_names_the_twin_rule_as_not_offline_checkable(tmp_path):
+    # Brett Heap, 2026-10-11T15:57:48Z, "Refuse dual-role and twins
+    # (Recommended)": twins are judged over the consumer's configured set, which
+    # `check` does not have, so it names the rule rather than passing it.
+    record = json.loads(ACTIVATION_VECTOR.read_text(encoding="utf-8"))["inputs"]["record"]
+    path = _write(tmp_path, "activation.json", record)
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert any("not checkable offline:" in line and "subject_template" in line
+               for line in result.stdout.splitlines()), result.stdout
+
+
 def test_check_refuses_an_incomplete_activation_record(tmp_path):
     record = json.loads(ACTIVATION_VECTOR.read_text(encoding="utf-8"))["inputs"]["record"]
     del record["owner_word"]
