@@ -449,12 +449,13 @@ reads:
 - re-cut forward-only if `main` moved the release files;
 - land by merge commit once green, with Copilot clean at the final head.
 
-`main` was merged twice, never by rebase:
+`main` was merged three times, never by rebase:
 
 | Head | Merges `main` at | Pull requests it takes |
 | --- | --- | --- |
 | `07623c7a` | `841e86f0` | #1290, #1287, #1288 |
 | `cb9b27f3` | `33d2a56a` | #1294 |
+| `0d375083` | `978e9cbc` | #1295, #1296 |
 
 **No re-cut.** None of those pull requests touches a release file.
 
@@ -478,19 +479,19 @@ gate run at `07623c7a` refused six wallet-consuming gates with
 clone was initialized as CI initializes it, every gate passed. A suite started
 before that initialization was stopped and run again.
 
-| Gate | `07623c7a` | `cb9b27f3` |
-| --- | --- | --- |
-| Pinned OpenSpec `--all --strict`, and `--no-cache` | 0 | 0 |
-| openXwallet pin (with nested parity), openXdox, openDox, openRepoShape pins | 0 | 0 |
-| clearing dispatch, former-id arrival, factory identity, signed execution chain, openXwallet, wallet YAML syntax | 0 | 0 |
-| proposal support, sequenced-after (and `--ledger-diff`), code surface, target release | 0 | 0 |
-| manifest digests | 0 (185 verify) | 0 (185 verify) |
-| `verify-commit --commit HEAD` | PASS | PASS |
-| `release-tag-gate` on a recreated merge tree (`main` + `--no-ff` head) | `e2ca4121`: no error, no warning; `TAG OWED: contract-v4.1` notice | `2a38806b`: the same |
-| doc-health `--single-repo` | 0: 31 critical, 22 error, 69 warning, 17 info, the `cc9e1441` set | 0: 31 critical, 22 error, 86 warning, 17 info (note below) |
-| `tests/factory-mcp/` | 108 passed, 300 subtests | 108 passed, 300 subtests |
-| Full suite, `pytest tests/ -q -m "not postgres"` | local, run alone under `setsid`: 1 failed, 9556 passed, 7 skipped, 338 deselected, 703 subtests | CI's `pytest-suite` (run `38100661463`): 10195 passed, 6 skipped, 338 deselected, 724 subtests, 0 failures; its pinned triple reads selected 10925, passed 10919, skipped 6 |
-| CI's checks on the pull request | all success (15 check runs, `pytest-suite` among them) | all success (15 contexts, `pytest-suite` among them) |
+| Gate | `07623c7a` | `cb9b27f3` | `0d375083` |
+| --- | --- | --- | --- |
+| Pinned OpenSpec `--all --strict`, and `--no-cache` | 0 | 0 | 0 |
+| openXwallet pin (with nested parity), openXdox, openDox, openRepoShape pins | 0 | 0 | 0 |
+| clearing dispatch, former-id arrival, factory identity, signed execution chain, openXwallet, wallet YAML syntax | 0 | 0 | 0 |
+| proposal support, sequenced-after (and `--ledger-diff`), code surface, target release | 0 | 0 | 0 |
+| manifest digests | 0 (185 verify) | 0 (185 verify) | 0 (185 verify) |
+| `verify-commit --commit HEAD` | PASS | PASS | PASS |
+| `release-tag-gate` on a recreated merge tree (`main` + `--no-ff` head) | `e2ca4121`: no error, no warning; `TAG OWED: contract-v4.1` notice | `2a38806b`: the same | `1609bed1`: the same |
+| doc-health `--single-repo` | 0: 31 critical, 22 error, 69 warning, 17 info, the `cc9e1441` set | 0: 31 critical, 22 error, 86 warning, 17 info (note below) | 0: the `cb9b27f3` set |
+| `tests/factory-mcp/` | 108 passed, 300 subtests | 108 passed, 300 subtests | 108 passed, 300 subtests |
+| Full suite, `pytest tests/ -q -m "not postgres"` | local, run alone under `setsid`: 1 failed, 9556 passed, 7 skipped, 338 deselected, 703 subtests | CI's `pytest-suite` (run `38100661463`): 10195 passed, 6 skipped, 338 deselected, 724 subtests, 0 failures; its pinned triple reads selected 10925, passed 10919, skipped 6 | CI's required `pytest-suite`, at the head that lands (below) |
+| CI's checks on the pull request | all success (15 check runs, `pytest-suite` among them) | all success (15 contexts, `pytest-suite` among them) | CI's required checks, at the head that lands (below) |
 
 Notes on the table:
 
@@ -509,9 +510,18 @@ Notes on the table:
   core (`PINNED_CORE_CHECKOUT`) that a local run lacks. The local
   checkout-path artifact does not arise on CI's path.
 
-**The head that lands.** The commit adding this section differs from
-`cb9b27f3` only in this record, which is neither a release-inventory member
-nor code. CI's required checks, `pytest-suite` among them, run again on that
-head's merge with `main` before it lands. The lane's coordinator lands it by
-merge commit and publishes the `contract-v4.1` annotated tag at the landing
-merge commit, after the merge.
+**The head that lands.** It is `0d375083` plus this record. The record is
+neither a release-inventory member nor code. The full suite at that head is
+CI's required `pytest-suite`, which runs on the head's merge with `main`
+together with every other required check before the pull request lands. A
+record cannot carry the result of a run on itself, so that result lives on
+the pull request.
+
+If `main` moves again before landing, the landing merge takes it, and CI
+judges that merge tree too. Every merge so far has been checked the same way:
+the inventory rebuilt and compared, `verify-commit`, and `release-tag-gate` on
+the recreated merge tree.
+
+The lane's coordinator lands the pull request by merge commit. After the
+merge, it publishes the `contract-v4.1` annotated tag at the landing merge
+commit.
