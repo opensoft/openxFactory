@@ -3217,7 +3217,8 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [amend-factory-mcp-conformance-auth-profile](openspec/changes/archive/2026-10-11-amend-factory-mcp-conformance-auth-profile/proposal.md)
-  — **ARCHIVED 2026-10-11** by ARCHIVE-PR-NUMBER-PENDING,
+  — **ARCHIVED 2026-10-11** by
+  [PR #1298](https://github.com/opensoft/openxFactory/pull/1298),
   by lane `openxfactory-5` (display `openXfactory-5`), to land by MERGE
   COMMIT, never squash, under lane-collision Rule 6, on Brett Heap's
   separate archive word, a multiple-choice answer whose verbatim option label
