@@ -58,9 +58,13 @@ opendox land --repo-root PATH --branch BRANCH [--local] [--json]
 `tasks.md:2814-2815`), interactive by construction.
 
 - Asks for confirmation over `/dev/tty`, naming the branch and its head; the
-  answer mints the confirmation capability (12.6a). With no `/dev/tty`, it
-  refuses, naming the missing terminal; there is no bypass flag (decision N-11;
-  12.6a: "refuses when there is none").
+  answer mints the confirmation capability (12.6a). The prompt also states the
+  operation this invocation performs, decided before the prompt from the same
+  governance reading that `landing_refusal()` uses: a merge commit onto `main` on
+  the standalone path, and a submission to the host's instrument on the governed
+  path (the holder, `6103915259` item 10). With no `/dev/tty`, it refuses, naming
+  the missing terminal; there is no bypass flag (decision N-11; 12.6a: "refuses
+  when there is none").
 - `standalone` (which needs the explicit local install, `OPENDOX_INSTALL_MODE=local`
   or `--local`; FR-007): merges `--no-ff` in its own landing worktree, then
   fast-forwards the served checkout when it holds `main` and is clean (R2Q6 (a)).
@@ -86,7 +90,10 @@ opendox land --repo-root PATH --branch BRANCH [--local] [--json]
   environment, `GIT_CONFIG_COUNT=1`, `GIT_CONFIG_KEY_0=remote.<transient>.url`,
   `GIT_CONFIG_VALUE_0=<push URL>`, so a credential never reaches git's argv; a
   remote with no `main` passes), and the chosen remote has several push URLs
-  (data-model.md § Landed); a stale or used confirmation; a conflict (`MergeConflict`,
+  (data-model.md § Landed); a stale or used confirmation; a nonce whose stated
+  operation changed since it was issued, refused as `operation-changed` (the
+  names are read from T016's work in progress, openDox-code
+  `wip/r2-t016-park-0110` at `743bb8b3`: inferred until T016 lands); a conflict (`MergeConflict`,
   naming the paths and the remedy: bring `main` into the branch and resolve
   there, OQ-038-1).
 - Serves the fix loop's drafts unchanged, the batch draft included: a batch is
@@ -97,7 +104,7 @@ opendox land --repo-root PATH --branch BRANCH [--local] [--json]
 | method and path | body | answer |
 |---|---|---|
 | `POST /actions/session/submit` | `{"branch": "…"}` | the `Submission` object, or a named refusal |
-| `POST /actions/session/land-nonce` | `{"branch": "…"}` | `{"nonce": "…", "branch": "…", "head": "<40-hex>"}`: single-use, bound to that branch and head (OQ-12-13) |
+| `POST /actions/session/land-nonce` | `{"branch": "…"}` | `{"nonce": "…", "branch": "…", "head": "<40-hex>", "operation": "merge" \| "submit"}`: single-use, bound to that branch and head (OQ-12-13). `operation` is what the landing performs, `merge` (a merge commit onto `main`, standalone) or `submit` (a submission to the host's instrument, governed), decided before any nonce is issued from the reading that decides whether `land` can act, and stated by the confirm control's question (the holder, `6103915259` item 10) |
 | `POST /actions/session/land` | `{"branch": "…", "nonce": "…"}` | the `Landed` object (standalone), the instrument's `Submission` object (governed; no merge, R2Q4 (a)), or a named refusal (the same refusals as the CLI) |
 
 The routes take no repository from the request (12.4a; F12.2's
@@ -136,7 +143,13 @@ route answers (OQ-12-14, refined by ADV-14).
 The submit control and the land confirm control live in a new
 `web/views/branch-actions.js`, never in the `doxbench-*.js` files FR-037's
 sentinels guard (OQ-12-14). The confirm control fetches a nonce, shows the
-branch and head it is bound to, and posts it once.
+branch and head it is bound to, and posts it once. It states the operation for
+this invocation as the terminal prompt does, decided from the same governance
+reading as `landing_refusal()`: a merge commit onto `main` on the standalone path,
+and a submission to the host's instrument on the governed path, where `actions.land`
+is also true (the holder, `6103915259` item 10). Governance-neutral wording is
+acceptable only if it misdescribes neither path. The capability's binding (branch
+and head), its single use and the static two-issuer check stay as they are.
 
 ## F12.2's named nodes (unchanged; 12.6a)
 
