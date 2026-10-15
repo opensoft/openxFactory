@@ -778,7 +778,7 @@ All in the py-bench container, Python 3.12.3, in this phase's worktree. `openXwa
    - **What a vector cannot pin.** Both repeats in that last vector are the one code, so it pins the pair's outcome, and `test_every_repeated_principal_is_named_before_any_repeated_binding` pins the member.
    - **The flipped test.** `test_a_shared_binding_is_not_a_shared_holder` is now `test_a_binding_shared_across_seats_is_assignment_shared_holder`.
    - **Dated amendments.** Data-model E4 step 7 and E5's holder row, the snapshot schema's step 7, and a provider-interface consumer-impact row.
-   - **The seat count E12 allows.** E12's `binding_refs` is the consumer's whole configured binding set, at most 16, the commission binding included, and every seat's binding must be in it (E7 step 5, `binding_unresolved`). So a convening has at most 16 − k seats, where k counts the configured bindings none of its seats holds. That is **15** while the commission binding is its own instance, and 16 only if a seat's holder runs under the commission binding itself. That needs the binding to list `seat_execution` as well, which neither E4 nor E10 forbids. The pre-review's "at most 15" is the first case.
+   - **The seat count E12 allows.** E12's `binding_refs` is the consumer's whole configured binding set, at most 16, the commission binding included, and every seat's binding must be in it (E7 step 5, `binding_unresolved`). So a convening has at most **15** seats: the commission binding is never a seat's, because E10 step 1 refuses a binding that lists both `commission` and `seat_execution` (Brett Heap, 2026-10-11T15:57:48Z, "Refuse dual-role and twins (Recommended)"). Rewritten 2026-10-11 in PR-5 on that ruling (PR-3 review LOW 3): the earlier count, which allowed 16 seats when a seat ran under the commission binding, no longer arises.
 2. **"Each path sorts alone (Recommended)"** confirms Phase 2's rename reading: each of a rename's two paths takes its own sorted place. Phase 3 needed no change. The reading is marked confirmed in § Phase 2.
 3. **"Same rule, in PR-3 (Recommended)".** A consumed `rule_facts.rule_touched_paths` is bytewise sorted and duplicate-free, and E2 step 2 refuses any other as `convening_malformed`.
    - **New commission vectors**, shared, copied from `commission-accept-unclassed-rule-facts-held`: `commission-refuse-convening-malformed-rule-touched-paths-unsorted` and `-repeated`. The consumed and the authoritative list are arranged alike, so only step 2 can refuse them; before the rule both accepted.
@@ -835,3 +835,146 @@ All in the py-bench container, Python 3.12.3, in this phase's worktree, with the
 5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty.
 
 **The PR.** PR-3 opens **ready** against `main` after this record's commit, on the coordinator's word that PR-2 has landed. It lands on Brett Heap's word *"merge PR-3 when green"* (2026-10-09T01:38:36Z, log line 240), once CI and the delta review pass.
+
+## Phase 5 — User Story 2 (c): producer identity bound to verified workflow claims (PR-5)
+
+Started during the review rounds, and finished at T056 once PR-3 had landed. Counts are as measured at the commit each item names.
+
+### Authority and base (2026-10-09)
+
+- **Start.** Brett Heap, 2026-10-09T01:41:54Z, *"start 035 phase 5 while PR-3 lands"* (WORD), under the lane's order *"This lane, 035 then 025 (Recommended)"*.
+- **Landing.** Brett Heap, 2026-10-09T01:47:20Z, *"merge PR-5 when green"* (WORD, relayed by the lane's coordinator). PR-5 opens ready after PR-3 lands.
+- **Rulings this phase encodes.**
+  - OPEN-2, *"Consumer's runtime config (Recommended)"* (RULED 2026-10-08T19:24:21Z): the family ships `producer-binding.schema.yaml`, the `producer-binding.template.yaml` stub, the derivation from `contracts/policies/repository-identity.yaml` and the corpus. The concrete binding lives in the consumer's governed runtime configuration. The stub is refused as live (`binding_malformed`).
+  - OPEN-3's second half, and its follow-ups 2, *"job_workflow_ref's repo (Recommended)"*, and 3, *"At or after the frozen rev (Recommended)"* (RULED 2026-10-08T23:03:35Z): `equals_governed_revision` for the commission job, `on_governed_history_since_revision` for a seat job, compared with the repository the verified `job_workflow_ref` names, never the caller.
+- **025 ruling (A)**, Brett Heap 2026-10-09T01:20:26Z, *"Per-seat environments (Recommended)"* (RULED, logged 01:20:43Z, register log line 233), is the consumer's. CHECKED, and it holds: one binding per seat, with a per-seat environment in the `sub` (`bind-seat-per-seat-environment-accept`, `bind-seat-customized-*-accept`).
+- **Branch.** `035-phase5-binding`, cut from `main` at `f4dbe2f3f`. Phases 1, 2 and 3 and `main` were merged in, never rebased (`52a801306`, `355ba1d1d`, `cff00ac56`, `c46d981e2`, `526a856a0`), and, once PR-3 had landed, `main` at `b27ae7a25` (`738403916`).
+- **The word times** are the lane register's (`brett-wip` `lanes/log/codeXfactory-2.md`, lines 241 and 242).
+
+### Independent reviews, and what they changed
+
+- **Lane codeXfactory-1's review of `52a80130`, `cff00ac5` and `c46d981e`.** Verdict: the binding is sound, and every defect it found fails closed. Fixed at `d8c62dba4` (tests first, `1132df3cd`): the FR-009 coverage floor (MEDIUM), `@` in a workflow ref with step 4 judging every permitted ref by its first two segments (LOW 1), case variants of a pending row's spellings (LOW 2), a vector missing an oracle it reads is a harness error (LOW 3), offline A1 and A4 notes (LOW 4).
+- **Its delta review of `c46d981e..d8c62dba`.** All six earlier findings proved fixed by probes at head. One new LOW fail-open: `IdentityMap.is_former` exempted a byte-equal pending spelling before testing it against complete rows. Fixed at `d8d326ed7`, tests and data first at `96ec35f5e` (10 failed, 335 passed in `test_binding.py`):
+  - a complete row's `former` is refused and its `current` is current;
+  - any other spelling equal to a complete-row spelling ignoring ASCII case is refused;
+  - only then is a pending spelling, byte-equal, exempt;
+  - last, a case variant of a pending spelling is refused.
+
+  This is research.md R10 as written. The fixture gains a second pending row, `codeXfactory/CodexFactory`, whose `former` collides with the complete row's current, with a dated amendment in the corpus contract. Two vectors cover it: `bind-caller-pending-collides-with-complete-refuse` and `bind-workflow-pending-collides-with-complete-refuse`.
+
+### Readings this phase takes, not rulings
+
+- **2026-10-09, LOW 2 of the first review: "a listed spelling", read literally.** E10 step 4 refuses a non-canonical case variant of a listed spelling. A pending row's `former` and `current` are listed spellings, so a case variant of either is `repository_identity_former`. The pending spellings themselves, byte-equal, stay current, because `load_transfers` does not resolve a pending row (`pending_row_rule`). No ruling names this; it is the text's own reading.
+- **2026-10-09, LOW 5 of the first review: an empty final `sub` element.** A `sub` element value has at least one character. A customized template whose last element is empty, such as `head_ref:` on an event with no head ref, therefore does not parse, and is `subject_template_mismatch`. A job whose token carries such an element needs a template without that key. Recorded at `_VALUE` in `scripts/council_convening/binding.py`.
+- **2026-10-09, the identity map at admission.** The map is read in the commission record's role only, where E2 steps A1 and A4 run. The snapshot half (data-model E4) judges no binding, so its vectors read no map (`corpus.reads_identity_map`). This is a dated amendment on the corpus contract's `repository_identity` row.
+- **2026-10-09, admission judges the commission job's token.** `inputs.operation` is `commission` at admission, so a seat job's token presented there is `workflow_not_permitted`.
+- **2026-10-11, a retry carries its own token.** A retry is a new request, so the retry vectors carry the commission job's token re-minted at the retry's instant (`retry_token` in PR-3's builder). E2 step A1 judges that token before retry identity. The live snapshot's own token is not consulted again.
+- **2026-10-11, `check` on a snapshot reports its embedded record's E2 refusal under the E2 code.** It runs after E4 steps 2 to 7 pass, so a snapshot whose embedded `subject_pin` is not the candidate's head is `candidate_mismatch`, not `snapshot_malformed`. E4's own order and the corpus are unchanged.
+- **2026-10-11, the precedence of complete rows (the delta review).** A complete row's own `current`, byte-equal, stays current even when a pending row's spelling folds equal to it. Any other spelling that folds equal to a complete-row spelling is refused before the pending exemption applies.
+- **2026-10-09, the earlier six, confirmed sound by the first review.**
+  1. GitHub's immutable `repo:<owner>@<owner-id>/<repo>@<repo-id>` segment is accepted, and its repository id must equal `repository_id`.
+  2. The closed subject keys come from GitHub's claims table. `repo_property_*` is an open family and not a member. `sha`, `ref_protected`, `environment_node_id` and `issuer_scope` are in the discovery document's `claims_supported` but not in the table, so they are not members either.
+  3. The enterprise issuer slug is lowercase letters, digits and inner hyphens.
+  4. The subject template must carry a repository element (`repo`, `repository` or `repository_id`) that names the binding's repository.
+  5. The identity map must be well formed beyond what `load_transfers` checks.
+  6. An absent or non-integer `exp` is `claims_expired`, and an absent `nbf` sets no bound. A list `aud` is `audience_mismatch`. `repository_id` is compared as GitHub's decimal string.
+
+### Tests first, run red
+
+Every failure below is an absent Phase 5 name or file, or the Phase 5 behaviour the test pins.
+
+- **T050** (2026-10-09T02:0xZ, before `binding.py` existed): `python3 -m pytest tests/council_convening -q -m "not postgres"` stopped at 1 collection error, the absent `scripts.council_convening.binding`.
+- **After Phase 1 merged** (`396ef5dd7`): `test_binding.py` gave **9 failed, 241 passed**. The 9 were the Phase 5 codes not yet in `refusal_code` (T053), and the T055 corpus pieces:
+  - the identity-map rule (2);
+  - the `fixtures` row and its digest (2);
+  - `council-convening-vector-identity-map-missing` (1);
+  - generator text drift (1);
+  - `generate --check` without the live map (2).
+- **T052**: the binding cases of `test_validator_cli.py` gave **7 failed, 1 passed**, because the binding kind had not landed in `check`.
+- **A1 and A4** (2026-10-09T17:56:15Z, at `52a801306`, committed as `7b3f73d8d` before any `resolution.py` change): **24 failed, 16 passed**. The 16 passes:
+  - the twelve Phase 2 admission vectors keep their outcomes, by design;
+  - three operation cases passed only because `operation` was not yet an admission input;
+  - the shared-commission-without-binding case.
+- **Phase 3's retry vectors** (after merging `eb6bf6bff`): **17 failed, 37 passed**. The self-test flagged exactly the twelve retry vectors, the commission-record role, as identity-map-missing.
+- **The first review round** (`1132df3cd`): **21 failed, 373 passed** in `test_binding.py` and `test_corpus_index.py`, and **3 failed, 1 passed** in the CLI cases.
+- **The delta review's precedence probe** (`96ec35f5e`): **10 failed, 335 passed** in `test_binding.py`.
+- **PR-5 round** (2026-10-11):
+  - the builder test (`412f1a97e`): 2 failed;
+  - the dual-role ruling (`b91eaa4c4`): 3 failed, 1 passed;
+  - check on a snapshot's embedded record (`a45af89cd`): 3 failed;
+  - the governed collision vector (`c952e8de3`): 2 failed.
+
+### The binding vectors and the admission re-authoring (T051)
+
+At the PR head, `python3 scripts/validate-council-convening.py corpus` reports 433 vectors, an agreement set of 322, by area assignment 68, binding 67, foundation 133 and resolution 165, and by outcome accept 84, refuse 341 and route 8.
+
+- **`binding` (67: 12 accept, 55 refuse)**, every one hand-authored and citing FR-009. They cover:
+  - E10's fourteen steps one by one, and the offline and claim orders;
+  - the three `repository_identity_unavailable` probes (`absent`, `unreadable`, and a `text` with a malformed row);
+  - the frozen fixture's complete row and both pending rows;
+  - the per-seat environment of 025 ruling (A), and the stub presented as live;
+  - `@` inside a branch, and case variants of pending spellings;
+  - the three collision vectors, and the dual-role binding.
+
+  Follow-up 2 is pinned by the workflow-outside-the-governed-repository vectors, and follow-up 3 by the `bind-seat-*` history vectors.
+- **Admission, the commission record's role (40)**:
+  - Phase 2's twelve admission vectors and PR-3's twelve retry vectors carry a passing binding, with their outcomes unchanged.
+  - The retry vectors are PR-3's builder output, whose `_retry` now copies every input of the base vector other than the record, and whose token is re-minted at the retry's instant.
+  - Sixteen are Phase 5's:
+    - the binding's own refusals at admission (6);
+    - A1 after shape, and before secrets and the candidate (3);
+    - A4 after the candidate and every step-5 check, and before step 6 (5);
+    - A1 before A3 (2): an identical retry with an expired token is not returned its snapshot, and a conflicting record with a token for another audience is `audience_mismatch`, not `convening_conflict`.
+- **`coverage_floor`** carries FR-009, as does the gate's requirements assertion (10/10).
+
+### Implementation (T052–T055)
+
+- **T053.** `producer-binding.schema.yaml` and the single-operation `producer-binding.template.yaml`. The thirteen Phase 5 codes follow Phase 3's seven in `refusal_code`, in landing order.
+- **T054.** `binding.py`:
+  - steps 1–6 offline, 7–13 on the verified claims, and 14 on the governed member;
+  - the fail-closed map check before `load_transfers`;
+  - `materialize_identity` for the oracle's three states.
+- **T055, in admission:**
+  - A1 runs after shape and before A3, and A4 runs after step 5;
+  - an admission takes `inputs.binding` and `inputs.operation` (`commission` only);
+  - a binding-less admission, or a binding at commission, is a harness error.
+- **T055, in the corpus and `check`:**
+  - the identity-map rule (the record role only) and the `fixtures` closure;
+  - the generator reads the fixture, never the live map;
+  - `check` on a binding runs steps 1–6 and names 7–14 in the coded `council-convening-not-offline-checkable` form;
+  - `check` on a commission record names A1 and A4 as not checkable offline.
+
+### The PR-5 round (2026-10-11)
+
+- **The merge.** `738403916` merges `origin/main` at `b27ae7a25`, which carries PR-2 (`33d2a56a`), PR-3 (#1296, `978e9cbc`) and #1289. Every vector main carries is taken as main's. Phase 2's were then re-authored with scratch `author_admission_vectors.py` (`cc8ce511e`), and the retry vectors were rebuilt from the builder (`f7997c6ce`), never merged by hand. Their live snapshots carry one binding per seat (E4 step 7, Brett Heap 2026-10-11T00:19:34Z, *"Refuse at freeze (Recommended)"*) and an accept's `snapshot_digest`.
+- **Brett Heap's ruling, 2026-10-11T15:57:48Z, *"Refuse dual-role and twins (Recommended)"*** (RULED, log line 289). E10 step 1 now refuses a binding listing both `commission` and `seat_execution` as `binding_malformed` (`0a3e5cb57`):
+  - it is enforced in the schema;
+  - data-model E10 step 1 carries the dated amendment;
+  - vector `bind-dual-role-refuse`;
+  - E4 step 7's note, the provider-interface row and § Phase 3 now state a flat "at most 15 seats" (PR-3 review LOW 3).
+
+  The twins half is E12's, Phase 6.
+- **PR-3 review LOW 1.** `check` on a snapshot now runs every offline E2 rule of the embedded `convening` (`53d308606`).
+- **PR-3 review LOW 2.** The italics on data-model's `consumed_facts` row close where they open.
+- **codeXfactory-1's minors** (`9202ee6d4`):
+  - `bind-workflow-pending-collides-governed-names-it-refuse` names the colliding spelling in `governed`. Under the pre-fix rule it, and the caller-form vector, ACCEPT. That was measured by swapping the old `is_former` in.
+  - pycodestyle E302, E305 and E402 on Phase 5's own lines.
+
+### Quickstart steps 1–5 (T056)
+
+1. **Tests first, red.** Recorded above, phase item by phase item.
+2. **Green**, at `9202ee6d4`, at a load average above 120:
+   - `python3 -m pytest tests/council_convening -q -m "not postgres"`, run in parallel slices: **1478 passed**. That is `test_binding.py` 353, `test_resolution.py` + `test_predicates.py` 609, `test_validator_cli.py` 137 (re-run at `831a615e6`, after PR-2's exact-set test took A1 and A4), `test_assignments.py` 122, and the rest 257.
+   - `python3 scripts/validate-council-convening.py`: exit 0. 433 vectors, 322 both-sides, index `sha256:e6ab4e93e3895d3c026adfdf671b46761560042b57296becab25cf6fa1971e5b`; 433/433 adjudicated; refusal codes 54/54; finding codes 1/1; requirements 10/10 (FR-001 to FR-006, FR-009, FR-011, SC-001, SC-002); generator reproduced.
+3. **Corpus reproducible.**
+   - `python3 -m scripts.council_convening.generate --check`: exit 0.
+   - `python3 -m tests.council_convening.assignment_vectors --check`: 68 vectors built, 0 differ.
+   - `python3 scripts/validate-council-convening.py corpus`: the totals above.
+4. **Repository gates.**
+   - `python3 scripts/validate-openspec-cli-pin.py --all --strict`: exit 0, `Totals: 113 passed, 1 failed (114 items)`. The one failure is the accepted exception (Brett Heap, 2026-09-05, *"take exit 2"*).
+   - Doc-health in single-repo mode, `python3 scripts/doc-health.py --single-repo . --report-out <scratch>` at `af2d9def5`: exit 0, `Findings: 31 critical, 22 error, 76 warning, 18 info`, 0 new regressions. Against Phase 5's previous head `61a646a31` the only differences are calendar aging (two days later) and the four `contract-v4.0` drift errors that main's contract-v4.1 cut cleared. None is on a Phase 5 path.
+   - `tests/doc-health/test_pin_reachability.py` and `test_sentinel_vocabulary.py`: 129 passed.
+   - The full suite was not run locally, on the coordinator's instruction. The required `pytest-suite` check on PR-5 is the gate of record.
+5. **The PR's scope.** `git diff --name-only origin/main...HEAD -- governance/review-authority openXwallet openspec/changes/renew-resolved-council-protocol`: empty, at the PR head.
+
+**The PR.** T056's text says to open PR-5 as a draft. The lane's coordinator instructed that it open **ready** after PR-3 landed, on Brett Heap's word *"merge PR-5 when green"* (2026-10-09T01:47:20Z, log line 242).

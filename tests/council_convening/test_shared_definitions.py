@@ -398,13 +398,20 @@ PHASE_3_REFUSALS = [
     "convening_conflict"]
 
 
-def test_refusal_code_holds_exactly_the_phase_1_to_phase_3_codes(definitions_doc, schemas):
+def test_refusal_code_opens_with_exactly_the_phase_1_to_phase_3_codes(definitions_doc, schemas):
+    # The enumeration grows by phase, each in the task that authors its schemas,
+    # in landing order (1, 2, 3, 5, 4, 6): a later phase's codes FOLLOW these,
+    # which keep their order. Each later phase's own test pins its additions
+    # (Phase 5: T053, in test_binding.py).
+    enum = definitions_doc["$defs"]["refusal_code"]["enum"]
     landed = PHASE_1_REFUSALS + PHASE_2_REFUSALS + PHASE_3_REFUSALS
-    assert definitions_doc["$defs"]["refusal_code"]["enum"] == landed
-    assert schemas.enum("refusal_code") == landed
-    for code in landed:
+    assert enum[:len(landed)] == landed
+    assert len(set(enum)) == len(enum)
+    assert schemas.enum("refusal_code") == enum
+    for code in enum:
         assert accepts(schemas, "refusal_code", code)
-    # A Phase 4 code is not a member at this commit.
+    # A code no phase has landed is not a member, nor is a Phase 4 code yet.
+    assert malformed(schemas, "refusal_code", "no_such_refusal")
     assert malformed(schemas, "refusal_code", "assignment_unknown")
 
 

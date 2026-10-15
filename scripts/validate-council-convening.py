@@ -37,7 +37,13 @@ THE MODES.
   after `..` and symbolic links, inside the directory `check` is invoked
   from; any other is refused as a harness failure (exit 2) and never read.
   Exit 0 covers the offline-checkable rules only, and is never evidence of
-  admission.
+  admission. A PRODUCER BINDING (Phase 5) is judged by data-model E10 steps 1
+  to 6, against the identity map `contracts/policies/repository-identity.yaml`
+  of the tree the validator runs in, which at a consumer's pin is that pin's
+  map (Brett Heap's OPEN-2 ruling, "Consumer's runtime config
+  (Recommended)"); the `.template.yaml` stub is refused as live; and steps 7
+  to 14, which need the verified claims, are each reported as not checkable
+  offline.
 * `corpus [--json]`: the index summary: totals, the agreement-set count and the
   index's raw SHA-256. `--json` prints it for successor tooling.
 
@@ -73,6 +79,7 @@ if str(_ENTRYPOINT_REPO) not in sys.path:
 
 from scripts.council_convening import (  # noqa: E402
     assignments,
+    binding,
     classification,
     corpus,
     generate,
@@ -285,9 +292,51 @@ def _family_schema_problems(document: dict, schemas: records.SchemaSet,
     return problems
 
 
+BINDING_KIND = "xfactory_council_producer_binding"
+
+#: What each E10 refusal says when `check` finds it, naming members only.
+_BINDING_MESSAGES = {
+    "binding_malformed": "fails producer-binding.schema.yaml (E10 step 1)",
+    "binding_wildcard": "carries a wildcard (E10 step 2)",
+    "issuer_mismatch": "names an issuer of neither allowed form (E10 step 3)",
+    "repository_identity_unavailable": (
+        "the identity map is absent, unreadable or malformed (E10 step 4)"),
+    "repository_identity_former": (
+        "names a former spelling or a non-canonical case variant (E10 step 4)"),
+    "subject_workflow_conflation": (
+        "its subject template is a bare workflow reference (E10 step 5)"),
+    "subject_template_mismatch": (
+        "its subject template does not parse, or names another repository "
+        "(E10 step 6)"),
+}
+
+
+def _check_binding(path: Path, document: dict, schemas: records.SchemaSet,
+                   root: Path) -> list[corpus.Finding]:
+    """E10 steps 1 to 6 on a producer binding, offline; steps 7 to 14 are each
+    reported as not checkable offline, never passed."""
+    try:
+        binding.check_offline(document, identity_root=root, schemas=schemas)
+    except records.Refused as refused:
+        message = _BINDING_MESSAGES.get(refused.code, "is refused")
+        if refused.member == "instantiation_stub":
+            message = ("is the .template.yaml stub, which is never accepted as a "
+                       "live binding (E10 step 1)")
+        member = f" at {refused.member}" if refused.member else ""
+        return [corpus.Finding("ERROR", _refusal_code(refused.code),
+                               f"{path}: producer binding {message}{member}")]
+    _say(f"note  {path}: producer binding passes E10 steps 1 to 6 (offline), "
+         f"against {binding.IDENTITY_MAP.as_posix()} at this tree")
+    for step, code in enumerate(binding.CLAIM_RULES, start=7):
+        _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: "
+             f"E10 step {step} {code}")
+    return []
+
+
 def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
                registry: classification.Registry,
-               text: str) -> tuple[list[corpus.Finding], bool]:
+               text: str,
+               root: Path = records.REPO_ROOT) -> tuple[list[corpus.Finding], bool]:
     """Findings for one record, and whether it was routed."""
     def error(code: str, message: str) -> list[corpus.Finding]:
         return [corpus.Finding("ERROR", code, f"{path}: {message}")]
@@ -297,6 +346,8 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
     if "kind" in document and not isinstance(document["kind"], str):
         return error("council-convening-schema", "kind is not a string"), False
     kind = document.get("kind")
+    if kind == BINDING_KIND:
+        return _check_binding(path, document, schemas, root), False
     if kind == classification.REGISTRY_KIND:
         problems = classification.registry_findings(schemas, document)
         if problems:
@@ -365,24 +416,39 @@ def _check_one(path: Path, document: Any, schemas: records.SchemaSet,
                      f"a replacement record {what}, whose schema has not landed at "
                      f"this commit"), False
     if kind == assignments.SNAPSHOT_KIND:
-        return _check_snapshot(path, document, schemas), False
+        return _check_snapshot(path, document, schemas, registry), False
     if kind == assignments.ASSIGNMENT_KIND:
         return _check_assignment(path, document, schemas), False
     return _check_commission_record(path, document, schemas, registry), False
 
 
-def _check_snapshot(path: Path, document: Any,
-                    schemas: records.SchemaSet) -> list[corpus.Finding]:
-    """A snapshot, offline: E4 steps 2 to 7. Every one of them is offline, so a
-    snapshot needs no oracle; whether it is a LIVE snapshot is the consumer's
-    state, and is not judged here."""
+def _check_snapshot(path: Path, document: Any, schemas: records.SchemaSet,
+                    registry: classification.Registry) -> list[corpus.Finding]:
+    """A snapshot, offline: E4 steps 2 to 7, then EVERY offline E2 rule of its
+    embedded `convening` (validator-cli.md, "every offline rule"; PR-3 review
+    LOW 1), so an embedded `subject_pin` that is not the candidate's head, or a
+    secret-bearing value, never exits 0. E4's own checks need no oracle; the
+    embedded record's oracle-dependent rules are named as not checkable
+    offline, as for a commission record. Whether it is a LIVE snapshot is the
+    consumer's state, and is not judged here."""
     try:
         derived = assignments.check_snapshot(document, schemas)
     except records.Refused as refused:
         return _malformed_too(path, refused, "data-model E4")
     _say(f"note  {path}: convening_digest recomputed; assignment set matches "
          f"required_seats ({len(derived['required_seats'])} seats)")
-    return []
+    result = resolution.check_offline(document["convening"], schemas, registry)
+    for rule in result.not_checkable:
+        _say(f"note  [{NOT_OFFLINE_CODE}] {path}: not checkable offline: "
+             f"convening: {rule}")
+    if result.refusal is None:
+        _say(f"note  {path}: the embedded convening passes every offline-checkable "
+             f"E2 rule")
+        return []
+    where = f" at {result.member}" if result.member else ""
+    return [corpus.Finding("ERROR", _refusal_code(result.refusal),
+                           f"{path}: the embedded convening is refused "
+                           f"{result.refusal}{where} (data-model E2, offline)")]
 
 
 #: What the schema finding says beside each Phase 3 malformed refusal. Each
@@ -471,7 +537,7 @@ def check(paths: list[str], root: Path, strict: bool) -> int:
             findings.append(corpus.Finding("ERROR", "council-convening-schema",
                                            f"{path}: {problem}"))
             continue
-        found, was_routed = _check_one(path, document, schemas, registry, text)
+        found, was_routed = _check_one(path, document, schemas, registry, text, root)
         findings.extend(found)
         routed += was_routed
     for finding in findings:

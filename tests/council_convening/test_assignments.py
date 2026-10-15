@@ -889,12 +889,23 @@ def test_every_retry_vector_copies_phase_2s_base_vector():
 
     base = _base()
     record, environment = base["inputs"]["record"], base["environment"]
-    allowed = [environment, assignment_vectors.tip_moved(environment),
-               assignment_vectors.head_moved(environment)]
+    # From Phase 5 a retry is a new request with a NEW commission token, minted
+    # at the retry's own instant (`retry_token`); E2 step A1 judges it before
+    # retry identity. Phase 5's two order vectors carry a token that fails A1:
+    # expired, or for another audience.
+    mint = assignment_vectors.retry_token
+    allowed = [mint(environment), mint(assignment_vectors.tip_moved(environment)),
+               mint(assignment_vectors.head_moved(environment)),
+               assignment_vectors.expired_token(mint(environment)),
+               assignment_vectors.other_audience(mint(environment))]
     retry = sorted((VECTORS_DIR / "assignment").glob("asg-retry-*.json"))
-    assert len(retry) == 12
+    assert len(retry) == 14
     for path in retry:
         vector = json.loads(path.read_text(encoding="utf-8"))
+        # Every input but the record is the base vector's: the binding survives.
+        others = {k: v for k, v in vector["inputs"].items() if k != "record"}
+        assert others == {k: v for k, v in base["inputs"].items() if k != "record"}, (
+            path.name)
         env = copy.deepcopy(vector["environment"])
         live_list = env.pop("issued")["live_snapshots"]
         assert env in allowed, path.name

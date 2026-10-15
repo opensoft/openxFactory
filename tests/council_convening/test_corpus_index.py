@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.council_convening import corpus, generate
+from scripts.council_convening import corpus, generate, records
 from scripts.signed_execution_chain import ed25519
 
 from .conftest import CONFORMANCE, FAMILY_REL, INDEX, LEGACY, REPLACEMENT
@@ -98,7 +98,7 @@ def test_the_index_header():
     assert index["corpus_id"] == "council-convening-conformance"
     assert index["protocol"] == REPLACEMENT
     assert index["coverage_floor"] == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
-                                       "FR-006", "FR-011", "SC-001", "SC-002"]
+                                       "FR-006", "FR-009", "FR-011", "SC-001", "SC-002"]
 
 
 def test_every_row_digest_is_over_the_raw_bytes():
@@ -138,16 +138,18 @@ def test_phase_1_vectors_are_foundation_vectors_for_both_sides():
         assert vector["expected"]["derived_origin"] == "hand"
 
 
-def test_the_areas_landed_at_this_commit_are_foundation_resolution_and_assignment():
+def test_the_areas_landed_at_this_commit_are_foundation_resolution_assignment_and_binding():
     """Phase 2 adds the `resolution` area, at boundaries `commission` and
     `admission`; every resolution vector is hand-authored. Phase 3 adds the
     `assignment` area, at boundary `admission` only. Its snapshot half reads no
     oracle and is shared, because 049 T015b implements the provider half of the
     snapshot and assignment encodings (reading 4, 2026-10-09, which the owner
     can overrule). Its retry vectors are the consumer's alone: only the consumer
-    holds the live snapshots retry identity reads."""
+    holds the live snapshots retry identity reads. Phase 5 adds the `binding`
+    area, at boundary `binding`; every binding vector is hand-authored."""
     rows = _index_doc()["cases"]
-    assert {row["area"] for row in rows} == {"foundation", "resolution", "assignment"}
+    assert {row["area"] for row in rows} == {"foundation", "resolution", "assignment",
+                                             "binding"}
     for row in rows:
         if row["area"] == "resolution":
             assert row["boundary"] in ("commission", "admission")
@@ -158,6 +160,9 @@ def test_the_areas_landed_at_this_commit_are_foundation_resolution_and_assignmen
             expected_sides = (["consumer"] if "record" in vector["inputs"]
                               else ["producer", "consumer"])
             assert row["applies_to"] == expected_sides, row["case_id"]
+        if row["area"] == "binding":
+            assert row["boundary"] == "binding"
+            assert _load(CONFORMANCE / row["path"])["expected"]["derived_origin"] == "hand"
 
 
 # --------------------------------------------------------------------------
@@ -319,9 +324,13 @@ def test_the_json_byte_form(family_tree, mutate):
 
 
 def test_an_unhandled_boundary_at_this_commit_is_not_adjudicated(family_tree):
-    row = _first_row(family_tree, outcome="accept")
+    # A foundation vector, moved to a boundary no phase has landed a handler for
+    # yet. (`commission` was Phase 1's choice; Phase 2 now handles it, and the
+    # `binding` vectors, which sort first, carry oracles it does not take.)
+    row = next(r for r in _rows(family_tree)
+               if r["area"] == "foundation" and r["expected"]["outcome"] == "accept")
     vector = _load(_vector_path(family_tree, row))
-    vector["boundary"] = "registration"                # Phase 4's
+    vector["boundary"] = "selection"                   # Phase 6's
     _rewrite_vector(family_tree, row, vector)
     assert "council-convening-vector-outcome-mismatch" in _codes(family_tree)
 
@@ -415,13 +424,16 @@ def test_every_coverage_floor_requirement_needs_a_probe(family_tree):
 
 def test_the_landed_coverage_counts():
     report = corpus.check_corpus()
-    # Phase 1's five refusal codes, Phase 2's twenty-nine (T028) and Phase 3's
-    # seven (T038).
-    assert report.refusals_probed == (41, 41)
+    # Every refusal code as landed at this commit, which each phase grows:
+    # Phase 1's five, Phase 2's twenty-nine (T028), Phase 3's seven (T038) and
+    # Phase 5's thirteen (T053).
+    landed = len(records.load_schemas().enum("refusal_code"))
+    assert landed >= 41
+    assert report.refusals_probed == (landed, landed)
     assert report.findings_probed == (1, 1)
-    assert report.requirements_probed == (9, 9)
+    assert report.requirements_probed == (10, 10)
     assert report.coverage_floor == ["FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
-                                     "FR-006", "FR-011", "SC-001", "SC-002"]
+                                     "FR-006", "FR-009", "FR-011", "SC-001", "SC-002"]
 
 
 # --------------------------------------------------------------------------
@@ -484,7 +496,7 @@ def test_generate_check_reports_a_stale_index(family_tree):
 
 def test_generate_writes_the_coverage_floor():
     assert generate.COVERAGE_FLOOR == ("FR-001", "FR-002", "FR-003", "FR-004", "FR-005",
-                                       "FR-006", "FR-011", "SC-001", "SC-002")
+                                       "FR-006", "FR-009", "FR-011", "SC-001", "SC-002")
 
 
 def test_labelled_test_keys_are_deterministic_and_distinct():

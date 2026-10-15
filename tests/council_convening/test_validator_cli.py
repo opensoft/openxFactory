@@ -24,12 +24,20 @@ from pathlib import Path
 import pytest
 import yaml
 
+from .binding_fixtures import (
+    BINDING_TEMPLATE,
+    GOVERNED_FORMER,
+    commission_binding,
+    seat_binding,
+    write_identity_map,
+)
 from .conftest import (
     FAMILY_REL,
     INDEX,
     LEGACY,
     PROTOCOL_REGISTRY,
     REPLACEMENT,
+    REPO_ROOT,
     VECTORS,
     load_validator,
     run_validator,
@@ -40,19 +48,24 @@ LINE = re.compile(
     r"|WARN  \[council-convening-[a-z0-9-]+\] \S.*"
     r"|note  \S.*)$")
 
-#: The Phase 1 notes, at the counts landed by Phase 3: six family schemas (Phase 2
-#: added the predicate registry's and the commission record's, Phase 3 the
-#: snapshot's and the seat assignment's), 41 refusal codes and the
-#: nine-requirement floor (T026, T028, T029; T036, T038).
+#: The family's schemas and its refusal codes as landed at this commit; each
+#: phase grows both (Phase 2 added the predicate registry's and the commission
+#: record's schemas and 29 codes, Phase 3 the snapshot's and the seat
+#: assignment's and 7 codes, Phase 5 `producer-binding.schema.yaml` and 13).
+FAMILY_SCHEMAS = len(list((REPO_ROOT / FAMILY_REL).glob("*.schema.yaml")))
+REFUSAL_CODES = len(yaml.safe_load(
+    (REPO_ROOT / FAMILY_REL / "shared-definitions.schema.yaml").read_text(
+        encoding="utf-8"))["$defs"]["refusal_code"]["enum"])
+
 PHASE_1_NOTES = [
-    r"^note  schemas loaded: 6 \(family\) \+ digest-construction$",
+    rf"^note  schemas loaded: {FAMILY_SCHEMAS} \(family\) \+ digest-construction$",
     r"^note  protocol registry closed: 2 entries$",
     r"^note  corpus index: ([0-9]+) vectors, ([0-9]+) both-sides, sha256:[0-9a-f]{64}$",
     r"^note  vectors adjudicated: ([0-9]+)/\1$",
-    r"^note  refusal codes probed: 41/41$",
+    rf"^note  refusal codes probed: {REFUSAL_CODES}/{REFUSAL_CODES}$",
     r"^note  finding codes probed: 1/1$",
-    r"^note  requirements probed: 9/9 \(FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, "
-    r"FR-011, SC-001, SC-002\)$",
+    r"^note  requirements probed: 10/10 \(FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, "
+    r"FR-009, FR-011, SC-001, SC-002\)$",
     r"^note  generator reproduced corpus byte-for-byte$",
 ]
 
@@ -236,9 +249,11 @@ def test_check_refuses_a_registry_tag_with_a_trailing_newline(tmp_path):
 
 
 def test_check_refuses_a_judged_by_kind_record_whose_schema_has_not_landed(tmp_path):
-    path = _write(tmp_path, "binding.json", {
-        "schema_version": 1, "kind": "xfactory_council_producer_binding",
-        "binding_id": "commission"})
+    # The producer binding's schema lands in Phase 5 (T052); activation evidence
+    # is Phase 6's.
+    path = _write(tmp_path, "activation.json", {
+        "schema_version": 1, "kind": "xfactory_council_activation_evidence",
+        "act": "pause"})
     result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
     assert "ERROR [council-convening-kind-unknown]" in result.stdout
@@ -278,6 +293,89 @@ def test_check_never_echoes_a_record_value(tmp_path):
     path = _write(tmp_path, "echo.json", {"protocol": value})
     result = run_validator("check", str(path), cwd=tmp_path)
     assert result.returncode == 1
+    assert value not in result.stdout + result.stderr
+
+
+# --------------------------------------------------------------------------
+# `check` on a producer binding (Phase 5, T052): the offline half of E10.
+# --------------------------------------------------------------------------
+
+#: E10 steps 7 to 14, which need the verified claims and the governed history.
+CLAIM_STEPS = {
+    7: "claims_unverified", 8: "claims_expired", 9: "issuer_mismatch",
+    10: "audience_mismatch", 11: "subject_template_mismatch",
+    12: "repository_identity_mismatch", 13: "workflow_not_permitted",
+    14: "workflow_revision_ungoverned",
+}
+
+
+def test_check_validates_a_binding_offline_against_the_identity_map(tmp_path):
+    # OPEN-2: the instance lives in the consumer's runtime configuration and is
+    # validated with `check` at the consumer's pin, against that pin's
+    # `contracts/policies/repository-identity.yaml`.
+    for name, document in (("commission.json", commission_binding()),
+                           ("seat.yaml", seat_binding("alpha"))):
+        path = _write(tmp_path, name, document)
+        result = run_validator("check", str(path), cwd=tmp_path)
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "ERROR [" not in result.stdout
+        assert f"note  {path}: producer binding passes E10 steps 1 to 6" in result.stdout
+        assert "protocol-unknown" not in result.stdout
+
+
+def test_check_reports_every_claim_rule_as_not_offline_checkable(tmp_path):
+    path = _write(tmp_path, "binding.json", commission_binding())
+    result = run_validator("check", str(path), cwd=tmp_path)
+    # The coded form every phase's `check` prints (Phases 2, 4 and 6).
+    for step, code in CLAIM_STEPS.items():
+        assert (f"note  [council-convening-not-offline-checkable] {path}: "
+                f"not checkable offline: E10 step {step} {code}" in result.stdout), code
+    assert "note  not checkable offline:" not in result.stdout
+    assert all(LINE.match(line) for line in result.stdout.splitlines())
+
+
+def test_check_refuses_the_template_stub_as_live():
+    result = run_validator("check", str(BINDING_TEMPLATE))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-binding-malformed]" in result.stdout
+    assert "stub" in result.stdout
+    assert "not checkable offline" not in result.stdout
+
+
+def test_check_refuses_a_former_spelling_against_the_live_map(tmp_path):
+    binding = commission_binding(
+        caller_repository=GOVERNED_FORMER,
+        subject_template=f"repo:{GOVERNED_FORMER}:ref:refs/heads/main")
+    path = _write(tmp_path, "former.json", binding)
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 1
+    assert "ERROR [council-convening-repository-identity-former]" in result.stdout
+
+
+def test_check_refuses_a_malformed_binding(tmp_path):
+    path = _write(tmp_path, "malformed.json", commission_binding(audience=""))
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 1
+    assert "ERROR [council-convening-binding-malformed]" in result.stdout
+
+
+def test_check_reads_the_identity_map_of_the_tree_it_runs_in(tmp_path, family_tree,
+                                                             monkeypatch):
+    # A tree with no identity map is `repository_identity_unavailable`, never an
+    # empty map taken for a valid one.
+    monkeypatch.chdir(tmp_path)
+    path = _write(tmp_path, "binding.json", commission_binding())
+    assert load_validator().main(["check", str(path)], root=family_tree) == 1
+    write_identity_map(family_tree)
+    assert load_validator().main(["check", str(path)], root=family_tree) == 0
+
+
+def test_check_never_echoes_a_binding_value(tmp_path):
+    value = "council-" + "Q" * 60 + "-distinctive*"
+    path = _write(tmp_path, "echo.json", commission_binding(audience=value))
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 1
+    assert "ERROR [council-convening-binding-wildcard]" in result.stdout
     assert value not in result.stdout + result.stderr
 
 
@@ -335,6 +433,13 @@ PREDICATE_REGISTRY = PROTOCOL_REGISTRY.parent / "predicate.registry.yaml"
 #: Every E2 rule a classed commission record reaches that needs an environment
 #: oracle, as `check` names it. None of them is ever reported as passed.
 ORACLE_RULES = [
+    # Phase 5 (T055; the first review's LOW 4): E2 steps A1 and A4 read the
+    # commission job's verified claims and the consumer's binding and map, so
+    # offline `check` names both and never passes them.
+    "binding (E2 step A1: E10 steps 1 to 13 on the commission job's verified "
+    "claims, against the consumer's binding and identity map)",
+    "workflow_revision_ungoverned (E2 step A4: E10 step 14, the commission job's "
+    "verified job_workflow_sha against `governed`)",
     # Phase 3 (T040): retry identity and once-per-pin read the consumer's live
     # snapshots, so offline `check` names E2 step A3 and never passes it.
     "convening_conflict (retry identity and once-per-pin, E2 step A3: "
@@ -954,3 +1059,65 @@ def test_check_reports_an_unsound_live_snapshot_as_a_finding_never_a_traceback(t
     assert result.returncode == 1, result.stdout + result.stderr
     assert "ERROR [council-convening-schema]" in result.stdout
     assert "Traceback" not in result.stderr
+
+
+@pytest.mark.parametrize("step", ["E2 step A1", "E2 step A4"])
+def test_check_on_a_commission_record_reports_the_binding_steps_as_not_offline_checkable(
+        checked_commission_record, step):
+    # The review's LOW 4: `check` names A1 and A4, as it names `rule_superseded`
+    # and retry identity, rather than omitting them.
+    notes = [line for line in checked_commission_record.stdout.splitlines()
+             if line.startswith("note  [council-convening-not-offline-checkable] ")]
+    assert any(step in line for line in notes), checked_commission_record.stdout
+
+
+def test_check_names_the_binding_steps_in_the_admission_order(checked_commission_record):
+    rules = [line.split(": not checkable offline: ", 1)[1]
+             for line in checked_commission_record.stdout.splitlines()
+             if ": not checkable offline: " in line]
+    a1 = next(i for i, r in enumerate(rules) if "E2 step A1" in r)
+    a3 = next(i for i, r in enumerate(rules) if "E2 step A3" in r)
+    a4 = next(i for i, r in enumerate(rules) if "E2 step A4" in r)
+    superseded = rules.index("rule_superseded")
+    assert a1 < a3 < superseded < a4
+
+
+# `check` on a snapshot runs every offline rule of its embedded record (PR-3
+# review LOW 1; validator-cli.md, "every offline rule").
+
+def _snapshot_of(record):
+    from .assignment_fixtures import snapshot
+
+    return snapshot(record)
+
+
+def test_check_refuses_a_snapshot_whose_embedded_pin_is_not_the_head(tmp_path):
+    from .assignment_fixtures import convening_record
+
+    record = convening_record()
+    record["subject_pin"] = "9" * 40      # candidate.head_sha is another commit
+    assert record["subject_pin"] != record["required_seats_provenance"]["candidate"]["head_sha"]
+    path = _write(tmp_path, "snapshot.json", _snapshot_of(record))
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-candidate-mismatch]" in result.stdout
+
+
+def test_check_refuses_a_snapshot_whose_embedded_record_carries_a_secret(tmp_path):
+    from .assignment_fixtures import convening_record
+
+    token = "gh" + "p_" + "B" * 36
+    record = convening_record(packet_refs=[token])
+    path = _write(tmp_path, "snapshot.json", _snapshot_of(record))
+    result = run_validator("check", str(path), cwd=tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ERROR [council-convening-secret-bearing-fact]" in result.stdout
+    assert token not in result.stdout + result.stderr
+
+
+def test_check_names_the_embedded_records_oracle_rules_as_not_checkable(tmp_path):
+    result = run_validator("check", str(_snapshot_file(tmp_path)), cwd=tmp_path)
+    assert result.returncode == 0, result.stdout + result.stderr
+    notes = [line for line in result.stdout.splitlines()
+             if line.startswith("note  [council-convening-not-offline-checkable] ")]
+    assert any("rule_superseded" in line for line in notes), result.stdout

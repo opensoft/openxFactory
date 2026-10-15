@@ -33,6 +33,14 @@ the fixtures with `canonical.digest`, which is why they carry
 `derived_origin: generated`. The one implementation function used is
 `corpus.dump_json`, the corpus's byte format.
 
+FROM PHASE 5 the retry vectors carry the commission job's binding: every
+input of the base vector other than the record is copied (`inputs.binding`,
+`inputs.operation`), and the base environment's token is RE-MINTED at the
+retry's own instant (`retry_token`), because a retry is a new request with a
+new token, which E2 step A1 judges before retry identity (A3). Two vectors pin
+that order: an identical retry with an expired token, and a conflicting one
+with a token for another audience (`expired_token`, `other_audience`).
+
 EVERY HOLDER'S `binding_ref` comes from `holder_binding_ref` in
 `assignment_fixtures.py`: one binding per seat, since E4 step 7 refuses a
 binding repeated across seats (Brett Heap, 2026-10-11T00:19:34Z, "Refuse at
@@ -453,12 +461,49 @@ def base_vector(path: Path = BASE_VECTOR) -> dict:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
-def _retry(case_id, record, environment, live, expected, reqs) -> dict:
+def _retry(case_id, record, environment, live, expected, reqs, base_inputs) -> dict:
+    """A retry vector: the base vector's inputs with `record` replaced, so the
+    binding and the operation survive, and `environment` with the live
+    snapshots."""
     environment = copy.deepcopy(environment)
     environment["issued"] = {"live_snapshots": live}
-    return _vector(case_id, inputs={"record": record, "selected_protocol": REPLACEMENT},
-                   expected=expected, requirement_ids=reqs, applies_to=CONSUMER,
-                   environment=environment)
+    inputs = {key: copy.deepcopy(value) for key, value in base_inputs.items()
+              if key != "record"}
+    inputs["record"] = record
+    return _vector(case_id, inputs=inputs, expected=expected, requirement_ids=reqs,
+                   applies_to=CONSUMER, environment=environment)
+
+
+def _epoch(instant: str) -> int:
+    import datetime
+
+    moment = datetime.datetime.strptime(instant, "%Y-%m-%dT%H:%M:%SZ")
+    return int(moment.replace(tzinfo=datetime.timezone.utc).timestamp())
+
+
+def retry_token(environment, instant: str = EVALUATION_TIME) -> dict:
+    """The base environment with the commission job's token re-minted at the
+    retry's instant (issued a minute before it, valid five minutes after). A
+    retry is a new request, so its token is new; E2 step A1 judges it."""
+    minted = copy.deepcopy(environment)
+    if "identity" in minted:
+        now = _epoch(instant)
+        minted["identity"]["claims"].update(iat=now - 60, nbf=now - 60, exp=now + 300)
+    return minted
+
+
+def expired_token(environment, instant: str = EVALUATION_TIME) -> dict:
+    """The environment with the token's `exp` at the retry's instant: expired."""
+    moved = copy.deepcopy(environment)
+    moved["identity"]["claims"]["exp"] = _epoch(instant)
+    return moved
+
+
+def other_audience(environment) -> dict:
+    """The environment with a token for another audience."""
+    moved = copy.deepcopy(environment)
+    moved["identity"]["claims"]["aud"] = "another-corpus-audience"
+    return moved
 
 
 def tip_moved(environment) -> dict:
@@ -481,7 +526,8 @@ def head_moved(environment) -> dict:
 def retry_cases(base_path: Path = BASE_VECTOR) -> list[dict]:
     base = base_vector(base_path)
     record = base["inputs"]["record"]
-    env = base["environment"]
+    inputs = base["inputs"]
+    env = retry_token(base["environment"])
     live_one = snapshot(record, convening_id="convening-0001")
     fresh = accept({"required_seats": list(record["required_seats"]),
                     "convening_digest": digest_of(record)})
@@ -505,18 +551,20 @@ def retry_cases(base_path: Path = BASE_VECTOR) -> list[dict]:
     # An identical retry returns the live snapshot unchanged.
     cases.append(_retry("asg-retry-identical-returns-snapshot-accept",
                         copy.deepcopy(record), env, [live_one], returned,
-                        ("FR-004", "FR-005", "SC-002")))
+                        ("FR-004", "FR-005", "SC-002"), inputs))
 
     # ... even after a governed source changed at the tip (without the live
     # snapshot this environment refuses rule_superseded) ...
     cases.append(_retry("asg-retry-identical-after-tip-moved-accept",
-                        copy.deepcopy(record), tip_moved(env), [live_one], returned,
-                        ("FR-004", "FR-005")))
+                        copy.deepcopy(record), retry_token(tip_moved(base["environment"])),
+                        [live_one], returned,
+                        ("FR-004", "FR-005"), inputs))
 
     # ... and after the live head moved (without it: candidate_head_moved).
     cases.append(_retry("asg-retry-identical-after-head-moved-accept",
-                        copy.deepcopy(record), head_moved(env), [live_one], returned,
-                        ("FR-004", "FR-005")))
+                        copy.deepcopy(record), retry_token(head_moved(base["environment"])),
+                        [live_one], returned,
+                        ("FR-004", "FR-005"), inputs))
 
     # Once-per-pin never pre-empts an identical retry. The identical snapshot
     # shares the record's key, and the snapshots for other keys are listed
@@ -525,7 +573,7 @@ def retry_cases(base_path: Path = BASE_VECTOR) -> list[dict]:
     cases.append(_retry(
         "asg-retry-identical-not-pre-empted-by-once-per-pin-accept",
         copy.deepcopy(record), env, [live_other_pin, live_other_council, live_one],
-        returned, ("FR-004", "SC-002")))
+        returned, ("FR-004", "SC-002"), inputs))
 
     # A different record for the same (protocol, council_id, subject_pin).
     for case_id, mutate in [
@@ -540,32 +588,46 @@ def retry_cases(base_path: Path = BASE_VECTOR) -> list[dict]:
         resent = copy.deepcopy(record)
         mutate(resent)
         cases.append(_retry(case_id, resent, env, [live_one],
-                            refuse("convening_conflict"), ("FR-004", "SC-002")))
+                            refuse("convening_conflict"), ("FR-004", "SC-002"), inputs))
 
     # The same council at another pin, or another council at this pin, is not a
     # conflict: the record admits fresh.
     cases.append(_retry("asg-retry-same-council-other-pin-not-conflict-accept",
-                        copy.deepcopy(record), env, [live_other_pin], fresh, ("FR-004",)))
+                        copy.deepcopy(record), env, [live_other_pin], fresh, ("FR-004",),
+                        inputs))
     cases.append(_retry("asg-retry-other-council-same-pin-not-conflict-accept",
                         copy.deepcopy(record), env, [live_other_council], fresh,
-                        ("FR-004",)))
+                        ("FR-004",), inputs))
 
     # The order around A3.
     malformed = copy.deepcopy(record)
     malformed["unexpected"] = True
     cases.append(_retry("asg-retry-order-shape-before-conflict-refuse", malformed,
-                        env, [live_one], refuse("convening_malformed"), ("FR-004",)))
+                        env, [live_one], refuse("convening_malformed"), ("FR-004",), inputs))
 
     secret = copy.deepcopy(record)
     secret["packet_refs"] = [{"$parts": ["gh", "p_" + "A" * 24]}]
     cases.append(_retry("asg-retry-order-conflict-before-secret-refuse", secret,
-                        env, [live_one], refuse("convening_conflict"), ("FR-002", "FR-004")))
+                        env, [live_one], refuse("convening_conflict"), ("FR-002", "FR-004"),
+                        inputs))
 
     conflict_and_drift = copy.deepcopy(record)
     conflict_and_drift["packet_refs"] = ["example-org/example-app#41"]
     cases.append(_retry("asg-retry-order-conflict-before-head-moved-refuse",
-                        conflict_and_drift, head_moved(env), [live_one],
-                        refuse("convening_conflict"), ("FR-004",)))
+                        conflict_and_drift, retry_token(head_moved(base["environment"])),
+                        [live_one], refuse("convening_conflict"), ("FR-004",), inputs))
+
+    # Phase 5: A1 before A3. A token that fails E10 never reaches retry
+    # identity: an identical retry is not returned its snapshot, and a
+    # conflicting record is not `convening_conflict`.
+    cases.append(_retry("asg-retry-order-binding-before-identical-retry-refuse",
+                        copy.deepcopy(record), expired_token(env), [live_one],
+                        refuse("claims_expired"), ("FR-004", "FR-005", "FR-009"), inputs))
+    conflicting = copy.deepcopy(record)
+    conflicting["packet_refs"] = ["example-org/example-app#41"]
+    cases.append(_retry("asg-retry-order-binding-before-conflict-refuse",
+                        conflicting, other_audience(env), [live_one],
+                        refuse("audience_mismatch"), ("FR-004", "FR-009", "SC-002"), inputs))
     return cases
 
 

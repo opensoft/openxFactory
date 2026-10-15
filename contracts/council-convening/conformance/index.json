@@ -683,7 +683,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:05c76559ef369a8a56fe911764b57120c5cd7c5dc57c1aab1c350dad1127c1f8"
+      "sha256": "sha256:15a35ffcdca455225e0b3737e6e78c20f7242655a842583810edd174d3863848"
     },
     {
       "applies_to": [
@@ -704,7 +704,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:39265ca79299bf4179ec6bb6d712918a5e5cd8badef472e423397cb14d457a3a"
+      "sha256": "sha256:2ca051e7e356dd2f01bf997c8636b2e7a85325a09104bbd9b2330ed100234906"
     },
     {
       "applies_to": [
@@ -725,7 +725,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:68f8e0cb18f96fe338e2baf5f65801b1fda4a04d3f8f5cc88a7dce7450f0a36d"
+      "sha256": "sha256:ac91ec2215573c0cfe118c258aae59fcf4cbd2f757393305cd3251e0f0f80a91"
     },
     {
       "applies_to": [
@@ -758,7 +758,7 @@
         "FR-004",
         "FR-005"
       ],
-      "sha256": "sha256:22c8a4e50d77a19b5b8ced0d4f8da7af0f8961869f9aabd8065d886e216ac3cf"
+      "sha256": "sha256:85d1de660189fb63bf6b8c7b090468d61dda2af10ecfecb0f993e6aa172d254e"
     },
     {
       "applies_to": [
@@ -791,7 +791,7 @@
         "FR-004",
         "FR-005"
       ],
-      "sha256": "sha256:601a279dd488cf6c8df5d2247e7ebe4f585f990cf8c2d9388dfc5a7bb07b2847"
+      "sha256": "sha256:e686f42403d0cbe9225e6a987bf8997798a16fef6dbbce6268daa6ddd5374c5d"
     },
     {
       "applies_to": [
@@ -824,7 +824,7 @@
         "FR-004",
         "SC-002"
       ],
-      "sha256": "sha256:11fb08f6be88dbfe8b4a164b7e1a86cfccf2d5cc9f3640dbe66cdee8462cf79f"
+      "sha256": "sha256:1365e267748581b4543240abed2b650ed753b99b6fcab6ca00bcbd5f0f266a62"
     },
     {
       "applies_to": [
@@ -858,7 +858,51 @@
         "FR-005",
         "SC-002"
       ],
-      "sha256": "sha256:60ffaac6d86a6c91d87602f7132bb3253434a2ac8fc484dd426f59d24eb51ecc"
+      "sha256": "sha256:b29bc073a99b9114e327e5ca89118c10b847320b19783bd84afbee23d9e1fd74"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-order-binding-before-conflict-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "audience_mismatch"
+      },
+      "path": "vectors/assignment/asg-retry-order-binding-before-conflict-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-009",
+        "SC-002"
+      ],
+      "sha256": "sha256:191f9eeb16b521f14c3cef32143ae15512936c00c647da2b0a55c1463762a841"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "assignment",
+      "boundary": "admission",
+      "case_id": "asg-retry-order-binding-before-identical-retry-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_expired"
+      },
+      "path": "vectors/assignment/asg-retry-order-binding-before-identical-retry-refuse.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-005",
+        "FR-009"
+      ],
+      "sha256": "sha256:a91a7fcc88ef8d983e825d37f392ee13d94bd44cd92856ae953706cab48656f6"
     },
     {
       "applies_to": [
@@ -878,7 +922,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:480b7133e7ebd0144475a39e8cb2a35db2b1545b26cabe0f841832d9c8562cdc"
+      "sha256": "sha256:ebd1e138917a606d5a15f60ad635b76335a5def59175c2f896b27a75dedcbc2b"
     },
     {
       "applies_to": [
@@ -899,7 +943,7 @@
         "FR-002",
         "FR-004"
       ],
-      "sha256": "sha256:34f4266c6479ac64e81bffc1ee0fa0a160686218ed5333cc1fada1a8fbe5cd68"
+      "sha256": "sha256:bf7e4cde6a314713cac47e0e8076d935db1fb38fc21766b2ec6202953954475d"
     },
     {
       "applies_to": [
@@ -919,7 +963,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:661eb8bab1108024ac94d43f89dee777235d497f788985f84d08b0270eba14c6"
+      "sha256": "sha256:dfbef3f4e4b31e8fad82bb18ad6bbb54a8b7d581b521f15f6c40ecad6ce339f8"
     },
     {
       "applies_to": [
@@ -949,7 +993,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:f37f09138d588546f19224a4664d36a862f4f777e5e5c4ff6ab780e1130bb5b5"
+      "sha256": "sha256:75e7d84861e0a35d357e4e67e6625b9cc7be948e5b683c9345857fe072dd174e"
     },
     {
       "applies_to": [
@@ -979,7 +1023,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:e642ba15262a7c1267390dd70cd1851ca7b2ea2a5a849e801a0c37a1fd01f653"
+      "sha256": "sha256:c232ee45d02a07f0b3309cf2ba83f09c1b8ad70acde206911c4c9ebf6850513d"
     },
     {
       "applies_to": [
@@ -1599,6 +1643,1346 @@
         "SC-002"
       ],
       "sha256": "sha256:3314ed9db0eef4e986eb26b2b606b03d51625c8c9c0b99d3fe1b106ec0c305eb"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-audience-wildcard-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_wildcard"
+      },
+      "path": "vectors/binding/bind-audience-wildcard-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:f9bbb76b0146d7dace6930d93bcf37a2046e412ef25e5832b700976f93516a04"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-broker-principal-kind-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/binding/bind-broker-principal-kind-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:f0defd2b912fcb55909653555de3b77a8951edb06fa49c1a111b85640018bbed"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-caller-case-variant-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-caller-case-variant-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:7749eb28754e1a73de09573996771f204ea51168a3b5cb01cb52311de1e4f841"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-caller-former-spelling-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-caller-former-spelling-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:3bdf3989f74093fe6f6c529c109a935094bd0b836968cf44e311ba904e25713f"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-caller-pending-case-variant-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-caller-pending-case-variant-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:71835e6a7b1ee4d023679dbc0330445c5cb94b344b4b94b72a4764916495bf05"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-caller-pending-collides-with-complete-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-caller-pending-collides-with-complete-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:5c85f207c3188771e220f2c30d56227c257af28fc5e2f0c3ad64b2c423214a86"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-claim-audience-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "audience_mismatch"
+      },
+      "path": "vectors/binding/bind-claim-audience-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:fb390c7b76385eec8404f3ce72b84a6be096e398a6b2b1bff48307e96abe05c4"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-claim-issuer-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "issuer_mismatch"
+      },
+      "path": "vectors/binding/bind-claim-issuer-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:2b928ae8732a7685b850761cc21c074fa3eb8b49289a0c58e35aa4807fc9045a"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-claim-repository-id-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_mismatch"
+      },
+      "path": "vectors/binding/bind-claim-repository-id-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:6e3e068ed0ca0adcfb66a64be3b0241ccd0002c0be34c5bdbe56476013adfca4"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-claim-repository-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_mismatch"
+      },
+      "path": "vectors/binding/bind-claim-repository-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:267deff9b1b8c2e7b00182190004f7c60a4fee05b8d361b8e5319d1f4f812435"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-claim-sub-names-permitted-workflow-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_not_permitted"
+      },
+      "path": "vectors/binding/bind-claim-sub-names-permitted-workflow-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:43f1f231c21b2d201c0996aecc1e1594f9dacdc410925367b27d2dc16bc71168"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-claim-subject-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "subject_template_mismatch"
+      },
+      "path": "vectors/binding/bind-claim-subject-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:683027e0f5e604a0c7d3182ccf9e5c47bec04efa9a1ff6eb1612f6f468b6e09b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-claim-workflow-unlisted-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_not_permitted"
+      },
+      "path": "vectors/binding/bind-claim-workflow-unlisted-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:b54affcb3ad2c4b8c63e912a4bdae04573b792cba885d93a070064a1b17f0a22"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-claims-exp-at-instant-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_expired"
+      },
+      "path": "vectors/binding/bind-claims-exp-at-instant-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:1a5ae1c77840f72b9cf8734e335c23d84d5d0ec42c5296436a1996342ec2185f"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-claims-nbf-after-instant-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_expired"
+      },
+      "path": "vectors/binding/bind-claims-nbf-after-instant-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:6261fd105a5d39723966463af8d499f505ffa7565580b272f7a1b9fcd8093eef"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-commission-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-commission-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:eb1d44c4175a9f2c61fb4088fd3ec6066b9be6c950beb3f390ef250d092cd2e5"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-commission-at-branch-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-commission-at-branch-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:fd2b4e8a990fca5f0a3fc6cefce3f5b42386c77931456bf7dad1acac21b10261"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-commission-enterprise-issuer-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-commission-enterprise-issuer-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:a1c3d9917e7c85e8103caa750177e3c71f12cb30759e2901d1ce3f61d23425d6"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-commission-nbf-at-instant-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-commission-nbf-at-instant-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:5fd0c8fe6fc8c1ceea382fff324faa2e0dd020b3661e1e4a4b9a9ba4ef3b5eda"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-commission-paired-with-seat-rule-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/binding/bind-commission-paired-with-seat-rule-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:5a465366ca33b5a162a4640dd3f719b15362696dc4e137cc76599adb76e7031f"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-commission-pending-row-former-is-current-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-commission-pending-row-former-is-current-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:b3602df6736455c947c05b3a6ec715e52e1b894895c095b41d6692855541f499"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-commission-sha-unequal-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/binding/bind-commission-sha-unequal-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:6e4b35c1519d3ed37c732990998c485efb45de292cb45d2569624b795d5c42f5"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-commission-unverified-broker-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-commission-unverified-broker-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:cc63c8494eab943fac89b45b50dad708b3ca41fc327d005f5dc5c92910e649d0"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-commission-workflow-outside-governed-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/binding/bind-commission-workflow-outside-governed-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:70f4f7a042002a1cca5655e753e568d6be573be0002750358e55d58d79e4b795"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-decoded-only-claims-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_unverified"
+      },
+      "path": "vectors/binding/bind-decoded-only-claims-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:7cdc1c5ad609d114908cc9ca8e9f931e3684601fb320e74a1ad2e252b335ea0d"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-dual-role-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/binding/bind-dual-role-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:60a61b089a6199a7e73e2b9357df246d60294d030edbe68f0a8ebb088eafa130"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-identity-map-absent-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_unavailable"
+      },
+      "path": "vectors/binding/bind-identity-map-absent-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:5f431b27e96242e0214343a8428272be891f69cae772e53b84cd72456414f6df"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-identity-map-malformed-row-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_unavailable"
+      },
+      "path": "vectors/binding/bind-identity-map-malformed-row-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:24cb735c9555ab2f52049359d75df77f66606a6e72ffa0b5f530fbee63d98451"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-identity-map-unreadable-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_unavailable"
+      },
+      "path": "vectors/binding/bind-identity-map-unreadable-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:ac213944cf7bb2797d40b4856d2d0b4b09d42e787c6fcec34074a3f1d862b926"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-issuer-form-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "issuer_mismatch"
+      },
+      "path": "vectors/binding/bind-issuer-form-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:149074ab3268deafdee4ff46bf5041bc3e2d5ce0b2b413c1bd08bd5c12ef5a12"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-audience-before-subject-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "audience_mismatch"
+      },
+      "path": "vectors/binding/bind-order-audience-before-subject-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:8e67cfba379d3cbd9343f69b5b08e8c01b1a3afb006716d370c9873c664b6d8e"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-expired-before-issuer-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_expired"
+      },
+      "path": "vectors/binding/bind-order-expired-before-issuer-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:790ab9a7f00293b8f731dcfab1e573dedcfccf439f7aa27c466c778970cdbb3e"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-former-before-conflation-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-order-former-before-conflation-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:36846c50acfa13ea029f5253ce06417efb3d14cc4a1a339dd1c0479d1531bf39"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-identity-map-before-former-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_unavailable"
+      },
+      "path": "vectors/binding/bind-order-identity-map-before-former-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:5c068123615fe6a94a37632c34dd1862b9cf9ca09dd93a6defcfabd335b54cb4"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-issuer-before-audience-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "issuer_mismatch"
+      },
+      "path": "vectors/binding/bind-order-issuer-before-audience-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:ce1a91cf9b504a2442a83c12bda336bce12e58bb39f1c5feb65fcb87aa2aaf18"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-issuer-before-identity-map-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "issuer_mismatch"
+      },
+      "path": "vectors/binding/bind-order-issuer-before-identity-map-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:45f8839d47bdbdad3a2f3799445fd7d4518c94a757100bc6accc8fbce4aae46d"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-repository-before-workflow-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_mismatch"
+      },
+      "path": "vectors/binding/bind-order-repository-before-workflow-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:5614dbc73094d718a5bac8076c87a692f1a4de7ea1b684efc371528e709a98b7"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-stub-before-wildcard-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/binding/bind-order-stub-before-wildcard-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:0c8f391c348e3b8c4a51702322644a7c029b229ef9be5d85d635da72c21f1a80"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-subject-before-repository-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "subject_template_mismatch"
+      },
+      "path": "vectors/binding/bind-order-subject-before-repository-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:22511b3b81d91172b9d1dfaa464ce30ee5b24065b3a908efaf5c6543760031f1"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-template-before-claims-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "subject_template_mismatch"
+      },
+      "path": "vectors/binding/bind-order-template-before-claims-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:8765577075b483d0b85d730906c0a7456e71c077d27671805944faa4cf8786ba"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-unverified-before-expired-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_unverified"
+      },
+      "path": "vectors/binding/bind-order-unverified-before-expired-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:72a695c424598f4beb29cdd17705f5fb4628c9bc51eb0aa9f725b2c89038154e"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-wildcard-before-issuer-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_wildcard"
+      },
+      "path": "vectors/binding/bind-order-wildcard-before-issuer-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:88ce20b6761453e66cd61c5a1e3b64a22adf1a5fbb9c38619d604662e50d0773"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-order-workflow-before-revision-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_not_permitted"
+      },
+      "path": "vectors/binding/bind-order-workflow-before-revision-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:2fb574566c692899d1cf4a5e8b290943474b510583f94ad3da053273a8ae6702"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-permitted-ref-at-branch-former-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-permitted-ref-at-branch-former-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:5383e85f193fcc30a9c688ac5ef29cd77c5f0adbc4077db6c16733a6b412a156"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-permitted-ref-unparsed-former-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-permitted-ref-unparsed-former-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:622d184d2ba2b99516c6cf143f113bb3736a2d6868e7a2df6615d766a060487f"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-seat-at-frozen-revision-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-seat-at-frozen-revision-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:cd747ddfa7483ff45e77ff27f90cd79649d66bf0d258ce6d8d07f073943e537b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-seat-customized-environment-template-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-seat-customized-environment-template-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:81a6a3d667dbaa091118173097ee3cc86d5ba752af52ea8a17549927049c3746"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-seat-customized-repository-id-template-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-seat-customized-repository-id-template-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:4f33bb6d9508431ea55bfbd2fe6408fbfca397b15cddc3f43eda6e76c2b40322"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-seat-immutable-repo-segment-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-seat-immutable-repo-segment-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:c5a03582a144de6a4432da2c45ec97aa48c173eb4107596475cfafefa14fc70c"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-seat-other-seat-subject-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "subject_template_mismatch"
+      },
+      "path": "vectors/binding/bind-seat-other-seat-subject-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:dadcefcd4f0af913d6d3a02c2171d901b0b3d8aa7506dfda137f9531c79d14c4"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-seat-paired-with-commission-rule-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/binding/bind-seat-paired-with-commission-rule-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:2c98bb0ece9387989b06052b01a64f8e87a6cecb78865f3a4a8ef9ff73bd2207"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-seat-per-seat-environment-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-seat-per-seat-environment-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:89064b4d0a69e3267f1f6d4427c1b7c8c4e28c410e8612e38186b3012dc08457"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-seat-second-seat-own-environment-accept",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "accept",
+        "refusal": null
+      },
+      "path": "vectors/binding/bind-seat-second-seat-own-environment-accept.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:f68139ac39a18d9185b7b46fa4f5356e86a02763eb4a127b4c8ed846a9a16935"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-seat-sha-before-frozen-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/binding/bind-seat-sha-before-frozen-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:44604d79090de435b27c09fecb88193ce455332392f8bac96d355b8ffc2ec041"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-seat-sha-off-history-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/binding/bind-seat-sha-off-history-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:cb39cb12eea832fb8ca2c8b5bfc6ec415405c944353ad91c39d9a73644dbb859"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-seat-workflow-outside-governed-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/binding/bind-seat-workflow-outside-governed-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:bc2180b857b65e9abb196c6812756689f172b6cd6ace2b54828de68117aa7a1f"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-stub-presented-as-live-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/binding/bind-stub-presented-as-live-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:3fac298b6d66cd7c4726ae30e5fa7f79faacc222854e34292c815882d08ede38"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-subject-bare-workflow-ref-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "subject_workflow_conflation"
+      },
+      "path": "vectors/binding/bind-subject-bare-workflow-ref-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:9cf8831d62aabbb8cb6971079a11b33dbdeba98070541f3fcbeb5208583cb047"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-subject-other-repository-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "subject_template_mismatch"
+      },
+      "path": "vectors/binding/bind-subject-other-repository-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:878e42581d145d513c2bf14c875e32634692ad783076fa94eb696f0e511ed016"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-subject-unparseable-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "subject_template_mismatch"
+      },
+      "path": "vectors/binding/bind-subject-unparseable-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:7edbd3e94d86a65fd337cc8a6d8747f05c9a18d69195ae24e911bd73edbf1119"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-subject-wildcard-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_wildcard"
+      },
+      "path": "vectors/binding/bind-subject-wildcard-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:df2bf7c94d269b1371f6fbf0da5dd6a919fcf79ba5c021add8df0b3841a95a20"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-unknown-member-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/binding/bind-unknown-member-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:bdadf4af97c53a1e6749c393c32bbd2af1d50c515d7c3ddc24d5cf94f7436003"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-workflow-former-spelling-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-workflow-former-spelling-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:bf178285338547fa85c3d107172082636f135ebcece61e8f77ad95824257f1ef"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-workflow-pending-collides-governed-names-it-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-workflow-pending-collides-governed-names-it-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:fd05e00e1a4e8fd33a6285e605360a9a8b526de8d28245be8653449eff4e0e53"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-workflow-pending-collides-with-complete-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-workflow-pending-collides-with-complete-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:8dec6d4d3c946a0df240ab9a92cd2b092bdc34abebe0bf70ec82624aa3029968"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-workflow-pending-current-case-variant-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_former"
+      },
+      "path": "vectors/binding/bind-workflow-pending-current-case-variant-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:e0bb08111ed211a1c6a55637a5bb098cded1c13733ca4c50f61ce3f6f5279334"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "binding",
+      "boundary": "binding",
+      "case_id": "bind-workflow-wildcard-refuse",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_wildcard"
+      },
+      "path": "vectors/binding/bind-workflow-wildcard-refuse.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:47c549a9bcb02bf94f84e43d911ad27007614c09e947c2fede16ed2a6c546f83"
     },
     {
       "applies_to": [
@@ -4502,7 +5886,7 @@
         "FR-003",
         "FR-004"
       ],
-      "sha256": "sha256:91d8c732a7b5fed3932c11cdf6525fa7f4e0b397e0f18255e78f9dc543251082"
+      "sha256": "sha256:1b719ee32adc98246bc032cbbdf92c84289429b3619ec3ffc8b527dff71a893c"
     },
     {
       "applies_to": [
@@ -4532,7 +5916,87 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:b7712a786f17c200da2263dda93b95761a9dedba6b131692761f8a444111ddcc"
+      "sha256": "sha256:d3e0462a056f6c8b13229b9d4ecff16d0e7136ff399443a403d5d78b519b1871"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-binding-claims-unverified",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_unverified"
+      },
+      "path": "vectors/resolution/admission-refuse-binding-claims-unverified.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:b74d78349ff5eaa9c0ee1d79475f35e536eb55fa899461b12a3a2e9ae08d9274"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-binding-identity-map-absent",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "repository_identity_unavailable"
+      },
+      "path": "vectors/resolution/admission-refuse-binding-identity-map-absent.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:60a61bb1e1847becef1cf5375ef1e877a29fa5632509b246d0be09c45f9da697"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-binding-seat-token-for-commission",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_not_permitted"
+      },
+      "path": "vectors/resolution/admission-refuse-binding-seat-token-for-commission.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:955f030329386143f506687434ac5d69faf126d5d733d1dde28fdf460e1bc233"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-binding-stub-presented-as-live",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "binding_malformed"
+      },
+      "path": "vectors/resolution/admission-refuse-binding-stub-presented-as-live.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:6837e573b9645c8d7fe9b593b77ccdbb31be2bfb41ede3f353e000244460aea8"
     },
     {
       "applies_to": [
@@ -4552,7 +6016,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:1b4cf5e55a9e3cc04b975191a3ba5deba012659028151c845f7f6825eba7689a"
+      "sha256": "sha256:487d4ccc66b21679789e30f42bf83455ff4f92d0f29525cd8dd5ad98d7f1ce31"
     },
     {
       "applies_to": [
@@ -4572,7 +6036,7 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:7f0c1e8747619dc4e320e2729e78a5ee0cb7400fb670357cf74ffed14e857b7a"
+      "sha256": "sha256:847e8d2e307a5627315a79517d25e72a465ccb91baecccee587005d68b4b175d"
     },
     {
       "applies_to": [
@@ -4592,7 +6056,71 @@
       "requirement_ids": [
         "FR-004"
       ],
-      "sha256": "sha256:89565bebf518a0904965f7c3de58e6b33b355da3638f3d0ca3b0eaa24043579c"
+      "sha256": "sha256:95fdaf94cca790d0425a5a8c8bacc57ab26d99df79b39d45155b3bfde80bdbe1"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-binding-before-candidate",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "claims_expired"
+      },
+      "path": "vectors/resolution/admission-refuse-order-binding-before-candidate.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-009"
+      ],
+      "sha256": "sha256:d97f9d4045ee21e391e9175a4377aba0a1809287974076e7f3de8614cd781737"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-binding-before-secret",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "audience_mismatch"
+      },
+      "path": "vectors/resolution/admission-refuse-order-binding-before-secret.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-009",
+        "SC-001"
+      ],
+      "sha256": "sha256:4a2dc07c7bc97a04b0f55c9a3f4e70e07c6839c2a1f6655bc902e44a454dabf4"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-candidate-before-workflow-revision",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "candidate_mismatch"
+      },
+      "path": "vectors/resolution/admission-refuse-order-candidate-before-workflow-revision.json",
+      "requirement_ids": [
+        "FR-004",
+        "FR-009"
+      ],
+      "sha256": "sha256:b887062b9d069265b410f4d9dd8cd21194b275a4be904c42dc49634852075826"
     },
     {
       "applies_to": [
@@ -4612,7 +6140,74 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:1ba86971dce5d2053f7a938fed16ba4f5ba1d0198d65f945bc9d203267d57442"
+      "sha256": "sha256:5e09ebabbb81870def97f4aaef9a90ce91f4b2fd19a7972b91d2fabafad8873a"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-former-governed-spelling-before-workflow-revision",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_unauthorized"
+      },
+      "path": "vectors/resolution/admission-refuse-order-former-governed-spelling-before-workflow-revision.json",
+      "requirement_ids": [
+        "FR-003",
+        "FR-009",
+        "SC-001"
+      ],
+      "sha256": "sha256:00f6d422102c439b5ed3e78b1fce8b4c13966f5710bfccdf75f8b8b3c4fd8d9d"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-mutable-revision-before-workflow-revision",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "mutable_rule_reference"
+      },
+      "path": "vectors/resolution/admission-refuse-order-mutable-revision-before-workflow-revision.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "FR-009",
+        "SC-001"
+      ],
+      "sha256": "sha256:7ee321ea5d5910caee62c8aceb845a84f5ea1cbde54b603cf64f99a18f5d379b"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-shape-before-binding",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "convening_malformed"
+      },
+      "path": "vectors/resolution/admission-refuse-order-shape-before-binding.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-009",
+        "SC-001"
+      ],
+      "sha256": "sha256:8dcd8284b64b57c17f1e44cf002f4661cae2290dcf0be28a430244ebaba37d8c"
     },
     {
       "applies_to": [
@@ -4632,7 +6227,28 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:b0c663cda9df7794aedbf85ce1f2318a9cb0e391d2efb46cb17151cae4d2ea1b"
+      "sha256": "sha256:b7952a98cd2616508b5358c460306f593288f692b7ec6147fdbacc99f5067552"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-superseded-before-workflow-revision",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "rule_superseded"
+      },
+      "path": "vectors/resolution/admission-refuse-order-superseded-before-workflow-revision.json",
+      "requirement_ids": [
+        "FR-003",
+        "FR-009"
+      ],
+      "sha256": "sha256:eb8cba8d527cf024b9c5abe55a89b09a0a8810cb52ad294d7027944cbbf5ecd2"
     },
     {
       "applies_to": [
@@ -4652,7 +6268,30 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:eb3dcb02d3708880850a5448c5f8f7d96880997cf5a341d377764eb0c6a31d7b"
+      "sha256": "sha256:348e6321d7855e1a289ad7a9b303586c325a6ee3a2daf5ae2423ca35af04b075"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-order-workflow-revision-before-council",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/resolution/admission-refuse-order-workflow-revision-before-council.json",
+      "requirement_ids": [
+        "FR-002",
+        "FR-003",
+        "FR-009",
+        "SC-001"
+      ],
+      "sha256": "sha256:55ca1d38feaba310b03e8a01fc28ad5af7d464cc0c18be2385a2fca1b05d598a"
     },
     {
       "applies_to": [
@@ -4672,7 +6311,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:45881393f4069ebb6bebec37da40307d558abac59565bbfa69adc9ce2ef7418c"
+      "sha256": "sha256:d7f757c8653a3a9abf98656ea117ac25f8ad58964ad4d85be0d3a700078af3d7"
     },
     {
       "applies_to": [
@@ -4692,7 +6331,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:d48da222cda463a32569c65000a129a9c2e417ff3baf902dc82b0855709b9463"
+      "sha256": "sha256:be2410d9ca650121cc3e12263ddfaa29a3fa23fb60d58f68a6668211e0060906"
     },
     {
       "applies_to": [
@@ -4712,7 +6351,7 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:224dc85678d1dc14d81049ed14a65c2fd0793ce0e75d9ceeeb324d69f5c4b3b0"
+      "sha256": "sha256:13c72bbf61a185092d9781c596380dbaacd565d64562211aa90c0853fff0699b"
     },
     {
       "applies_to": [
@@ -4732,7 +6371,47 @@
       "requirement_ids": [
         "FR-003"
       ],
-      "sha256": "sha256:b631c6fa1a8fb950dededb6bcbb2f3322c5877bb407043bf2e5101e74a0bf5bb"
+      "sha256": "sha256:f935b28c05248400a9437992d5db9b9f2f83092c4534d521ba5f30ab519556ea"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-workflow-outside-the-governed-repository",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/resolution/admission-refuse-workflow-outside-the-governed-repository.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:d3f436ed39bd2a36621e119c965d9e246e4df6a8dbffd57c5a59aeaf9b68a632"
+    },
+    {
+      "applies_to": [
+        "consumer"
+      ],
+      "area": "resolution",
+      "boundary": "admission",
+      "case_id": "admission-refuse-workflow-revision-not-the-governed-revision",
+      "expected": {
+        "derived": {},
+        "derived_origin": "hand",
+        "findings": [],
+        "outcome": "refuse",
+        "refusal": "workflow_revision_ungoverned"
+      },
+      "path": "vectors/resolution/admission-refuse-workflow-revision-not-the-governed-revision.json",
+      "requirement_ids": [
+        "FR-009"
+      ],
+      "sha256": "sha256:06e891f173a93c65907e86bc825134c144ae4e43ac14b9f8cff213d30f6732ff"
     },
     {
       "applies_to": [
@@ -8024,9 +9703,17 @@
     "FR-004",
     "FR-005",
     "FR-006",
+    "FR-009",
     "FR-011",
     "SC-001",
     "SC-002"
+  ],
+  "fixtures": [
+    {
+      "name": "repository-identity",
+      "path": "fixtures/repository-identity.json",
+      "sha256": "sha256:93bcc22a27f8b421af255afbb7baa39e1d5b4acb2c76e92ee64332dae5db300b"
+    }
   ],
   "kind": "openxfactory-council-convening-conformance-index",
   "protocol": "xfc-resolved-council-1",
@@ -8034,15 +9721,16 @@
   "totals": {
     "both_sides": 322,
     "by_area": {
-      "assignment": 66,
+      "assignment": 68,
+      "binding": 67,
       "foundation": 133,
-      "resolution": 151
+      "resolution": 165
     },
     "by_outcome": {
-      "accept": 72,
-      "refuse": 270,
+      "accept": 84,
+      "refuse": 341,
       "route": 8
     },
-    "vectors": 350
+    "vectors": 433
   }
 }
