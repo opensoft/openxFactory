@@ -1366,8 +1366,23 @@ _LEDGER_SUBJECTS = {
     # the narrowing. RETIRES when the packet archives and its block is
     # promoted onto `openspec/specs/factory-mcp-conformance/spec.md` (its
     # `tasks.md` § 4).
-    ("amend-factory-mcp-conformance-auth-profile", "factory-mcp-conformance",
-     "Lossless results and explicit failures"),
+    # RETIRED 2026-10-11: the ONE row `amend-factory-mcp-conformance-auth-profile`
+    # opened on 2026-10-08 (the block immediately above, over
+    # factory-mcp-conformance *Lossless results and explicit failures*) retired
+    # ON ITS OWN STATED CONDITION — "RETIRES when the packet archives and its
+    # block is promoted onto `openspec/specs/factory-mcp-conformance/spec.md`".
+    # The packet was ratified on Brett Heap's word "Ratify, OQs as recommended
+    # (Recommended)" and landed by squash as PR #1274 → `93d13d6c`. Its
+    # realization landed as PR #1289 → `b27ae7a2`, the `contract-v4.1` cut,
+    # with `pytest-suite` green on `main` at that commit (run 38104679302), and
+    # it ARCHIVED on his separate word "Archive, land when green (Recommended)"
+    # (RULED in `opensoft/brett-wip` `lanes/log/openXfactory-5.md` at
+    # 2026-10-11T16:03:19Z). Its `## MODIFIED` block was promoted
+    # BYTE-IDENTICAL into canon (1,165 bytes, sha256 `6cf3989b62fa2167…` on
+    # BOTH sides), so canon now carries both narrowed units, and the two this
+    # row recorded as uncarried are no longer a difference between an active
+    # block and canon. Re-measured over this tree: the family reports neither
+    # this subject nor any unnamed one.
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -2371,6 +2386,25 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     MEASURED AT THIS HEAD reads TWELVE — 13 literal entries,
     12 unique, the same pre-existing `add-chain-attestation`
     duplicate collapsing as it always has.
+
+    THIRTEEN SINCE 2026-10-08, WHEN `amend-factory-mcp-conformance-auth-profile`
+    (PR #1274) OPENED ONE ROW over factory-mcp-conformance's *Lossless results
+    and explicit failures*, narrowing two of its ten units on Brett Heap's
+    ruling "Narrow to error codes (Recommended)". That pull request did not
+    restate the population here; this paragraph records it at the retirement.
+
+    TWELVE AT THIS HEAD, 2026-10-11 — RE-MEASURED, NOT SUBTRACTED.
+    `amend-factory-mcp-conformance-auth-profile` ARCHIVED on Brett Heap's
+    separate archive word "Archive, land when green (Recommended)", held
+    behind the merged-plus-green realization evidence its non-empty
+    `code_surface:` requires (PR #1289 → `b27ae7a2`, merged
+    2026-10-11T02:17:36Z, `main` green at that commit), and the one row it
+    opened on 2026-10-08 retired with it, its block promoted BYTE-IDENTICAL
+    into canon (1,165 bytes, sha256 `6cf3989b62fa2167…` on both sides). That
+    is a DISCHARGE and not a departure. `len(_LEDGER_SUBJECTS)` MEASURED AT
+    THIS HEAD reads TWELVE — 13 literal entries, 12 unique, the same
+    pre-existing `add-chain-attestation` duplicate collapsing as it always
+    has.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,

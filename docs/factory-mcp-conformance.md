@@ -2,7 +2,7 @@
 
 Status: draft
 Kind: runbook
-Governed by: [add-factory-mcp-conformance](../openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md), ratified 2026-09-07; amended by [amend-factory-mcp-conformance-auth-profile](../openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md), ratified 2026-10-08 (the hosted authorization block, the narrowed *Unavailable dependency* scenario and per-domain error vocabularies)
+Governed by: [add-factory-mcp-conformance](../openspec/changes/archive/2026-10-06-add-factory-mcp-conformance/proposal.md), ratified 2026-09-07; amended by [amend-factory-mcp-conformance-auth-profile](../openspec/changes/archive/2026-10-11-amend-factory-mcp-conformance-auth-profile/proposal.md), ratified 2026-10-08 (the hosted authorization block, the narrowed *Unavailable dependency* scenario and per-domain error vocabularies)
 
 The [declaration schema](../contracts/factory-mcp/declaration.schema.json), registered in the contract bundle at `contract-v4.1`, and its [validator](../scripts/validate-factory-mcp.py) check a domain's declared contract offline. They report structural validity, reference integrity, semantic consistency and unresolved gaps separately. Even a valid declaration returns `verified_conformance: false`: source citations still require behavioral review and deployment acceptance.
 
