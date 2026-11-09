@@ -1,13 +1,14 @@
 # Tasks: Add private connectivity
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-09 by Brett Heap. [Ratification record](review/ratification-2026-11-09.md)
 
 The checklist covers governance and handoff. Each approved successor uses Speckit for its implementation checklist and records its own validation and release evidence.
 
 ## 1. Review and ratification
 
-- [ ] 1.1 Review the local and hosted offering matrix, customer isolation, network ownership, and the independent subscription lifecycle against the proposal and spec.
-- [ ] 1.2 Record ratification of the reviewed packet. At filing, generate the corpus ledger row using the actual pull request number and the repository's ledger seeder.
+- [x] 1.1 Review the local and hosted offering matrix, customer isolation, network ownership, and the independent subscription lifecycle against the proposal and spec.
+- [x] 1.2 Record [ratification of the reviewed packet](review/ratification-2026-11-09.md) and generate the corpus ledger row with the repository's ledger seeder for PR #1300.
 
 ## 2. Prepare successor handoffs
 

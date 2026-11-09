@@ -1,6 +1,7 @@
 # Design: Add private connectivity
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-09 by Brett Heap. [Ratification record](review/ratification-2026-11-09.md)
 
 ## Context
 

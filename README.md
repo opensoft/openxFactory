@@ -545,7 +545,8 @@ Active changes:
 
 - [add-private-connectivity](openspec/changes/add-private-connectivity/proposal.md)
   — filed as draft [PR #1300](https://github.com/opensoft/openxFactory/pull/1300)
-  on 2026-11-09. Covers customer-operated Headscale, standalone Hosted Headscale,
+  on 2026-11-09 and [ratified by Brett Heap](openspec/changes/add-private-connectivity/review/ratification-2026-11-09.md)
+  the same day. Covers customer-operated Headscale, standalone Hosted Headscale,
   and hosted DomainxFactories on openXsoft.com.
 
 - [amend-factory-mcp-conformance-auth-profile](openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md)
