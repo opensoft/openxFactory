@@ -543,6 +543,10 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-private-connectivity](openspec/changes/add-private-connectivity/proposal.md)
+  — draft dated 2026-11-09. Covers customer-operated Headscale, standalone
+  Hosted Headscale, and hosted DomainxFactories on openXsoft.com.
+
 - [amend-factory-mcp-conformance-auth-profile](openspec/changes/amend-factory-mcp-conformance-auth-profile/proposal.md)
   — filed 2026-10-08, lane `openxfactory-5` (display `openXfactory-5`), as
   DRAFT [PR #1274](https://github.com/opensoft/openxFactory/pull/1274),
