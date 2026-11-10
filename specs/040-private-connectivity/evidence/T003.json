@@ -1,28 +1,114 @@
 {
   "task": "T003",
-  "verdict": "blocked",
-  "owner": "openxFactory feature 040",
+  "verdict": "pass",
   "scope": "evidence_tooling",
-  "reason": "Pilot entry requires an approved environment, account or host, budget, test custody and drill limits. The environment selection is pending.",
-  "proposal": {
-    "environment": "Isolated synthetic Docker lab on Eagle",
-    "account": "Local Docker Desktop under the commissioning operator",
-    "region": "Local lab; no cloud region",
-    "cloud_spend": 0,
-    "fixtures": [
-      "tenant-a",
-      "tenant-b",
-      "separate control and workload containers",
-      "mock private HTTPS service"
-    ],
-    "limits": {
-      "revocation_seconds": 300,
-      "restore_seconds": 3600,
-      "backup_age_seconds": 86400,
-      "rollback_seconds": 900,
-      "probe_interval_seconds": 10,
-      "sustained_denial_seconds": 30
-    }
+  "owner": "openxFactory feature 040",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
+  "decision_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json",
+  "dependencies": {
+    "T001": "f1549802fcc99d73f82901f321914fa8acf498b7215de34d20c0e7d3011ca7b0"
   },
-  "decision_state": "Brett Heap selected \"Use an isolated Docker lab on Eagle\" in session on 2026-11-10. Use the recorded synthetic fixture scope and zero cloud spend. The recorded draft windows are adopted as lab acceptance limits for this run."
+  "limits": {
+    "revocation_seconds": 300,
+    "restore_seconds": 3600,
+    "backup_age_seconds": 86400,
+    "rollback_seconds": 900,
+    "probe_interval_seconds": 10,
+    "sustained_denial_seconds": 30
+  },
+  "lab": {
+    "host": "Eagle",
+    "account": "commissioning operator's local Docker Desktop",
+    "region": "local",
+    "cloud_spend": 0,
+    "prefix": "pc040-",
+    "customer_fixtures": [
+      "tenant-a",
+      "tenant-b"
+    ],
+    "profile": "synthetic codexFactory hosted profile"
+  },
+  "operators": {
+    "rollout_lead": "Brett Heap",
+    "signoff_owner": "Brett Heap",
+    "rollback_owner": "Brett Heap"
+  },
+  "custody": {
+    "keys": "lab-local generated material in isolated volumes, excluded from git and output",
+    "evidence": "redacted synthetic results under the feature evidence path"
+  },
+  "cases": {
+    "lab-scope": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json",
+      "checks": {
+        "account": {
+          "passed": true,
+          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "region": {
+          "passed": true,
+          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "budget": {
+          "passed": true,
+          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "synthetic-fixtures": {
+          "passed": true,
+          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+        }
+      }
+    },
+    "operators": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json",
+      "checks": {
+        "rollout-lead": {
+          "passed": true,
+          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "signoff-owner": {
+          "passed": true,
+          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "rollback-owner": {
+          "passed": true,
+          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+        }
+      }
+    },
+    "custody": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+        }
+      }
+    },
+    "windows": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json",
+      "checks": {
+        "limits": {
+          "passed": true,
+          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "sampling": {
+          "passed": true,
+          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "sustained-denial": {
+          "passed": true,
+          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+        }
+      }
+    }
+  }
 }
