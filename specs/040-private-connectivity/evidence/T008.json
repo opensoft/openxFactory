@@ -1,0 +1,90 @@
+{
+  "task": "T008",
+  "verdict": "pass",
+  "scope": "installer",
+  "owner": "xFactory-Installer",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
+  "revision_ref": "git:1b83b5a316f2974842e45c43c5ef256cab16eb74:src/private_connectivity/runtime-inventory.json",
+  "owner_check": {
+    "command": "make validate && make test",
+    "exit_status": 0,
+    "output_ref": "git:1b83b5a316f2974842e45c43c5ef256cab16eb74:tests/private_connectivity/evidence/selection.txt"
+  },
+  "dependencies": {
+    "T007": "ac2aedcae135a6b08cf5239819d8f57a038973ab38da29678b2177ef5d1b748e"
+  },
+  "cases": {
+    "new-local": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json"
+        }
+      }
+    },
+    "existing-local": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json"
+        }
+      }
+    },
+    "unbound": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json"
+        }
+      }
+    },
+    "local-scope": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json"
+        }
+      }
+    },
+    "local-unready": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json",
+      "checks": {
+        "endpoint": {
+          "passed": true,
+          "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json"
+        },
+        "authorization": {
+          "passed": true,
+          "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json"
+        },
+        "policy": {
+          "passed": true,
+          "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json"
+        },
+        "redacted-error": {
+          "passed": true,
+          "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json"
+        },
+        "prior-state": {
+          "passed": true,
+          "evidence_ref": "git:01ef781ed85b643b5b0b141d99ba6b7e7138df49:tests/private_connectivity/evidence/local.json"
+        }
+      }
+    }
+  },
+  "qualification_scope": "Real synthetic Docker installation and second factory reuse, separate approved TCP443 and denied listening TCP444, endpoint/authorization/unverified-policy failures with unchanged current binding, and exact legacy unbound compatibility. No hosted credentials, entitlement, subscription, UI packaging, customer release or G2 acceptance."
+}
