@@ -1,0 +1,123 @@
+{
+  "task": "T010",
+  "verdict": "pass",
+  "scope": "hosted_product",
+  "owner": "openXsoft.com product",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
+  "revision_ref": "git:cfd3ae72814a9abf6d66681bfa91ed03f4ee7a0e:release/runtime-inventory.json",
+  "owner_check": {
+    "command": "make validate && make test",
+    "exit_status": 0,
+    "output_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/candidate.txt"
+  },
+  "dependencies": {
+    "T009": "08c71974692f679d69c27fb67ceb4b82168579a89ce349a7a073e890df0bd9db"
+  },
+  "cases": {
+    "policy-before-enroll": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+        }
+      }
+    },
+    "managed-credential": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+        }
+      }
+    },
+    "route-approval": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+        }
+      }
+    },
+    "share-scoped": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "checks": {
+        "two-installations": {
+          "passed": true,
+          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+        },
+        "distinct-grants": {
+          "passed": true,
+          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+        },
+        "explicit-approval": {
+          "passed": true,
+          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+        }
+      }
+    },
+    "share-denied": {
+      "expected": "denied",
+      "observed": "denied",
+      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+        }
+      }
+    },
+    "detach": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+        }
+      }
+    },
+    "subscription-end": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "checks": {
+        "affected-revoked": {
+          "passed": true,
+          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+        },
+        "unrelated-retained": {
+          "passed": true,
+          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+        },
+        "entitlement-retained": {
+          "passed": true,
+          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+        }
+      }
+    },
+    "terminate": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+        }
+      }
+    }
+  },
+  "qualification_scope": "Actual userspace clients, protected SQLite state and scoped policies in the Eagle Docker lab. Includes approved TCP443, denied TCP444, a private backend on an independently addressed subnet, separate /32 route approval and other-factory denial, real used-key replay and expired-key denial, manual detach, subscription-end isolation, and separately authorized protected-retention termination of tenant-b/dev only. Main A/B control networks and independent entitlements remain active. No commercial authentication API, customer release or G1 pass."
+}
