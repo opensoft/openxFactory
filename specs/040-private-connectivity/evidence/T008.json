@@ -4,11 +4,11 @@
   "scope": "installer",
   "owner": "xFactory-Installer",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
-  "revision_ref": "git:537d02716f8835a5564aef2b48786ccf7cbce68e:src/private_connectivity/runtime-inventory.json",
+  "revision_ref": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:src/private_connectivity/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:537d02716f8835a5564aef2b48786ccf7cbce68e:tests/private_connectivity/evidence/selection.txt"
+    "output_ref": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:tests/private_connectivity/evidence/selection.txt"
   },
   "dependencies": {
     "T007": "4090edbc426335b55e756cc737c566acf8a2d63040a3be6fcd4ead7d1fabd128"
@@ -17,75 +17,75 @@
     "new-local": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json",
+      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json"
+          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
         }
       }
     },
     "existing-local": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json",
+      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json"
+          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
         }
       }
     },
     "unbound": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json",
+      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json"
+          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
         }
       }
     },
     "local-scope": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json",
+      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json"
+          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
         }
       }
     },
     "local-unready": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json",
+      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
       "checks": {
         "endpoint": {
           "passed": true,
-          "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json"
+          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
         },
         "authorization": {
           "passed": true,
-          "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json"
+          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
         },
         "policy": {
           "passed": true,
-          "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json"
+          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
         },
         "redacted-error": {
           "passed": true,
-          "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json"
+          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
         },
         "prior-state": {
           "passed": true,
-          "evidence_ref": "git:90a337b87c5888b8921fad0e1ecfd010f3b4507e:tests/private_connectivity/evidence/local.json"
+          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
         }
       }
     }
   },
-  "qualification_scope": "Real synthetic Docker installation and second factory reuse, separate approved TCP443 and denied listening TCP444, endpoint/authorization/unverified-policy failures with unchanged current binding, and exact legacy unbound compatibility. No hosted credentials, entitlement, subscription, UI packaging, customer release or G2 acceptance.",
+  "qualification_scope": "Current pinned-source v2 local install/reuse owner qualification, after explicit retirement of the two quiesced predecessor approvals. Initial empty package installation remains linked as historical immutable proof; current endpoints, application policy, reauthorization, readiness and unbound compatibility were physically rerun.",
   "scope_note": "Requalified after migration replacement/retry repairs. The later consumer pin changes only Docker null-IPAM handling; G2 must still test the final complete pinned candidate."
 }

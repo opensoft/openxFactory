@@ -4,11 +4,11 @@
   "scope": "hosted_product",
   "owner": "openXsoft.com product",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
-  "revision_ref": "git:cfd3ae72814a9abf6d66681bfa91ed03f4ee7a0e:release/runtime-inventory.json",
+  "revision_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:release/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/candidate.txt"
+    "output_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
     "T009": "055e28264e733df6c17bbc3ca6179fa1fabc8f25a59f6033262dd66903ae5008"
@@ -17,107 +17,107 @@
     "policy-before-enroll": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
         }
       }
     },
     "managed-credential": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
         }
       }
     },
     "route-approval": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
         }
       }
     },
     "share-scoped": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
       "checks": {
         "two-installations": {
           "passed": true,
-          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
         },
         "distinct-grants": {
           "passed": true,
-          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
         },
         "explicit-approval": {
           "passed": true,
-          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
         }
       }
     },
     "share-denied": {
       "expected": "denied",
       "observed": "denied",
-      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
         }
       }
     },
     "detach": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
         }
       }
     },
     "subscription-end": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
       "checks": {
         "affected-revoked": {
           "passed": true,
-          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
         },
         "unrelated-retained": {
           "passed": true,
-          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
         },
         "entitlement-retained": {
           "passed": true,
-          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
         }
       }
     },
     "terminate": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json",
+      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:4f197f41fa7e06f12cf0e86be48a0cdda4d595ba:tests/qualification/evidence/lifecycle.json"
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
         }
       }
     }
   },
-  "qualification_scope": "Actual userspace clients, protected SQLite state and scoped policies in the Eagle Docker lab. Includes approved TCP443, denied TCP444, a private backend on an independently addressed subnet, separate /32 route approval and other-factory denial, real used-key replay and expired-key denial, manual detach, subscription-end isolation, and separately authorized protected-retention termination of tenant-b/dev only. Main A/B control networks and independent entitlements remain active. No commercial authentication API, customer release or G1 pass."
+  "qualification_scope": "Current v2 actual lifecycle qualification. Retains both failed harness attempts and explicit scoped remediation, with a clean full rerun. No G1+ gate passed."
 }

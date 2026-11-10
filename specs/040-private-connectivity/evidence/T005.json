@@ -4,11 +4,11 @@
   "scope": "hosted_product",
   "owner": "openXsoft.com product",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
-  "revision_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:release/runtime-inventory.json",
+  "revision_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:release/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
+    "output_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
     "T004": "274884eae8572cb1e6d2dd318536efd231337cd9d9a38d1bee587b69cd830c0e"
@@ -17,71 +17,71 @@
     "retries": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt",
+      "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt",
       "checks": {
         "interrupted-provision": {
           "passed": true,
-          "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
+          "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt"
         },
         "interrupted-enroll": {
           "passed": true,
-          "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
+          "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt"
         },
         "duplicate": {
           "passed": true,
-          "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
+          "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt"
         }
       }
     },
     "changed-input": {
       "expected": "denied",
       "observed": "denied",
-      "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt",
+      "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
+          "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt"
         }
       }
     },
     "reauthorization": {
       "expected": "denied",
       "observed": "denied",
-      "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt",
+      "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
+          "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt"
         }
       }
     },
     "credentials": {
       "expected": "denied",
       "observed": "denied",
-      "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt",
+      "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt",
       "checks": {
         "expired": {
           "passed": true,
-          "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
+          "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt"
         },
         "replayed": {
           "passed": true,
-          "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
+          "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt"
         }
       }
     },
     "revocation-replay": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt",
+      "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
+          "evidence_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt"
         }
       }
     }
   },
-  "qualification_scope": "44 passing synthetic owner tests, including scoped retries, cleanup, explicit new-network intent and source-pin boundaries. Actual adapter qualification remains separately required.",
+  "qualification_scope": "45 passing synthetic owner tests, including failed termination refusing cached or new provisioning and shared provisioning/termination serialization. Current runtime qualification and live gates are separately recorded.",
   "scope_record_update": "Domain scope ratified in codeXfactory/codexFactory#578; observations and original evidence references preserved."
 }
