@@ -1,0 +1,52 @@
+{
+  "task": "T009",
+  "verdict": "pass",
+  "scope": "hosted_product",
+  "owner": "openXsoft.com product",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
+  "revision_ref": "git:92561479f0148c4a905991512ea651aaa91198ba:services/network-provisioning/docker_pilot.py",
+  "owner_check": {
+    "command": "make validate && make test",
+    "exit_status": 0,
+    "output_ref": "git:7a33c0094a5d664405dcd5341ba9a05d8a27cc86:tests/qualification/evidence/candidate.txt"
+  },
+  "dependencies": {
+    "T004": "c2f34c8d5afa10ede2c4723c89ea6bf10485b1410dc71cc95c54b9ee3db5af53"
+  },
+  "cases": {
+    "standalone-entitlement": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:7a33c0094a5d664405dcd5341ba9a05d8a27cc86:tests/qualification/evidence/provisioning.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:7a33c0094a5d664405dcd5341ba9a05d8a27cc86:tests/qualification/evidence/provisioning.json"
+        }
+      }
+    },
+    "dedicated-instance": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:7a33c0094a5d664405dcd5341ba9a05d8a27cc86:tests/qualification/evidence/provisioning.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:7a33c0094a5d664405dcd5341ba9a05d8a27cc86:tests/qualification/evidence/provisioning.json"
+        }
+      }
+    },
+    "provision-retry": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:7a33c0094a5d664405dcd5341ba9a05d8a27cc86:tests/qualification/evidence/provisioning.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:7a33c0094a5d664405dcd5341ba9a05d8a27cc86:tests/qualification/evidence/provisioning.json"
+        }
+      }
+    }
+  },
+  "qualification_scope": "Real pre-enrollment control bootstrap against isolated A/B Headscale containers, distinct endpoints/state/keys and deny policy, stable result after interrupted reconciliation and new retry key. No nodes enrolled; G1 data-plane qualification remains required."
+}

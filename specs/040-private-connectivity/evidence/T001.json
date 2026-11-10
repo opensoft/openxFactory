@@ -11,7 +11,8 @@
       "proposal": "codeXfactory/codexFactory#578",
       "revision": "95ccd3df862ea5a6c92dab2014fc0d3e7fff1710",
       "decision": "Brett Heap: Ratify and implement the narrow repair; 2026-11-10",
-      "bounds": "strict schema, required validation and exact definition-time protection only; no PR-time floor or shared pin advance"
+      "bounds": "strict schema, required validation and exact definition-time protection only; no PR-time floor or shared pin advance",
+      "witness_path": "Existing snapshot producer writes specs/018-per-tree-floor-instance/behaviour-snapshot.json; this is the measured witness authorized by the narrow repair, with no producer or approval-rule change."
     }
   },
   "scopes": {
@@ -59,7 +60,7 @@
       "owner": "codexFactory maintainer coordination by Brett Heap",
       "repository": "codeXfactory/codexFactory",
       "approval_ref": "https://github.com/codeXfactory/codexFactory/blob/95ccd3df862ea5a6c92dab2014fc0d3e7fff1710/openspec/changes/protect-hosted-connectivity-profile/review/ratification-2026-11-10.md",
-      "file_scope": "profiles/hosted/private-connectivity.yaml, tests/private_connectivity/, schemas/hosted-connectivity-profile.schema.json, scripts/validate-docs.sh, exact hosted profile member in scripts/merge_master/council_clearance.py, and necessary fixtures, regression and measured snapshot witnesses under tests/merge-master/",
+      "file_scope": "profiles/hosted/private-connectivity.yaml, tests/private_connectivity/, schemas/hosted-connectivity-profile.schema.json, scripts/validate-docs.sh, exact hosted profile member in scripts/merge_master/council_clearance.py, and necessary fixtures, regression and measured snapshot witnesses under tests/merge-master/, plus producer-owned specs/018-per-tree-floor-instance/behaviour-snapshot.json as the coupled measured witness, stack.yaml schemas.required registration and schemas/README.md schema table",
       "release_path": "Exact synthetic hosted profile revision, then profile-specific release decision",
       "verify": "python3 -m pytest tests/private_connectivity -q",
       "prior_approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md"

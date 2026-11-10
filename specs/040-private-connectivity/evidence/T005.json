@@ -11,7 +11,7 @@
     "output_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
   },
   "dependencies": {
-    "T004": "6d7dfa7f126badafa54c511e3830467275b7ac074ba850513140cf2b6022a7be"
+    "T004": "c2f34c8d5afa10ede2c4723c89ea6bf10485b1410dc71cc95c54b9ee3db5af53"
   },
   "cases": {
     "retries": {
