@@ -1,0 +1,86 @@
+{
+  "task": "T005",
+  "verdict": "pass",
+  "scope": "hosted_product",
+  "owner": "openXsoft.com product",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
+  "revision_ref": "git:49f087d129c86f39e0e5e4f8970adbc9fe809718:services/network-provisioning/operations.py",
+  "owner_check": {
+    "command": "make validate && make test",
+    "exit_status": 0,
+    "output_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+  },
+  "dependencies": {
+    "T004": "da41ed5b1c41e07f70969d562b2754ec51979bd64adc8eced99fdc8f98009645"
+  },
+  "cases": {
+    "retries": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt",
+      "checks": {
+        "interrupted-provision": {
+          "passed": true,
+          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+        },
+        "interrupted-enroll": {
+          "passed": true,
+          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+        },
+        "duplicate": {
+          "passed": true,
+          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+        }
+      }
+    },
+    "changed-input": {
+      "expected": "denied",
+      "observed": "denied",
+      "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+        }
+      }
+    },
+    "reauthorization": {
+      "expected": "denied",
+      "observed": "denied",
+      "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+        }
+      }
+    },
+    "credentials": {
+      "expected": "denied",
+      "observed": "denied",
+      "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt",
+      "checks": {
+        "expired": {
+          "passed": true,
+          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+        },
+        "replayed": {
+          "passed": true,
+          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+        }
+      }
+    },
+    "revocation-replay": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+        }
+      }
+    }
+  },
+  "qualification_scope": "Synthetic operation journal and adapter fixture. Real provider adapter qualification is still required before live gates."
+}
