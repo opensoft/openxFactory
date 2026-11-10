@@ -4,98 +4,98 @@
   "scope": "neutral_binding",
   "owner": "openxFactory",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
-  "revision_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+  "revision_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
   "owner_check": {
     "command": "python3 -m pytest tests/private_connectivity -q",
     "exit_status": 0,
-    "output_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+    "output_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
   },
   "dependencies": {
     "T001": "b4a15fc0fa4700bfdd2bae61c2840d1f55ff039d4a5fc823d5ad9d8a67b2d17e"
   },
-  "consumer_pin": "git:1b83b5a316f2974842e45c43c5ef256cab16eb74:src/private_connectivity/contract-pin.json",
+  "consumer_pin": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:src/private_connectivity/contract-pin.json",
   "release_status": "Approved feature-local pilot candidate outside published contracts; endpoint-bound authority. Serialized atomic bundle realization remains required before customer release.",
   "cases": {
     "binding-shape": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt",
+      "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+          "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
         }
       }
     },
     "binding-scope": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt",
+      "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt",
       "checks": {
         "wrong-customer": {
           "passed": true,
-          "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+          "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
         },
         "wrong-environment": {
           "passed": true,
-          "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+          "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
         },
         "wrong-endpoint": {
           "passed": true,
-          "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+          "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
         },
         "wrong-approval": {
           "passed": true,
-          "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+          "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
         }
       }
     },
     "readiness": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt",
+      "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt",
       "checks": {
         "approval": {
           "passed": true,
-          "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+          "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
         },
         "enrollment": {
           "passed": true,
-          "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+          "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
         },
         "effective-policy": {
           "passed": true,
-          "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+          "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
         }
       }
     },
     "credential-custody": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt",
+      "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt",
       "checks": {
         "binding": {
           "passed": true,
-          "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+          "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
         },
         "logs": {
           "passed": true,
-          "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+          "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
         },
         "support": {
           "passed": true,
-          "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+          "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
         }
       }
     },
     "routes": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt",
+      "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt"
+          "evidence_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
         }
       }
     }

@@ -11,7 +11,7 @@
     "output_ref": "git:a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
-    "T004": "5c4598478f648c7daea6ca490f6b24787e7234fd94cc43cdca9a979d74d34101"
+    "T004": "274884eae8572cb1e6d2dd318536efd231337cd9d9a38d1bee587b69cd830c0e"
   },
   "cases": {
     "local-package": {

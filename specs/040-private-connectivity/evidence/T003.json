@@ -4,7 +4,7 @@
   "scope": "evidence_tooling",
   "owner": "openxFactory feature 040",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
-  "decision_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json",
+  "decision_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
   "dependencies": {
     "T001": "b4a15fc0fa4700bfdd2bae61c2840d1f55ff039d4a5fc823d5ad9d8a67b2d17e"
   },
@@ -81,72 +81,72 @@
     "lab-scope": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json",
+      "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
       "checks": {
         "account": {
           "passed": true,
-          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
         },
         "region": {
           "passed": true,
-          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
         },
         "budget": {
           "passed": true,
-          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
         },
         "synthetic-fixtures": {
           "passed": true,
-          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
         }
       }
     },
     "operators": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json",
+      "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
       "checks": {
         "rollout-lead": {
           "passed": true,
-          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
         },
         "signoff-owner": {
           "passed": true,
-          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
         },
         "rollback-owner": {
           "passed": true,
-          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
         }
       }
     },
     "custody": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json",
+      "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
         }
       }
     },
     "windows": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json",
+      "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
       "checks": {
         "limits": {
           "passed": true,
-          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
         },
         "sampling": {
           "passed": true,
-          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
         },
         "sustained-denial": {
           "passed": true,
-          "evidence_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json"
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
         }
       }
     }
