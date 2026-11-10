@@ -1,0 +1,52 @@
+{
+  "task": "T011",
+  "verdict": "pass",
+  "scope": "ops",
+  "owner": "OpsxFactory",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-headscale-install-ownership/review/ratification-2026-11-10.md",
+  "revision_ref": "git:dbad1281b6aa30f7cc972badda9baf113fb3d790:workflows/private-connectivity/recovery.py",
+  "owner_check": {
+    "command": "python3 -m pytest tests/private_connectivity -q",
+    "exit_status": 0,
+    "output_ref": "git:dbad1281b6aa30f7cc972badda9baf113fb3d790:tests/private_connectivity/evidence/qualification.txt"
+  },
+  "dependencies": {
+    "T009": "08c71974692f679d69c27fb67ceb4b82168579a89ce349a7a073e890df0bd9db"
+  },
+  "cases": {
+    "backup": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:2a97c73ddd18f3e9e76cd189d7564592aba39ebd:tests/private_connectivity/evidence/recovery.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:2a97c73ddd18f3e9e76cd189d7564592aba39ebd:tests/private_connectivity/evidence/recovery.json"
+        }
+      }
+    },
+    "upgrade": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:2a97c73ddd18f3e9e76cd189d7564592aba39ebd:tests/private_connectivity/evidence/recovery.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:2a97c73ddd18f3e9e76cd189d7564592aba39ebd:tests/private_connectivity/evidence/recovery.json"
+        }
+      }
+    },
+    "quarantine-restore": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:2a97c73ddd18f3e9e76cd189d7564592aba39ebd:tests/private_connectivity/evidence/recovery.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:2a97c73ddd18f3e9e76cd189d7564592aba39ebd:tests/private_connectivity/evidence/recovery.json"
+        }
+      }
+    }
+  },
+  "qualification_scope": "G1 and later gates remain separate. T019 must restore a snapshot older than its known revocation and activate the target under the live recovery gate."
+}
