@@ -1,10 +1,12 @@
-# Honor Conditional Lane Attribution
-
+---
 Status: draft
 Kind: governance
 Authored: 2026-11-10
-code_surface: .github/workflows/lane-line.yml; tests/lane_line/test_conditional_lane_line.py; tests/sequenced_after/corpus-ledger.yaml (generated new-packet row)
-target_release: repository CI only; no product contract release
+code_surface: openxFactory — .github/workflows/lane-line.yml, tests/lane_line/test_conditional_lane_line.py and the generated new-packet row in tests/sequenced_after/corpus-ledger.yaml
+target_release: implemented — repository CI on main; archive only after merged-and-green realization; no product contract release
+---
+
+# Honor Conditional Lane Attribution
 
 ## Why
 
