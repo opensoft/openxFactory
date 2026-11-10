@@ -1,0 +1,23 @@
+{
+  "status": "record",
+  "authority": "Brett Heap",
+  "date": "2026-11-10",
+  "decision": "Approve all named lab sign-offs",
+  "approved_packet_ref": "git:65735cf951f63527e8f67cfd8509a5792aa40986:specs/040-private-connectivity/evidence/G4-review.json",
+  "roles": [
+    "rollout_lead",
+    "installer",
+    "ops",
+    "hosted_product",
+    "hosted_domain"
+  ],
+  "scope": "Original isolated Eagle Docker lab evidence. Current repair qualification is a separate technical supplement; no fresh human review of uncompleted repairs is inferred.",
+  "implementation_pull_requests_remain_draft": true,
+  "commercial_release_authorized": false,
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "65735cf951f63527e8f67cfd8509a5792aa40986"
+    }
+  ]
+}

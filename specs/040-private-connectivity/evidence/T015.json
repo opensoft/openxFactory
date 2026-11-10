@@ -11,8 +11,8 @@
     "output_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
-    "T004": "9321e4ab40bd01bebb4c0611d898587f6c7b9d420b0f11362ddc2c22fbf1f53e",
-    "T010": "412d557cb5432c4e6001932a8e96b3b72857d410b692e463a10c66f7eeaa4757"
+    "T004": "6656b4d642181e06eb0967d20e0ff7be95acfbd5f9334e949e72df627fc5e658",
+    "T010": "da6bd748f7b610b5dfb5597b832d79fc08bb78f938977889b9ec70b3fa94e4c5"
   },
   "cases": {
     "hosted-new": {
@@ -94,5 +94,19 @@
       }
     }
   },
-  "qualification_scope": "Actual synthetic deployments on the exact G0 domain/profile/installer/service bytes. New managed customer, authorized reuse, no-network unbound deployment, failed-step recovery, cross-customer and application denial, external fixture ingress denial and independent lifecycle all passed. Catalog qualification was exercised only by the explicitly synthetic commissioning decision adapter; the release inventory remains customer-ineligible. Human owner acceptance is reserved for G4."
+  "qualification_scope": "Actual synthetic deployments on the exact G0 domain/profile/installer/service bytes. New managed customer, authorized reuse, no-network unbound deployment, failed-step recovery, cross-customer and application denial, external fixture ingress denial and independent lifecycle all passed. Catalog qualification was exercised only by the explicitly synthetic commissioning decision adapter; the release inventory remains customer-ineligible. Human owner acceptance is reserved for G4.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "11c157ee6e77229a041e5a7ec1d6a40b278486a8"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "fe630abc868255bd184d646fe51dcb8d1d448552"
+    }
+  ]
 }

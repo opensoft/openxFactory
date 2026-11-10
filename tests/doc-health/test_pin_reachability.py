@@ -2589,3 +2589,28 @@ def test_that_same_surface_still_answers_normally_when_git_works(tmp_path):
     assert verdict in (ir.PIN_PROBE_PASS, ir.PIN_PROBE_FAIL,
                        ir.PIN_PROBE_SKIP), verdict
     assert "could not be consulted" not in reason, reason
+
+
+def test_private_connectivity_mixed_inventory_preserves_local_orphan_detection(tmp_path):
+    repo, base, orphan = orphaned_pin_repo(tmp_path)
+    import json
+    path="specs/040-private-connectivity/evidence/T006.json"
+    _write(repo,path,json.dumps({"pin_inventory":[
+        {"repository":"opensoft/openxFactory","openxfactory_commit":orphan},
+        {"repository":"opensoft/Headscale-Install","foreign_commit":"f"*40}
+    ]},indent=2))
+    _commit(repo,"mixed pilot source inventory")
+    report=_verify(repo)
+    assert any(x.site.path==path and x.site.pin==orphan for x in report.orphans)
+    foreign=[x for x in report.results if x.site.path==path and x.site.pin=="f"*40]
+    assert len(foreign)==1 and foreign[0].site.locality==pc.CROSS_REPOSITORY
+    assert not pc.non_member_reason(path)
+
+
+def test_private_connectivity_inventory_does_not_cover_another_feature(tmp_path):
+    repo, old = reachable_pin_repo(tmp_path)
+    import json
+    path="specs/099-other/evidence/T006.json"
+    _write(repo,path,json.dumps({"openxfactory_commit":old},indent=2))
+    _commit(repo,"unregistered other feature")
+    assert not any(x.path==path for x in pc.member_sites(repo,"HEAD"))

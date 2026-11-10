@@ -49,5 +49,15 @@
       "namespace": "none"
     }
   },
-  "credential_material_recorded": false
+  "credential_material_recorded": false,
+  "pin_inventory": [
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
+    },
+    {
+      "repository": "juanfont/headscale",
+      "foreign_commit": "c9cf210b8bc84d13177e18b91f555788a44b47b6"
+    }
+  ]
 }

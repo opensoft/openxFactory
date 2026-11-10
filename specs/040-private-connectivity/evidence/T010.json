@@ -11,7 +11,7 @@
     "output_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
-    "T009": "9de219b83e714da438bd002dbba73fc3e05eca42ee21496e5b4a97e9106bc707"
+    "T009": "4e8e72e0317ea2751d7cc8c091aa2339b5724c035fc84773cd9aa578f1e74dfe"
   },
   "cases": {
     "policy-before-enroll": {
@@ -119,5 +119,19 @@
       }
     }
   },
-  "qualification_scope": "Current v2 actual lifecycle qualification. Retains both failed harness attempts and explicit scoped remediation, with a clean full rerun. No G1+ gate passed."
+  "qualification_scope": "Current v2 actual lifecycle qualification. Retains both failed harness attempts and explicit scoped remediation, with a clean full rerun. No G1+ gate passed.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "371892163b7ef42b66f8fc63b55c91c7fbe23148"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "8256217d4b4822a26cdd68f377441fd1044a31e0"
+    }
+  ]
 }

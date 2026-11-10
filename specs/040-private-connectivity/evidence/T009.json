@@ -11,7 +11,7 @@
     "output_ref": "git:5de2c2708879c2c65fed952023f1c7064c59168b:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
-    "T004": "9321e4ab40bd01bebb4c0611d898587f6c7b9d420b0f11362ddc2c22fbf1f53e"
+    "T004": "6656b4d642181e06eb0967d20e0ff7be95acfbd5f9334e949e72df627fc5e658"
   },
   "cases": {
     "standalone-entitlement": {
@@ -50,5 +50,19 @@
   },
   "qualification_scope": "Real pre-enrollment control bootstrap against isolated A/B Headscale containers, distinct endpoints/state/keys and deny policy, stable result after interrupted reconciliation and new retry key. No nodes enrolled; G1 data-plane qualification remains required.",
   "supersedes_ref": "git:6a23ffcc9575098db85f18135e5e2a47d8e70f66:specs/040-private-connectivity/evidence/T009.json",
-  "candidate_update": "Final pre-entry matrix: isolated A upgrade source 0.29.6, B/local target 0.29.7, supported pinned client 1.104.4; all controls verified before enrollment."
+  "candidate_update": "Final pre-entry matrix: isolated A upgrade source 0.29.6, B/local target 0.29.7, supported pinned client 1.104.4; all controls verified before enrollment.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "5de2c2708879c2c65fed952023f1c7064c59168b"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "6a23ffcc9575098db85f18135e5e2a47d8e70f66"
+    }
+  ]
 }

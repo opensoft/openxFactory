@@ -113,5 +113,31 @@
     "installer lifecycle serialization",
     "rollback source retirement",
     "hosted stale-result handling"
+  ],
+  "pin_inventory": [
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "1874fe695fc39277ac2c42f0350b13dd8dd63974"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "21ac282a09bf531a997236f626d1e9677cb432d1"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "7a88f1ccd5610532a29e15870fc20307ee530e79"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "fc23f2e12cd75d14041015f811ca2855383ffb60"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "fe630abc868255bd184d646fe51dcb8d1d448552"
+    }
   ]
 }

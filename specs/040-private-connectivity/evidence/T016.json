@@ -11,7 +11,7 @@
     "output_ref": "git:1e283972f0aee78a7fbd790af48b00fceea74157:tests/private_connectivity/evidence/qualification.txt"
   },
   "dependencies": {
-    "T004": "9321e4ab40bd01bebb4c0611d898587f6c7b9d420b0f11362ddc2c22fbf1f53e"
+    "T004": "6656b4d642181e06eb0967d20e0ff7be95acfbd5f9334e949e72df627fc5e658"
   },
   "cases": {
     "domain-inventory": {
@@ -83,5 +83,23 @@
   "qualification_scope": "Actual synthetic deployments on the exact G0 domain/profile/installer/service bytes. New managed customer, authorized reuse, no-network unbound deployment, failed-step recovery, cross-customer and application denial, external fixture ingress denial and independent lifecycle all passed. Catalog qualification was exercised only by the explicitly synthetic commissioning decision adapter; the release inventory remains customer-ineligible. Human owner acceptance is reserved for G4.",
   "narrow_repair_ratification": "git:95ccd3df862ea5a6c92dab2014fc0d3e7fff1710:openspec/changes/protect-hosted-connectivity-profile/review/ratification-2026-11-10.md",
   "domain_governance_check": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/evidence/governance.txt",
-  "profile_status_note": "The immutable candidate profile remains pending-qualification and customer_release false. The exact-profile synthetic qualification record is separate; no customer catalog entry or human acceptance was created."
+  "profile_status_note": "The immutable candidate profile remains pending-qualification and customer_release false. The exact-profile synthetic qualification record is separate; no customer catalog entry or human acceptance was created.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "11c157ee6e77229a041e5a7ec1d6a40b278486a8"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "1e283972f0aee78a7fbd790af48b00fceea74157"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "95ccd3df862ea5a6c92dab2014fc0d3e7fff1710"
+    }
+  ]
 }

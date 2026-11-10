@@ -11,7 +11,7 @@
     "output_ref": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:tests/private_connectivity/evidence/selection.txt"
   },
   "dependencies": {
-    "T007": "f1b019bb9b410e9ca953353e79230892a7732faac01b7130832729ec385d1332"
+    "T007": "3a8f51279f68c1f3dcb87e5a7ace53c3de6a795570577163b9f4b83e76ff63dd"
   },
   "cases": {
     "new-local": {
@@ -87,5 +87,19 @@
     }
   },
   "qualification_scope": "Current pinned-source v2 local install/reuse owner qualification, after explicit retirement of the two quiesced predecessor approvals. Initial empty package installation remains linked as historical immutable proof; current endpoints, application policy, reauthorization, readiness and unbound compatibility were physically rerun.",
-  "scope_note": "Requalified after migration replacement/retry repairs. The later consumer pin changes only Docker null-IPAM handling; G2 must still test the final complete pinned candidate."
+  "scope_note": "Requalified after migration replacement/retry repairs. The later consumer pin changes only Docker null-IPAM handling; G2 must still test the final complete pinned candidate.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "043d72a7dc9fdaf8cc1c0257a375b1e565e7160a"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2"
+    }
+  ]
 }

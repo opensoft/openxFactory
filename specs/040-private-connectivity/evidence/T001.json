@@ -70,9 +70,10 @@
       "owner": "openxFactory feature 040",
       "repository": "opensoft/openxFactory",
       "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
-      "file_scope": "specs/040-private-connectivity/verify-evidence.py, specs/040-private-connectivity/tests/test_verify_evidence.py",
+      "file_scope": "specs/040-private-connectivity/verify-evidence.py, specs/040-private-connectivity/tests/test_verify_evidence.py, specs/040-private-connectivity/register-evidence-pins.py, feature 040 evidence ownership metadata and self-tests, scripts/doc_health/pin_class.py, directly affected tests/doc-health/test_pin_reachability.py cases",
       "release_path": "Feature branch evidence tool and self-test",
-      "verify": "python3 -m unittest discover -s specs/040-private-connectivity/tests -p test_verify_evidence.py"
+      "verify": "python3 -m unittest discover -s specs/040-private-connectivity/tests -p test_verify_evidence.py",
+      "additional_approval_ref": "https://github.com/opensoft/openxFactory/blob/998b8fd49398ea0d45e44c19b23f6973eb7810d4/openspec/changes/register-private-connectivity-evidence-pins/review/ratification-2026-11-10.md"
     }
   },
   "bootstrap": {
@@ -99,5 +100,32 @@
   },
   "implementation_scope_notes": [
     "Candidate contract placement and existing CI dependency setup realize the already ratified pilot artifact and conformance scope. No bundle number, release publication, protection-floor change, or new required-check policy is introduced."
-  ]
+  ],
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "31eada2c9cbf1ae4d35b1ee74f7644779c4f3e7c"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "42372dff90d394315ecf29ddabe60466db412f73"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "5d6dfb17588c545fac6449e133e3b37000aa735b"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "95ccd3df862ea5a6c92dab2014fc0d3e7fff1710"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "998b8fd49398ea0d45e44c19b23f6973eb7810d4"
+    }
+  ],
+  "dependencies": {}
 }

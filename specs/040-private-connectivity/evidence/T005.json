@@ -11,7 +11,7 @@
     "output_ref": "git:7a88f1ccd5610532a29e15870fc20307ee530e79:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
-    "T004": "9321e4ab40bd01bebb4c0611d898587f6c7b9d420b0f11362ddc2c22fbf1f53e"
+    "T004": "6656b4d642181e06eb0967d20e0ff7be95acfbd5f9334e949e72df627fc5e658"
   },
   "cases": {
     "retries": {
@@ -83,5 +83,15 @@
     }
   },
   "qualification_scope": "47 current owner tests, including superseded managed and unbound retries preserving a healthy current result, failed-attempt preservation and per-installation lifecycle serialization.",
-  "scope_record_update": "Domain scope ratified in codeXfactory/codexFactory#578; observations and original evidence references preserved."
+  "scope_record_update": "Domain scope ratified in codeXfactory/codexFactory#578; observations and original evidence references preserved.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "7a88f1ccd5610532a29e15870fc20307ee530e79"
+    }
+  ]
 }

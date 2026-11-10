@@ -202,5 +202,79 @@
     "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
     "ops_runtime": "git:21ac282a09bf531a997236f626d1e9677cb432d1:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
-  }
+  },
+  "pin_inventory": [
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "1874fe695fc39277ac2c42f0350b13dd8dd63974"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "1e283972f0aee78a7fbd790af48b00fceea74157"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "21ac282a09bf531a997236f626d1e9677cb432d1"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "7a88f1ccd5610532a29e15870fc20307ee530e79"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "88b8e9309ce0c1db2dd476a228cec91cbe64eaa2"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "8fe8822ee2b5791ef4060d04adc7c8712edca53f"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "9b4848bae95164a0d4537ad6406d467ca460f7cc"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "9edb47f5dcb3b893076a339a7ac3d930a6657613"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "e03f884b9b1c246c3920e7cfa343d4f9cd7e29e5"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "ef1b15500ee5a3c795ca6542b757494655869eb9"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "fc23f2e12cd75d14041015f811ca2855383ffb60"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "fe630abc868255bd184d646fe51dcb8d1d448552"
+    }
+  ]
 }

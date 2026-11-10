@@ -11,7 +11,7 @@
     "output_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
   },
   "dependencies": {
-    "T001": "bc2fd76648007bd4fc6d24c6854fff1f96843a7dbee79bd844dceb3e42cdbeb5"
+    "T001": "6e8c49907794dfa72b34af2c3a3e48fe65669d7308f816231e7c2de874d8e9a1"
   },
   "consumer_pin": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:src/private_connectivity/contract-pin.json",
   "release_status": "Approved feature-local pilot candidate outside published contracts; endpoint-bound authority. Serialized atomic bundle realization remains required before customer release.",
@@ -100,5 +100,19 @@
       }
     }
   },
-  "scope_record_update": "Domain scope ratified in codeXfactory/codexFactory#578; observations and original evidence references preserved."
+  "scope_record_update": "Domain scope ratified in codeXfactory/codexFactory#578; observations and original evidence references preserved.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2"
+    }
+  ]
 }

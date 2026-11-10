@@ -11,8 +11,8 @@
     "output_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/selection.txt"
   },
   "dependencies": {
-    "T008": "d9752212e56388d2151eee3fc7331211f3ef8777cb4e9a5059f0ecbe2313f84e",
-    "T010": "412d557cb5432c4e6001932a8e96b3b72857d410b692e463a10c66f7eeaa4757"
+    "T008": "b5ba6a99227158e10db78c91c4e85399e44e28e8e6448583127c6db23601a692",
+    "T010": "da6bd748f7b610b5dfb5597b832d79fc08bb78f938977889b9ec70b3fa94e4c5"
   },
   "cases": {
     "local-managed": {
@@ -60,5 +60,19 @@
       }
     }
   },
-  "qualification_scope": "Actual current pinned SDK. Managed selection, lost enrollment response and same-identity replay, scoped detach, distinct sharing, subscription cancellation, cutover and forced rollback ran after G1. Local install/existing/unbound qualification remained unchanged on these exact runtime bytes, with fresh G2 local application and effective-policy controls. This is synthetic lab acceptance, not a customer release."
+  "qualification_scope": "Actual current pinned SDK. Managed selection, lost enrollment response and same-identity replay, scoped detach, distinct sharing, subscription cancellation, cutover and forced rollback ran after G1. Local install/existing/unbound qualification remained unchanged on these exact runtime bytes, with fresh G2 local application and effective-policy controls. This is synthetic lab acceptance, not a customer release.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "2d8efb17698442445f6bcf8b17b3adb9eb6146fe"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2"
+    }
+  ]
 }

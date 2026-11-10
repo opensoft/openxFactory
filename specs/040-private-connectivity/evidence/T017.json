@@ -11,9 +11,9 @@
     "output_ref": "git:1e283972f0aee78a7fbd790af48b00fceea74157:tests/private_connectivity/evidence/qualification.txt"
   },
   "dependencies": {
-    "T014": "aeb078f8f9cd1b5405c56684ee457ff3fa88a472208aef0b7f2a01a6912cf55e",
-    "T015": "b64211355769c16c5bca5f2f96f89e424168ab825e9415009f8a2d92476d2534",
-    "T016": "55f292b63aa657261ca93088924ae0bed729cd2a653c64a2eab36fc2b7c05caf"
+    "T014": "8f552b648395bd271f9d6982d88c694c7c46b29508ff07c8f56f6c6d32d04000",
+    "T015": "eed7b5c69891f00859ebd8cb0cd07f7144461c2f04438261b1246b046f2405a6",
+    "T016": "4ff9647a134b485d29a59df2b7ea677c92ee7259deda8f48fd6f62d4cacf201b"
   },
   "cases": {
     "hosted-new": {
@@ -194,5 +194,55 @@
     "original_measurement_report_unchanged": true,
     "reason": "Qualified proof-label clarification only; required profile-revision evidence retained."
   },
-  "requalification_required": "Fresh reviewed repair candidates; predecessor physical evidence retained without claiming a rerun."
+  "requalification_required": "Fresh reviewed repair candidates; predecessor physical evidence retained without claiming a rerun.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "11c157ee6e77229a041e5a7ec1d6a40b278486a8"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "1e283972f0aee78a7fbd790af48b00fceea74157"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "649116bdbadfe2ab0d825a0224f4fb2ad906c9be"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "88b8e9309ce0c1db2dd476a228cec91cbe64eaa2"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "95ccd3df862ea5a6c92dab2014fc0d3e7fff1710"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "fc23f2e12cd75d14041015f811ca2855383ffb60"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "fe630abc868255bd184d646fe51dcb8d1d448552"
+    }
+  ]
 }
