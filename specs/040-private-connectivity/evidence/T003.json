@@ -26,7 +26,27 @@
       "tenant-a",
       "tenant-b"
     ],
-    "profile": "synthetic codexFactory hosted profile"
+    "profile": "synthetic codexFactory hosted profile",
+    "policy_boundaries": [
+      "tenant-a",
+      "tenant-b",
+      "customer-local"
+    ],
+    "disposable_instance": {
+      "customer": "tenant-b",
+      "environment": "dev",
+      "boundary": "b-drill",
+      "purpose": "independent network termination and protected retention; never a customer release",
+      "control_network": "pc040-fixture-b-drill",
+      "control_subnet": "198.19.40.64/28",
+      "deny_before_enrollment_required": true
+    },
+    "route_fixtures": {
+      "tenant-a": "198.19.41.0/28",
+      "tenant-b": "198.19.42.0/28",
+      "customer-local": "198.19.43.0/28",
+      "tenant-b-disposable": "198.19.44.0/28"
+    }
   },
   "operators": {
     "rollout_lead": "Brett Heap",

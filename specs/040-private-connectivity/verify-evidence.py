@@ -85,6 +85,7 @@ DENIAL_CASES = {
     "wrong-port", "catalog-deny", "public-ingress", "application-auth",
     "prior-binding-revoked",
 }
+PILOT_BOUNDARIES = {"tenant-a", "tenant-b", "customer-local"}
 LIVE_TASKS = {"T006", "T012", "T014", "T017", "T018", "T019", "T020", "T021"}
 LIVE_REVISION_PINS = {
     "T012": "hosted_runtime", "T014": "installer_runtime",
@@ -252,6 +253,9 @@ def verify_file(path, task, cache=None):
         require(digest == actual, f"{task}: superseded dependency {dependency}")
         verify_file(dependency_path, dependency, cache)
     if task == "T003":
+        lab = data.get("lab")
+        require(isinstance(lab, dict) and set(lab.get("policy_boundaries", [])) == PILOT_BOUNDARIES,
+                "T003: complete approved policy boundaries required")
         limits = data.get("limits")
         require(isinstance(limits, dict) and set(limits) == LIMIT_NAMES, "T003: complete approved limits required")
         for name, value in limits.items():
@@ -265,7 +269,7 @@ def verify_file(path, task, cache=None):
             require(isinstance(name, str) and name.strip(), "invalid pin name")
             reference(pin, f"{task}: {name} pin")
         baseline = data.get("policy_baseline")
-        require(isinstance(baseline, dict) and baseline, f"{task}: policy baseline required")
+        require(isinstance(baseline, dict) and set(baseline) == PILOT_BOUNDARIES, f"{task}: complete approved policy baseline required")
         for name, pin in baseline.items():
             reference(pin, f"{task}: policy {name}")
         if task != "T006":

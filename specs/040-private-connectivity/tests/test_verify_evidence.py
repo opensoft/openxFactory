@@ -66,6 +66,7 @@ class EvidenceTests(unittest.TestCase):
         if task in CHECKER.IMPLEMENTATION_TASKS:
             record["owner_check"] = {"command": "synthetic-owner-check", "exit_status": 0, "output_ref": REV}
         if task == "T003":
+            record["lab"] = {"policy_boundaries": sorted(CHECKER.PILOT_BOUNDARIES)}
             record["limits"] = {
                 "revocation_seconds": 300, "restore_seconds": 3600,
                 "backup_age_seconds": 86400, "rollback_seconds": 900,
@@ -74,7 +75,7 @@ class EvidenceTests(unittest.TestCase):
         if task in CHECKER.LIVE_TASKS:
             record.update({
                 "run_ref": REV, "candidate_pins": {name: REV for name in set(CHECKER.LIVE_REVISION_PINS.values())},
-                "policy_baseline": {"tenant-a": REV, "tenant-b": REV},
+                "policy_baseline": {name: REV for name in CHECKER.PILOT_BOUNDARIES},
             })
             if task not in {"T006", "T021"}:
                 record["positive_controls"] = {
@@ -169,6 +170,14 @@ class EvidenceTests(unittest.TestCase):
             record[field] = ALT if field == "run_ref" else {"other": ALT}
             with self.subTest(field=field):
                 self.reject("T012", record)
+
+    def test_missing_pilot_boundary_is_rejected_even_when_all_controls_match(self):
+        record = self.make("T006")
+        del record["policy_baseline"]["tenant-b"]
+        self.reject("T006", record)
+        lab = self.make("T003")
+        lab["lab"]["policy_boundaries"].remove("tenant-b")
+        self.reject("T003", lab)
 
     def test_live_tested_revision_must_equal_approved_owner_candidate(self):
         for task in CHECKER.LIVE_REVISION_PINS:
