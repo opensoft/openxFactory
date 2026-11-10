@@ -20,7 +20,7 @@
     "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
-    "evidence_checker": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/verify-evidence.py",
+    "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
     "ops_runtime": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
@@ -316,6 +316,14 @@
       },
       "before_any_G1_gate": true,
       "affected_cases": "G1 real standalone provisioning and denial on retained terminated identity, plus regression of interrupted termination. T010 enrollment, policy, expiry and scoped lifecycle passed on predecessor 8256217; its unchanged attachment behaviors and report remain explicit."
+    },
+    {
+      "reason": "Clarify the profile_revision proof label and qualify historical foreign-repository observations. The same exact profile revision assertion remains required; no case, proof, limit, scope or runtime source changed. All recorded gates are reverified with the clarified feature evidence validator.",
+      "previous_checker": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/verify-evidence.py",
+      "current_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+      "runtime_candidate_pins_unchanged": true,
+      "physical_gate_evidence_unchanged": true,
+      "validation_rerun": "32 tests and 52 subtests passed; full current evidence chain reverified."
     }
   ]
 }

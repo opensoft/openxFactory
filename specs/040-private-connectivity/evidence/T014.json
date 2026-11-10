@@ -11,8 +11,8 @@
     "output_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/selection.txt"
   },
   "dependencies": {
-    "T006": "2eae0bdf2a6221c0204354aee839576226d265694b3cdf2da36725467d890d0e",
-    "T012": "059dcb6da52e6e4509b94cbaa240623db7b52823a345b6468424e2ef0222093e",
+    "T006": "97efb0f6310b00d09b3401a07efe2f077eaee77ac931d9ce56c2521e268f4e2a",
+    "T012": "116d906fd6ab491fcaeeaa7dcc733bb43d0d407500ebb7596d7346ce74af246a",
     "T013": "90b23e3a08d19ab704980a14753b2b5178b421112674c939da952f166ab7b94f"
   },
   "cases": {
@@ -164,7 +164,7 @@
     "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
-    "evidence_checker": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/verify-evidence.py",
+    "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
     "ops_runtime": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
@@ -196,5 +196,12 @@
       "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/g2-controls.json"
     }
   },
-  "fresh_local_scope_control_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/g2-controls.json"
+  "fresh_local_scope_control_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/g2-controls.json",
+  "validation_reverification": {
+    "previous_checker": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/verify-evidence.py",
+    "current_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+    "physical_runtime_pins_unchanged": true,
+    "original_measurement_report_unchanged": true,
+    "reason": "Qualified proof-label clarification only; required profile-revision evidence retained."
+  }
 }
