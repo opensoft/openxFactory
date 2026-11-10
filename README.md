@@ -72,6 +72,7 @@ OpsxFactory
 
 Core domain-neutral docs:
 
+- [Private connectivity binding candidate](contracts/private-connectivity/README.md)
 - [Private connectivity: Speckit feature 040](specs/040-private-connectivity/spec.md). [Implementation plan](specs/040-private-connectivity/plan.md) · [Pilot rollout](specs/040-private-connectivity/quickstart.md)
 - [Factory MCP Family — Brainstorm](ideation/brainstorm/factory-mcp-overview.md)
   (shared conformance, domain ownership and a proposed DNS evaluation boundary)
