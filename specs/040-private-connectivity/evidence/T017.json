@@ -1,6 +1,6 @@
 {
   "task": "T017",
-  "verdict": "pass",
+  "verdict": "blocked",
   "scope": "hosted_domain",
   "owner": "codexFactory maintainer coordination by Brett Heap",
   "approval_ref": "https://github.com/codeXfactory/codexFactory/blob/95ccd3df862ea5a6c92dab2014fc0d3e7fff1710/openspec/changes/protect-hosted-connectivity-profile/review/ratification-2026-11-10.md",
@@ -11,7 +11,7 @@
     "output_ref": "git:1e283972f0aee78a7fbd790af48b00fceea74157:tests/private_connectivity/evidence/qualification.txt"
   },
   "dependencies": {
-    "T014": "bd5c4aaab9dfed87a8f5c99d4bdb0db1cf68d65ca6660f0bd25c7165ffdac4bf",
+    "T014": "aeb078f8f9cd1b5405c56684ee457ff3fa88a472208aef0b7f2a01a6912cf55e",
     "T015": "b64211355769c16c5bca5f2f96f89e424168ab825e9415009f8a2d92476d2534",
     "T016": "55f292b63aa657261ca93088924ae0bed729cd2a653c64a2eab36fc2b7c05caf"
   },
@@ -193,5 +193,6 @@
     "physical_runtime_pins_unchanged": true,
     "original_measurement_report_unchanged": true,
     "reason": "Qualified proof-label clarification only; required profile-revision evidence retained."
-  }
+  },
+  "requalification_required": "Fresh reviewed repair candidates; predecessor physical evidence retained without claiming a rerun."
 }

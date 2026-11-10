@@ -1,6 +1,6 @@
 {
   "task": "T019",
-  "verdict": "pass",
+  "verdict": "blocked",
   "scope": "ops",
   "owner": "OpsxFactory",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-headscale-install-ownership/review/ratification-2026-11-10.md",
@@ -11,7 +11,7 @@
     "output_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/qualification.txt"
   },
   "dependencies": {
-    "T018": "f60ffc6877834f9f8c4b70018335a56ca16967858405cd7fb20c0a71851f33f9"
+    "T018": "4b3d6459bf2447e10a855fd1dd61097bb26657b2b4707675beb740481014e6fb"
   },
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "candidate_pins": {
@@ -171,5 +171,6 @@
       }
     }
   },
-  "qualification_scope": "Actual approved .29.7 activation from an immutable .29.6 backup predating all five known revocations. Old writer fenced, target started only in quarantine, current independent journal replayed, network identity/current grants verified and live old clients denied after activation. B remained available throughout recovery. Two retained harness attempts are closed by observed path selection, bounded pre-fault readiness and this clean full rerun."
+  "qualification_scope": "Actual approved .29.7 activation from an immutable .29.6 backup predating all five known revocations. Old writer fenced, target started only in quarantine, current independent journal replayed, network identity/current grants verified and live old clients denied after activation. B remained available throughout recovery. Two retained harness attempts are closed by observed path selection, bounded pre-fault readiness and this clean full rerun.",
+  "requalification_required": "Fresh reviewed repair candidates; predecessor physical evidence retained without claiming a rerun."
 }

@@ -1,6 +1,6 @@
 {
   "task": "T020",
-  "verdict": "pass",
+  "verdict": "blocked",
   "scope": "installer",
   "owner": "xFactory-Installer",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
@@ -11,7 +11,7 @@
     "output_ref": "git:32ec86d8ff847227bbbae33d5ceac3c874f9f4e0:tests/private_connectivity/evidence/selection.txt"
   },
   "dependencies": {
-    "T019": "56258fe0879479bf33e000562b8285cdc19956390387c88f3a9934fdec44dd9a"
+    "T019": "572cb0c40306e9cef654cff19ef83011cc4b94bd411087dbb38c79fe237f0f9b"
   },
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "candidate_pins": {
@@ -116,5 +116,6 @@
   },
   "authority_evidence_ref": "git:e03f884b9b1c246c3920e7cfa343d4f9cd7e29e5:tests/private_connectivity/evidence/authority-supplement.json",
   "managed_authority_evidence_ref": "git:8fe8822ee2b5791ef4060d04adc7c8712edca53f:tests/qualification/evidence/authority-journal.json",
-  "qualification_scope": "Actual customer-operated endpoint to restored .29.7 managed endpoint, followed by forced rollback. Source access and partial target access were physically denied as required. Only a fresh explicitly delegated still-valid prior scope was restored, without expiry extension. A separately withdrawn and a genuinely expired prior approval both remained unavailable; the clock was not mocked."
+  "qualification_scope": "Actual customer-operated endpoint to restored .29.7 managed endpoint, followed by forced rollback. Source access and partial target access were physically denied as required. Only a fresh explicitly delegated still-valid prior scope was restored, without expiry extension. A separately withdrawn and a genuinely expired prior approval both remained unavailable; the clock was not mocked.",
+  "requalification_required": "Fresh reviewed repair candidates; predecessor physical evidence retained without claiming a rerun."
 }

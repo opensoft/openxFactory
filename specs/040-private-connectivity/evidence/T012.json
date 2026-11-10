@@ -1,6 +1,6 @@
 {
   "task": "T012",
-  "verdict": "pass",
+  "verdict": "blocked",
   "scope": "hosted_product",
   "owner": "openXsoft.com product",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
@@ -11,7 +11,7 @@
     "output_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
-    "T006": "97efb0f6310b00d09b3401a07efe2f077eaee77ac931d9ce56c2521e268f4e2a",
+    "T006": "3d92d62a13c9b1df7170dbbd9756fe2bb1ad2a255bdbcb11aafeb307f506b51e",
     "T010": "412d557cb5432c4e6001932a8e96b3b72857d410b692e463a10c66f7eeaa4757",
     "T011": "9c19eb2dcdfa0e19e7421459d85c12504457615b366d0b35b2140fd91956d796"
   },
@@ -238,5 +238,6 @@
     "physical_runtime_pins_unchanged": true,
     "original_measurement_report_unchanged": true,
     "reason": "Qualified proof-label clarification only; required profile-revision evidence retained."
-  }
+  },
+  "requalification_required": "Fresh reviewed repair candidates; predecessor physical evidence retained without claiming a rerun."
 }
