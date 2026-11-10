@@ -1,0 +1,98 @@
+{
+  "task": "T015",
+  "verdict": "pass",
+  "scope": "hosted_product",
+  "owner": "openXsoft.com product",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
+  "revision_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:release/runtime-inventory.json",
+  "owner_check": {
+    "command": "make validate && make test",
+    "exit_status": 0,
+    "output_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/candidate.txt"
+  },
+  "dependencies": {
+    "T004": "274884eae8572cb1e6d2dd318536efd231337cd9d9a38d1bee587b69cd830c0e",
+    "T010": "fac2b66c2c6a31ae5e047a7582239c3f09e179e0dbebe2a503956350e7299f6d"
+  },
+  "cases": {
+    "hosted-new": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        }
+      }
+    },
+    "hosted-reuse": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        }
+      }
+    },
+    "hosted-unbound": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        }
+      }
+    },
+    "hosted-authorization": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        }
+      }
+    },
+    "hosted-failed-step": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json",
+      "checks": {
+        "policy": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        },
+        "enrollment": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        },
+        "redacted-error": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        },
+        "unready": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        }
+      }
+    },
+    "hosted-retry": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        }
+      }
+    }
+  },
+  "qualification_scope": "Actual synthetic deployments on the exact G0 domain/profile/installer/service bytes. New managed customer, authorized reuse, no-network unbound deployment, failed-step recovery, cross-customer and application denial, external fixture ingress denial and independent lifecycle all passed. Catalog qualification was exercised only by the explicitly synthetic commissioning decision adapter; the release inventory remains customer-ineligible. Human owner acceptance is reserved for G4."
+}

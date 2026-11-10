@@ -1,0 +1,87 @@
+{
+  "task": "T016",
+  "verdict": "pass",
+  "scope": "hosted_domain",
+  "owner": "codexFactory maintainer coordination by Brett Heap",
+  "approval_ref": "https://github.com/codeXfactory/codexFactory/blob/95ccd3df862ea5a6c92dab2014fc0d3e7fff1710/openspec/changes/protect-hosted-connectivity-profile/review/ratification-2026-11-10.md",
+  "revision_ref": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
+  "owner_check": {
+    "command": "python3 -m pytest tests/private_connectivity -q",
+    "exit_status": 0,
+    "output_ref": "git:1e283972f0aee78a7fbd790af48b00fceea74157:tests/private_connectivity/evidence/qualification.txt"
+  },
+  "dependencies": {
+    "T004": "274884eae8572cb1e6d2dd318536efd231337cd9d9a38d1bee587b69cd830c0e"
+  },
+  "cases": {
+    "domain-inventory": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:release/domain-inventory.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:release/domain-inventory.json"
+        }
+      }
+    },
+    "profile-evidence": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json",
+      "checks": {
+        "domain": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        },
+        "revision": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        },
+        "tenant": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        },
+        "deployment": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        },
+        "lifecycle": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        },
+        "connectivity": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        }
+      }
+    },
+    "catalog-deny": {
+      "expected": "denied",
+      "observed": "denied",
+      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json",
+      "checks": {
+        "missing": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        },
+        "stale": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        },
+        "unqualified": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        },
+        "wrong-domain": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        }
+      }
+    }
+  },
+  "qualification_scope": "Actual synthetic deployments on the exact G0 domain/profile/installer/service bytes. New managed customer, authorized reuse, no-network unbound deployment, failed-step recovery, cross-customer and application denial, external fixture ingress denial and independent lifecycle all passed. Catalog qualification was exercised only by the explicitly synthetic commissioning decision adapter; the release inventory remains customer-ineligible. Human owner acceptance is reserved for G4.",
+  "narrow_repair_ratification": "git:95ccd3df862ea5a6c92dab2014fc0d3e7fff1710:openspec/changes/protect-hosted-connectivity-profile/review/ratification-2026-11-10.md",
+  "domain_governance_check": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/evidence/governance.txt",
+  "profile_status_note": "The immutable candidate profile remains pending-qualification and customer_release false. The exact-profile synthetic qualification record is separate; no customer catalog entry or human acceptance was created."
+}
