@@ -1,0 +1,12 @@
+schema: spec-driven
+created: 2026-11-09
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-11-09-add-private-connectivity
+  reason: Capture the local and hosted Headscale choices and hosted DomainxFactory offerings requested for openXsoft.com.
+  proposed_by: Codex at Brett Heap's request
+  proposed_on: 2026-11-09
+  approved_by: Brett Heap (openxFactory repository owner), in session. See review/ratification-2026-11-09.md.
+  approved_on: 2026-11-09
+related:
+  - openxFactory:pr:1300
