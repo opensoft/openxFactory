@@ -76,3 +76,7 @@ Read by `/speckit-tasks` and `/speckit-analyze` (shared protocol, "Build Tiers")
 - `README.md` — its `## OpenSpec Records` block records every OpenSpec change with its ratification and landing, and is a shared substrate under the lane protocol.
 
 `[H]` plausibly fits a pattern-copying change that touches none of these paths and no file whose `Status:` header reads `ratified`, `standard` or `record`: a test module that mirrors its siblings and adds no skip (both required pytest runs pin their skipped count exactly), an example under `examples/` beside its siblings, a `Status: draft` document or ideation note, or a helper under `scripts/` that no gate runs.
+
+<!-- SPECKIT START -->
+- Feature 040 implementation plan: [Private connectivity](specs/040-private-connectivity/plan.md)
+<!-- SPECKIT END -->

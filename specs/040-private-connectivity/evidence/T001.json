@@ -1,0 +1,106 @@
+{
+  "task": "T001",
+  "verdict": "blocked",
+  "checked_on": "2026-11-10",
+  "basis": {
+    "proposal": "https://github.com/opensoft/openxFactory/pull/1300",
+    "merged_revision": "18f68689e6db4defdeddf998a07fa10d09405737",
+    "ratification": "openspec/changes/add-private-connectivity/review/ratification-2026-11-09.md",
+    "scope_boundary": "The ratified change has code_surface: none. Its owner roles govern planning. Successor decisions establish runtime repository placement, file scope, verification and releases."
+  },
+  "scopes": {
+    "neutral_binding": {
+      "owner": "openxFactory",
+      "repository": "opensoft/openxFactory",
+      "scope_status": "successor-approval-required",
+      "approval_ref": null,
+      "release_path": null,
+      "file_scope": null,
+      "verify": null,
+      "candidate_scope": "Optional domain-neutral runtime binding, approval and enrollment references, conformance and evidence semantics.",
+      "repository_status": "verified",
+      "design_ref": "docs/self-hosted-runtime-binding-plan.md"
+    },
+    "installer": {
+      "owner": "Installer owner to be assigned",
+      "repository": "opensoft/xFactory-Installer",
+      "scope_status": "repository-assignment-and-successor-approval-required",
+      "approval_ref": null,
+      "release_path": null,
+      "file_scope": null,
+      "verify": null,
+      "candidate_scope": "Install or connect customer-operated Headscale and select an authorized managed network. Verify compatibility for existing unbound installations.",
+      "repository_status": "verified candidate"
+    },
+    "ops": {
+      "owner": "OpsxFactory",
+      "repository": "opensoft/OpsxFactory",
+      "scope_status": "successor-approval-required",
+      "approval_ref": null,
+      "release_path": null,
+      "file_scope": null,
+      "verify": null,
+      "candidate_scope": "Operating procedures for policy, scoped routes, enrollment, revocation, upgrade, backup, quarantine and recovery.",
+      "repository_status": "verified"
+    },
+    "headscale_install": {
+      "owner": "Install owner to be assigned",
+      "repository": null,
+      "scope_status": "repository-placement-and-successor-approval-required",
+      "approval_ref": null,
+      "release_path": null,
+      "file_scope": null,
+      "verify": null,
+      "candidate_scope": "Repeatable customer-operated and managed Headscale installation, pinned releases, instance lifecycle, backups and verification.",
+      "proposed_repository": "opensoft/Headscale-Install",
+      "repository_status": "proposed slug returned HTTP 404"
+    },
+    "hosted_product": {
+      "owner": "openXsoft.com product owner",
+      "repository": null,
+      "scope_status": "repository-placement-and-successor-approval-required",
+      "approval_ref": null,
+      "release_path": null,
+      "file_scope": null,
+      "verify": null,
+      "candidate_scope": "Independent entitlement, customer-scoped managed provisioning, attachment and revocation, hosted onboarding and catalog admission.",
+      "repository_status": "no confirmed product implementation repository"
+    },
+    "hosted_domain": {
+      "owner": "Participating DomainxFactory owners",
+      "repository": null,
+      "scope_status": "pilot-domain-assignment-and-successor-approval-required",
+      "approval_ref": null,
+      "release_path": null,
+      "file_scope": null,
+      "verify": null,
+      "candidate_scope": "Declare minimum access and qualify each domain profile. Use the generic synthetic profile for the common onboarding pilot.",
+      "repository_status": "pilot profile sponsor and runtime repository pending"
+    },
+    "evidence_tooling": {
+      "owner": "openxFactory feature worktree",
+      "repository": "opensoft/openxFactory",
+      "scope_status": "approved-scope-record-required",
+      "approval_ref": null,
+      "release_path": null,
+      "file_scope": null,
+      "verify": null,
+      "candidate_scope": "Feature-local validation of redacted pilot evidence and prerequisite gate records.",
+      "planned_file_scope": [
+        "specs/040-private-connectivity/verify-evidence.py",
+        "specs/040-private-connectivity/tests/test_verify_evidence.py"
+      ],
+      "planned_verify": "python3 -m unittest discover -s specs/040-private-connectivity/tests -p test_verify_evidence.py",
+      "contract_ref": "specs/040-private-connectivity/contracts/pilot-evidence.md"
+    }
+  },
+  "verification": {
+    "visible_repositories": [
+      "https://github.com/opensoft/openxFactory",
+      "https://github.com/opensoft/xFactory-Installer",
+      "https://github.com/opensoft/OpsxFactory"
+    ],
+    "searches": "Authenticated GitHub searches for add-private-connectivity, Headscale, and private connectivity surfaced PR #1300 as the only matching implementation-governance candidate. Its merged scope is policy and handoff. GitHub returned HTTP 404 for the tested proposed install and product slugs. These checks cover the repositories and records visible to the authenticated account.",
+    "task_gate": "T001 remains open. Approval references, exact authorized files, release paths and owner verification commands are required before changing the verdict to pass."
+  }
+}
