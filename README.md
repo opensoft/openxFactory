@@ -11892,3 +11892,7 @@ This repository is documentation-first. It should not contain live credentials, 
 ## License
 
 Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
+
+## Conditional lane attribution realization
+
+[Governed change](openspec/changes/honor-conditional-lane-attribution/proposal.md) and [feature](specs/041-conditional-lane-check/spec.md) restore the in-force conditional lane rule.
