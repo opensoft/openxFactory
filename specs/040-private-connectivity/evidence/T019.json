@@ -1,0 +1,175 @@
+{
+  "task": "T019",
+  "verdict": "pass",
+  "scope": "ops",
+  "owner": "OpsxFactory",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-headscale-install-ownership/review/ratification-2026-11-10.md",
+  "revision_ref": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+  "owner_check": {
+    "command": "python3 -m pytest tests/private_connectivity -q",
+    "exit_status": 0,
+    "output_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/qualification.txt"
+  },
+  "dependencies": {
+    "T018": "f60ffc6877834f9f8c4b70018335a56ca16967858405cd7fb20c0a71851f33f9"
+  },
+  "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
+  "candidate_pins": {
+    "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+    "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+    "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+    "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+    "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+    "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
+    "install_runtime": "git:fc23f2e12cd75d14041015f811ca2855383ffb60:release/runtime-inventory.json",
+    "hosted_runtime": "git:fe630abc868255bd184d646fe51dcb8d1d448552:release/runtime-inventory.json",
+    "installer_runtime": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:src/private_connectivity/runtime-inventory.json",
+    "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+    "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
+    "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
+    "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
+    "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+    "ops_runtime": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/runtime-inventory.json",
+    "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
+  },
+  "policy_baseline": {
+    "tenant-a": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2",
+    "tenant-b": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2",
+    "customer-local": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2",
+    "tenant-hosted-new": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2"
+  },
+  "positive_controls": {
+    "tenant-a": {
+      "reachable": true,
+      "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+    },
+    "tenant-b": {
+      "reachable": true,
+      "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+    },
+    "customer-local": {
+      "reachable": true,
+      "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+    },
+    "tenant-hosted-new": {
+      "reachable": true,
+      "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+    }
+  },
+  "cases": {
+    "service-loss": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+        }
+      }
+    },
+    "relay-loss": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+        }
+      }
+    },
+    "upgrade": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+        }
+      }
+    },
+    "restore-timing": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+        }
+      },
+      "elapsed_seconds": 58.542419664998306
+    },
+    "backup-age": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+        }
+      },
+      "elapsed_seconds": 1436.5235924720764
+    },
+    "fence-and-quarantine": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json",
+      "checks": {
+        "prior-writer-fenced": {
+          "passed": true,
+          "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+        },
+        "no-early-activation": {
+          "passed": true,
+          "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+        }
+      }
+    },
+    "restored-identity-and-grants": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json",
+      "checks": {
+        "network-identity": {
+          "passed": true,
+          "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+        },
+        "allowed-grants": {
+          "passed": true,
+          "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+        }
+      }
+    },
+    "revocation-survives": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+        }
+      }
+    },
+    "neighbor-available": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:9edb47f5dcb3b893076a339a7ac3d930a6657613:tests/private_connectivity/evidence/live-recovery.json"
+        }
+      }
+    }
+  },
+  "qualification_scope": "Actual approved .29.7 activation from an immutable .29.6 backup predating all five known revocations. Old writer fenced, target started only in quarantine, current independent journal replayed, network identity/current grants verified and live old clients denied after activation. B remained available throughout recovery. Two retained harness attempts are closed by observed path selection, bounded pre-fault readiness and this clean full rerun."
+}
