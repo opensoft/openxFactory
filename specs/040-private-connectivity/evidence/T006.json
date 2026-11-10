@@ -13,9 +13,9 @@
     "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
     "binding_schema": "git:0ebf97ae67f1409a8bf3e10517cea9528b228788:contracts/private-connectivity/binding.schema.json",
     "binding_validator": "git:0ebf97ae67f1409a8bf3e10517cea9528b228788:scripts/validate-private-connectivity.py",
-    "install_runtime": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:release/runtime-inventory.json",
-    "hosted_runtime": "git:5de2c2708879c2c65fed952023f1c7064c59168b:release/runtime-inventory.json",
-    "installer_runtime": "git:ef8ac62c88862af7bfeb63866b8b7ab95aa22322:src/private_connectivity/runtime-inventory.json",
+    "install_runtime": "git:4faeb9471e6382568a4ada3873d93d0c98c0380f:release/runtime-inventory.json",
+    "hosted_runtime": "git:e5dcc0da689ac52f23044974ff7c295cd08cd710:release/runtime-inventory.json",
+    "installer_runtime": "git:68aa941a104f06e70d8676ad2d50f471d54c047f:src/private_connectivity/runtime-inventory.json",
     "ops_recovery": "git:4fd9090a53677dbf58ab9c82b98666598e8ca907:workflows/private-connectivity/recovery.py",
     "domain_profile": "git:4120400cf894affd6e535468609cc3b7bc11e198:profiles/hosted/private-connectivity.yaml",
     "domain_schema": "git:4120400cf894affd6e535468609cc3b7bc11e198:schemas/hosted-connectivity-profile.schema.json",
@@ -46,11 +46,11 @@
     "candidate-pins": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:release/runtime-inventory.json",
+      "evidence_ref": "git:4faeb9471e6382568a4ada3873d93d0c98c0380f:release/runtime-inventory.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:release/runtime-inventory.json"
+          "evidence_ref": "git:e5dcc0da689ac52f23044974ff7c295cd08cd710:release/runtime-inventory.json"
         }
       }
     },
@@ -78,7 +78,7 @@
     }
   },
   "execution_authority": "Automated pilot entry under Brett Heap\u2019s ratified successor scopes and explicit Eagle Docker lab instruction, recorded in T001/T003. This is not a human release or G4 sign-off.",
-  "qualification": "Pre-enrollment synthetic lab entry only; all three controls verified deny-all, TLS and external ingress; zero nodes.",
+  "qualification": "Initial entry verified deny-all, TLS and outside ingress with zero nodes. This source-only probe amendment retains that unchanged initialization proof; A now has two explicitly approved synthetic devices from the T010 attempt.",
   "offline_reports": {
     "binding": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt",
     "managed": "git:5de2c2708879c2c65fed952023f1c7064c59168b:tests/qualification/evidence/candidate.txt",
@@ -92,5 +92,42 @@
     "source_revision": "4120400cf894affd6e535468609cc3b7bc11e198",
     "path": "tests/private_connectivity/evidence/governance.txt"
   },
-  "ci_and_review": "PR #578 remains draft; broader CI and exact-head Codex review are pending. G0 grants local synthetic QA entry, not merge, publication, customer eligibility or expansion."
+  "ci_and_review": "PR #578 remains draft; broader CI and exact-head Codex review are pending. G0 grants local synthetic QA entry, not merge, publication, customer eligibility or expansion.",
+  "candidate_amendments": [
+    {
+      "previous_g0_ref": "git:2c7737d709fb4de128261bb7ea599dc88d57cc67:specs/040-private-connectivity/evidence/T006.json",
+      "reason": "Authorized probe helper reads its protected synthetic token as UID 0; token permissions stay 0600.",
+      "changed_runtime_members": {
+        "install_runtime": [
+          "deploy/application.py"
+        ],
+        "hosted_runtime": [
+          "release/install-pin.json"
+        ],
+        "installer_runtime": [
+          "src/private_connectivity/headscale-pin.json"
+        ]
+      },
+      "initialization_and_binary_pins_unchanged": true,
+      "failure_ref": "git:e5dcc0da689ac52f23044974ff7c295cd08cd710:tests/qualification/evidence/enrollment-attempt-1.json",
+      "required_rerun": "T010 real enrollment/application qualification before acceptance; no downstream live gate has passed.",
+      "owner_reruns": {
+        "Headscale-Install": {
+          "command": "make validate && make test",
+          "exit_status": 0,
+          "tests": 13
+        },
+        "hosted_product": {
+          "command": "make validate && make test",
+          "exit_status": 0,
+          "tests": 30
+        },
+        "installer": {
+          "command": "make validate && make test",
+          "exit_status": 0,
+          "tests": 16
+        }
+      }
+    }
+  ]
 }
