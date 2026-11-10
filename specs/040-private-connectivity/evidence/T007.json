@@ -4,11 +4,11 @@
   "scope": "headscale_install",
   "owner": "Headscale-Install",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-headscale-install-ownership/review/ratification-2026-11-10.md",
-  "revision_ref": "git:6c9f50475394b52e7fe2d7b5fc1235ce9117f039:release/runtime-inventory.json",
+  "revision_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:release/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:6c9f50475394b52e7fe2d7b5fc1235ce9117f039:tests/qualification/evidence/candidate.txt"
+    "output_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
     "T004": "c2f34c8d5afa10ede2c4723c89ea6bf10485b1410dc71cc95c54b9ee3db5af53"
@@ -17,22 +17,22 @@
     "local-package": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:6c9f50475394b52e7fe2d7b5fc1235ce9117f039:tests/qualification/evidence/preflight.json",
+      "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:6c9f50475394b52e7fe2d7b5fc1235ce9117f039:tests/qualification/evidence/preflight.json"
+          "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json"
         }
       }
     },
     "local-endpoint": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:6c9f50475394b52e7fe2d7b5fc1235ce9117f039:tests/qualification/evidence/preflight.json",
+      "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:6c9f50475394b52e7fe2d7b5fc1235ce9117f039:tests/qualification/evidence/preflight.json"
+          "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json"
         }
       }
     },
@@ -48,5 +48,7 @@
       }
     }
   },
-  "qualification_scope": "Local synthetic Docker package: separate control and probes, pinned images, verified TLS, deny baseline, fenced protected snapshot, and no-network candidate config rehearsal. Actual database upgrade and live restore remain T019."
+  "qualification_scope": "Local synthetic Docker package: separate control and probes, pinned images, verified TLS, deny baseline, fenced protected snapshot, and no-network candidate config rehearsal. Actual database upgrade and live restore remain T019.",
+  "supersedes_ref": "git:6a23ffcc9575098db85f18135e5e2a47d8e70f66:specs/040-private-connectivity/evidence/T007.json",
+  "candidate_update": "Final pre-entry matrix: isolated A upgrade source 0.29.6, B/local target 0.29.7, supported pinned client 1.104.4; all controls verified before enrollment."
 }
