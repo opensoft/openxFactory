@@ -4,11 +4,11 @@
   "scope": "ops",
   "owner": "OpsxFactory",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-headscale-install-ownership/review/ratification-2026-11-10.md",
-  "revision_ref": "git:dbad1281b6aa30f7cc972badda9baf113fb3d790:workflows/private-connectivity/recovery.py",
+  "revision_ref": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/runtime-inventory.json",
   "owner_check": {
     "command": "python3 -m pytest tests/private_connectivity -q",
     "exit_status": 0,
-    "output_ref": "git:dbad1281b6aa30f7cc972badda9baf113fb3d790:tests/private_connectivity/evidence/qualification.txt"
+    "output_ref": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:tests/private_connectivity/evidence/qualification.txt"
   },
   "dependencies": {
     "T009": "055e28264e733df6c17bbc3ca6179fa1fabc8f25a59f6033262dd66903ae5008"
@@ -17,36 +17,36 @@
     "backup": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:2a97c73ddd18f3e9e76cd189d7564592aba39ebd:tests/private_connectivity/evidence/recovery.json",
+      "evidence_ref": "git:0e364d6324e8d170149e497e1da3c35719ef8673:tests/private_connectivity/evidence/recovery-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:2a97c73ddd18f3e9e76cd189d7564592aba39ebd:tests/private_connectivity/evidence/recovery.json"
+          "evidence_ref": "git:0e364d6324e8d170149e497e1da3c35719ef8673:tests/private_connectivity/evidence/recovery-runtime-v2.json"
         }
       }
     },
     "upgrade": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:2a97c73ddd18f3e9e76cd189d7564592aba39ebd:tests/private_connectivity/evidence/recovery.json",
+      "evidence_ref": "git:0e364d6324e8d170149e497e1da3c35719ef8673:tests/private_connectivity/evidence/recovery-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:2a97c73ddd18f3e9e76cd189d7564592aba39ebd:tests/private_connectivity/evidence/recovery.json"
+          "evidence_ref": "git:0e364d6324e8d170149e497e1da3c35719ef8673:tests/private_connectivity/evidence/recovery-runtime-v2.json"
         }
       }
     },
     "quarantine-restore": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:2a97c73ddd18f3e9e76cd189d7564592aba39ebd:tests/private_connectivity/evidence/recovery.json",
+      "evidence_ref": "git:0e364d6324e8d170149e497e1da3c35719ef8673:tests/private_connectivity/evidence/recovery-runtime-v2.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:2a97c73ddd18f3e9e76cd189d7564592aba39ebd:tests/private_connectivity/evidence/recovery.json"
+          "evidence_ref": "git:0e364d6324e8d170149e497e1da3c35719ef8673:tests/private_connectivity/evidence/recovery-runtime-v2.json"
         }
       }
     }
   },
-  "qualification_scope": "G1 and later gates remain separate. T019 must restore a snapshot older than its known revocation and activate the target under the live recovery gate."
+  "qualification_scope": "Current-pins actual fenced .29.6 snapshot, .29.7 database startup in network-none quarantine, integrity/current revocations and stopped retained target; unchanged original source resumed. No live upgrade or G1 acceptance."
 }
