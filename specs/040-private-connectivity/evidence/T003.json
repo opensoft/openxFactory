@@ -24,13 +24,15 @@
     "prefix": "pc040-",
     "customer_fixtures": [
       "tenant-a",
-      "tenant-b"
+      "tenant-b",
+      "tenant-hosted-new"
     ],
     "profile": "synthetic codexFactory hosted profile",
     "policy_boundaries": [
       "tenant-a",
       "tenant-b",
-      "customer-local"
+      "customer-local",
+      "tenant-hosted-new"
     ],
     "disposable_instance": {
       "customer": "tenant-b",
@@ -46,6 +48,24 @@
       "tenant-b": "198.19.42.0/28",
       "customer-local": "198.19.43.0/28",
       "tenant-b-disposable": "198.19.44.0/28"
+    },
+    "fresh_hosted_customer": {
+      "customer": "tenant-hosted-new",
+      "environment": "test",
+      "boundary": "hosted-new",
+      "control_network": "pc040-fixture-hosted-new",
+      "control_subnet": "198.19.40.96/28",
+      "purpose": "First allocation of a managed network through hosted onboarding; the main A/B networks already exist.",
+      "deny_before_enrollment_required": true
+    },
+    "termination_fixture": {
+      "customer": "tenant-b-termination",
+      "environment": "test",
+      "boundary": "b-term",
+      "control_network": "pc040-fixture-b-term",
+      "control_subnet": "198.19.40.80/28",
+      "purpose": "Requalify termination with an attached synthetic device while retaining the earlier terminated tenant-b/dev identity.",
+      "deny_before_enrollment_required": true
     }
   },
   "operators": {
@@ -131,5 +151,14 @@
       }
     }
   },
-  "scope_record_update": "Domain scope ratified in codeXfactory/codexFactory#578; observations and original evidence references preserved."
+  "scope_record_update": "Domain scope ratified in codeXfactory/codexFactory#578; observations and original evidence references preserved.",
+  "scope_amendments": [
+    {
+      "recorded_by": "Codex commissioning within the authorized feature 040 implementation",
+      "authority": "Brett Heap selected: Use an isolated Docker lab on Eagle. The request authorizes continuing the dependency-ordered tasks and honoring pilot gates.",
+      "reason": "Hosted-new requires a fresh customer boundary; explicit new-network intent now refuses reuse of an earlier standalone network. The additional termination fixture preserves the previously terminated identity.",
+      "boundary": "Synthetic local Docker resources under pc040 ownership; no cloud spend, customer release, G4 sign-off or production authority.",
+      "human_release_signoff": false
+    }
+  ]
 }
