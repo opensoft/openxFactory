@@ -13,3 +13,5 @@ Run `python3 scripts/validate-private-connectivity.py <manifest.json>`. Add `--n
 The state vocabulary is requested, approved, enrolled, ready, unready, and revoked. Keep credentials in custody and use the credential reference on enrollment. Publish the exact candidate revision and conformance output before consumers use it. The additive bundle release follows the [contract versioning policy](../../../../docs/contract-versioning-policy.md).
 
 Connectivity and separate route approvals bind the exact HTTPS endpoint as well as the network and installation boundary. Reusing an approval for a different syntactically valid endpoint is rejected.
+
+The validator CLI resolves the manifest against its current working directory and rejects paths outside that directory and symlink inputs. Run the CLI from the directory containing the intended manifest, passing the validator script by path when needed. The in-process conformance function performs no manifest file access.

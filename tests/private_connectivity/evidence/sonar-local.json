@@ -1,0 +1,15 @@
+{
+  "analysis": "SonarQube MCP file analysis with Python MAIN scope",
+  "project": "opensoft_openxFactory",
+  "qualification": "Local analyzer result; GitHub exact-head quality gate remains separate",
+  "files": {
+    "scripts/validate-private-connectivity.py": {
+      "sha256": "d445dcbee8d944e0f39ce7a6abb6c47ec9be5e077ba2da22be4ad63882443818",
+      "issues": 0
+    },
+    "specs/040-private-connectivity/verify-evidence.py": {
+      "sha256": "182ba05c82064ff41b00ab0a9f52ef7bd32c66127d0659fcdb4b4401a55fe9d0",
+      "issues": 0
+    }
+  }
+}

@@ -127,7 +127,8 @@ def test_invalid_endpoint():
         assert VALIDATOR.validate(manifest, NOW) == ["endpoint-invalid"]
 
 
-def test_cli_failure_redacts_input(tmp_path, capsys):
+def test_cli_failure_redacts_input(tmp_path, capsys, monkeypatch):
+    monkeypatch.chdir(tmp_path)
     path = tmp_path / "input.json"
     manifest = ready()
     manifest["private_connectivity"]["password"] = "sensitive-fixture-value"
@@ -144,3 +145,23 @@ def test_other_valid_https_endpoint_cannot_reuse_existing_approval():
         manifest["private_connectivity"]["state"] = state
         manifest["private_connectivity"]["endpoint"] = "https://other-control.synthetic.invalid"
         assert VALIDATOR.validate(manifest, NOW) == ["approval-unavailable"]
+
+
+def test_cli_rejects_parent_and_symlink_paths_without_exposing_content(tmp_path, capsys, monkeypatch):
+    outside = tmp_path / "outside.json"
+    outside.write_text('{"sensitive-fixture":true}')
+    working = tmp_path / "working"
+    working.mkdir()
+    monkeypatch.chdir(working)
+    for path in (str(outside), "../outside.json"):
+        assert VALIDATOR.main([path]) == 2
+        assert "sensitive-fixture" not in capsys.readouterr().err
+    (working / "alias.json").symlink_to(outside)
+    assert VALIDATOR.main(["alias.json"]) == 2
+
+
+def test_invalid_or_naive_approval_time_is_rejected_without_parser_exception():
+    for value in ("invalid-sensitive-date", "2026-11-11T00:00:00"):
+        manifest = ready()
+        manifest["private_connectivity"]["approval"]["expires_at"] = value
+        assert VALIDATOR.validate(manifest, NOW)

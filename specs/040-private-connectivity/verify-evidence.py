@@ -10,6 +10,8 @@ import re
 import sys
 
 
+RECORD_SUFFIX = ".json"
+
 CASES = {
     "T003": "lab-scope operators custody windows",
     "T004": "binding-shape binding-scope readiness credential-custody routes",
@@ -150,7 +152,7 @@ def inspect_strings(value):
 
 
 def read_record(path, task):
-    require(path.name == task + ".json", f"{task}: filename mismatch")
+    require(path.name == task + RECORD_SUFFIX, f"{task}: filename mismatch")
     require(path.is_file() and not path.is_symlink(), f"{task}: ordinary evidence file required")
     for parent in path.parents:
         require(not parent.is_symlink(), f"{task}: symlinked evidence directory")
@@ -217,6 +219,102 @@ def verify_timing(data, task, limits):
         number_at_most(cases["rollback-timing"].get("elapsed_seconds"), limits["rollback_seconds"], "rollback")
 
 
+def verify_authority(data, task, scopes):
+    scope = TASK_SCOPE[task]
+    require(data.get("scope") == scope, f"{task}: wrong approval scope")
+    require(data.get("approval_ref") == scopes[scope]["approval_ref"], f"{task}: approval does not match T001")
+    require(data.get("owner") == scopes[scope]["owner"], f"{task}: owner does not match scope")
+    revision = data.get("decision_ref") if task in {"T003", "T006", "T021"} else data.get("revision_ref")
+    reference(revision, f"{task}: revision or decision")
+    if task in IMPLEMENTATION_TASKS:
+        verify_owner_check(data.get("owner_check"), task, scopes[scope])
+    return revision
+
+
+def verify_owner_check(check, task, scope):
+    require(isinstance(check, dict) and isinstance(check.get("command"), str) and check["command"].strip(), f"{task}: missing owner command")
+    require(check["command"] == scope["verify"], f"{task}: command does not match approved scope")
+    require(type(check.get("exit_status")) is int and check["exit_status"] == 0, f"{task}: owner check failed")
+    reference(check.get("output_ref"), f"{task}: owner output")
+
+
+def verify_dependencies(path, data, task, cache):
+    deps = data.get("dependencies")
+    require(isinstance(deps, dict) and set(deps) == set(DEPENDENCIES[task]), f"{task}: dependency inventory mismatch")
+    for dependency, digest in deps.items():
+        dependency_path = path.parent / (dependency + RECORD_SUFFIX)
+        require(dependency_path.is_file() and not dependency_path.is_symlink(), f"{task}: missing dependency {dependency}")
+        actual = hashlib.sha256(dependency_path.read_bytes()).hexdigest()
+        require(digest == actual, f"{task}: superseded dependency {dependency}")
+        verify_file(dependency_path, dependency, cache)
+
+
+def verify_lab_scope(data):
+    lab = data.get("lab")
+    require(isinstance(lab, dict) and set(lab.get("policy_boundaries", [])) == PILOT_BOUNDARIES,
+            "T003: complete approved policy boundaries required")
+    limits = data.get("limits")
+    require(isinstance(limits, dict) and set(limits) == LIMIT_NAMES, "T003: complete approved limits required")
+    for name, value in limits.items():
+        positive_number(value, name)
+    require(limits["probe_interval_seconds"] <= 10, "T003: probe interval exceeds 10 seconds")
+
+
+def verify_live_pins(data, task):
+    reference(data.get("run_ref"), f"{task}: run")
+    pins = data.get("candidate_pins")
+    require(isinstance(pins, dict) and pins, f"{task}: candidate pins required")
+    for name, pin in pins.items():
+        require(isinstance(name, str) and name.strip(), "invalid pin name")
+        reference(pin, f"{task}: {name} pin")
+    baseline = data.get("policy_baseline")
+    require(isinstance(baseline, dict) and set(baseline) == PILOT_BOUNDARIES, f"{task}: complete approved policy baseline required")
+    for name, pin in baseline.items():
+        reference(pin, f"{task}: policy {name}")
+    return pins, baseline
+
+
+def verify_live_chain(path, data, task, revision, cache):
+    g0 = verify_file(path.parent / "T006.json", "T006", cache)
+    require(data["run_ref"] == g0["run_ref"] and data["candidate_pins"] == g0["candidate_pins"]
+            and data["policy_baseline"] == g0["policy_baseline"], f"{task}: pilot run, pins or policy baseline mismatch")
+    if task in LIVE_REVISION_PINS:
+        runtime = LIVE_REVISION_PINS[task]
+        pins = data["candidate_pins"]
+        require(runtime in pins and revision == pins[runtime], f"{task}: tested revision differs from approved {runtime}")
+    for dependency in DEPENDENCIES[task]:
+        prior = cache[(str(path.parent / (dependency + RECORD_SUFFIX)), dependency)]
+        if dependency in LIVE_TASKS:
+            require(prior["run_ref"] == data["run_ref"], f"{task}: dependency from different run")
+    limits = verify_file(path.parent / "T003.json", "T003", cache)["limits"]
+    verify_timing(data, task, limits)
+
+
+def verify_positive_controls(data, task, baseline):
+    controls = data.get("positive_controls")
+    require(isinstance(controls, dict) and set(controls) == set(baseline), f"{task}: positive control required for every boundary")
+    for name, control in controls.items():
+        require(isinstance(control, dict) and control.get("reachable") is True, f"{task}: control failed for {name}")
+        reference(control.get("evidence_ref"), f"{task}: control {name}")
+
+
+def verify_signoffs(data):
+    signoffs = data.get("signoffs")
+    require(isinstance(signoffs, dict) and set(signoffs) == {"rollout_lead", "installer", "ops", "hosted_product", "hosted_domain"}, "T021: owner sign-offs required")
+    for role, ref in signoffs.items():
+        reference(ref, f"T021: {role}")
+
+
+def verify_live_record(path, data, task, revision, cache):
+    _, baseline = verify_live_pins(data, task)
+    if task != "T006":
+        verify_live_chain(path, data, task, revision, cache)
+    if task in {"T012", "T014", "T017", "T018", "T019", "T020"}:
+        verify_positive_controls(data, task, baseline)
+    if task == "T021":
+        verify_signoffs(data)
+
+
 def verify_file(path, task, cache=None):
     path = Path(path).absolute()
     if cache is None:
@@ -227,74 +325,16 @@ def verify_file(path, task, cache=None):
     data = read_record(path, task)
     if task == "T001":
         bootstrap_scopes(data)
-        cache[key] = data
-        return data
-    require(task in CASES, f"unsupported task {task}")
-    scopes = bootstrap_scopes(read_record(path.parent / "T001.json", "T001"))
-    scope = TASK_SCOPE[task]
-    require(data.get("scope") == scope, f"{task}: wrong approval scope")
-    require(data.get("approval_ref") == scopes[scope]["approval_ref"], f"{task}: approval does not match T001")
-    require(data.get("owner") == scopes[scope]["owner"], f"{task}: owner does not match scope")
-    revision = data.get("decision_ref") if task in {"T003", "T006", "T021"} else data.get("revision_ref")
-    reference(revision, f"{task}: revision or decision")
-    verify_cases(data, task)
-    if task in IMPLEMENTATION_TASKS:
-        check = data.get("owner_check")
-        require(isinstance(check, dict) and isinstance(check.get("command"), str) and check["command"].strip(), f"{task}: missing owner command")
-        require(check["command"] == scopes[scope]["verify"], f"{task}: command does not match approved scope")
-        require(type(check.get("exit_status")) is int and check["exit_status"] == 0, f"{task}: owner check failed")
-        reference(check.get("output_ref"), f"{task}: owner output")
-    deps = data.get("dependencies")
-    require(isinstance(deps, dict) and set(deps) == set(DEPENDENCIES[task]), f"{task}: dependency inventory mismatch")
-    for dependency, digest in deps.items():
-        dependency_path = path.parent / (dependency + ".json")
-        require(dependency_path.is_file() and not dependency_path.is_symlink(), f"{task}: missing dependency {dependency}")
-        actual = hashlib.sha256(dependency_path.read_bytes()).hexdigest()
-        require(digest == actual, f"{task}: superseded dependency {dependency}")
-        verify_file(dependency_path, dependency, cache)
-    if task == "T003":
-        lab = data.get("lab")
-        require(isinstance(lab, dict) and set(lab.get("policy_boundaries", [])) == PILOT_BOUNDARIES,
-                "T003: complete approved policy boundaries required")
-        limits = data.get("limits")
-        require(isinstance(limits, dict) and set(limits) == LIMIT_NAMES, "T003: complete approved limits required")
-        for name, value in limits.items():
-            positive_number(value, name)
-        require(limits["probe_interval_seconds"] <= 10, "T003: probe interval exceeds 10 seconds")
-    if task in LIVE_TASKS:
-        reference(data.get("run_ref"), f"{task}: run")
-        pins = data.get("candidate_pins")
-        require(isinstance(pins, dict) and pins, f"{task}: candidate pins required")
-        for name, pin in pins.items():
-            require(isinstance(name, str) and name.strip(), "invalid pin name")
-            reference(pin, f"{task}: {name} pin")
-        baseline = data.get("policy_baseline")
-        require(isinstance(baseline, dict) and set(baseline) == PILOT_BOUNDARIES, f"{task}: complete approved policy baseline required")
-        for name, pin in baseline.items():
-            reference(pin, f"{task}: policy {name}")
-        if task != "T006":
-            g0 = verify_file(path.parent / "T006.json", "T006", cache)
-            require(data["run_ref"] == g0["run_ref"] and pins == g0["candidate_pins"] and baseline == g0["policy_baseline"], f"{task}: pilot run, pins or policy baseline mismatch")
-            if task in LIVE_REVISION_PINS:
-                runtime = LIVE_REVISION_PINS[task]
-                require(runtime in pins and revision == pins[runtime], f"{task}: tested revision differs from approved {runtime}")
-            for dependency in DEPENDENCIES[task]:
-                prior = cache[(str(path.parent / (dependency + ".json")), dependency)]
-                if dependency in LIVE_TASKS:
-                    require(prior["run_ref"] == data["run_ref"], f"{task}: dependency from different run")
-            limits = verify_file(path.parent / "T003.json", "T003", cache)["limits"]
-            verify_timing(data, task, limits)
-        if task in {"T012", "T014", "T017", "T018", "T019", "T020"}:
-            controls = data.get("positive_controls")
-            require(isinstance(controls, dict) and set(controls) == set(baseline), f"{task}: positive control required for every boundary")
-            for name, control in controls.items():
-                require(isinstance(control, dict) and control.get("reachable") is True, f"{task}: control failed for {name}")
-                reference(control.get("evidence_ref"), f"{task}: control {name}")
-        if task == "T021":
-            signoffs = data.get("signoffs")
-            require(isinstance(signoffs, dict) and set(signoffs) == {"rollout_lead", "installer", "ops", "hosted_product", "hosted_domain"}, "T021: owner sign-offs required")
-            for role, ref in signoffs.items():
-                reference(ref, f"T021: {role}")
+    else:
+        require(task in CASES, f"unsupported task {task}")
+        scopes = bootstrap_scopes(read_record(path.parent / "T001.json", "T001"))
+        revision = verify_authority(data, task, scopes)
+        verify_cases(data, task)
+        verify_dependencies(path, data, task, cache)
+        if task == "T003":
+            verify_lab_scope(data)
+        if task in LIVE_TASKS:
+            verify_live_record(path, data, task, revision, cache)
     cache[key] = data
     return data
 
