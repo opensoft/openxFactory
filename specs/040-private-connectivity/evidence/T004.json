@@ -11,7 +11,7 @@
     "output_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
   },
   "dependencies": {
-    "T001": "f1549802fcc99d73f82901f321914fa8acf498b7215de34d20c0e7d3011ca7b0"
+    "T001": "17fca65a324df878320ddb7e1755617f040ef393ca347b82524a69004acc1e7d"
   },
   "consumer_pin": "git:156fcd4e9f66ff293a88f10b3c77bcff0c3bf4e5:src/private_connectivity/contract-pin.json",
   "release_status": "Approved local pilot candidate. Production bundle publication follows the release process.",
@@ -99,5 +99,6 @@
         }
       }
     }
-  }
+  },
+  "scope_record_update": "Domain scope ratified in codeXfactory/codexFactory#578; observations and original evidence references preserved."
 }

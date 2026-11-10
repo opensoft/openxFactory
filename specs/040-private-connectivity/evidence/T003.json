@@ -6,7 +6,7 @@
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
   "decision_ref": "git:d6aad032820cb9f77ce5b9a921713a9eb04436a2:specs/040-private-connectivity/evidence/T003.json",
   "dependencies": {
-    "T001": "f1549802fcc99d73f82901f321914fa8acf498b7215de34d20c0e7d3011ca7b0"
+    "T001": "17fca65a324df878320ddb7e1755617f040ef393ca347b82524a69004acc1e7d"
   },
   "limits": {
     "revocation_seconds": 300,
@@ -110,5 +110,6 @@
         }
       }
     }
-  }
+  },
+  "scope_record_update": "Domain scope ratified in codeXfactory/codexFactory#578; observations and original evidence references preserved."
 }

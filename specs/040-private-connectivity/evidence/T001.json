@@ -6,7 +6,13 @@
     "ratified_pr": "https://github.com/opensoft/openxFactory/pull/1301",
     "ratified_revision": "16e7b6cb03b36659394952014ae5360f1c1c2a3b",
     "commissioning_instruction": "Brett Heap directed bootstrap of Headscale-Install and openXsoft-Hosted-Services, completion of T001 using the ratified proposals, and continuation through dependencies and pilot gates, in the 2026-11-10 session.",
-    "accountable_administrator": "Brett Heap (brettheap), verified repository administrator. The commissioning instruction is recorded as acceptance for coordinating the synthetic codexFactory pilot. Individual domain release approvals follow qualification."
+    "accountable_administrator": "Brett Heap (brettheap), verified repository administrator. The commissioning instruction is recorded as acceptance for coordinating the synthetic codexFactory pilot. Individual domain release approvals follow qualification.",
+    "scope_amendment": {
+      "proposal": "codeXfactory/codexFactory#578",
+      "revision": "95ccd3df862ea5a6c92dab2014fc0d3e7fff1710",
+      "decision": "Brett Heap: Ratify and implement the narrow repair; 2026-11-10",
+      "bounds": "strict schema, required validation and exact definition-time protection only; no PR-time floor or shared pin advance"
+    }
   },
   "scopes": {
     "neutral_binding": {
@@ -52,10 +58,11 @@
     "hosted_domain": {
       "owner": "codexFactory maintainer coordination by Brett Heap",
       "repository": "codeXfactory/codexFactory",
-      "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
-      "file_scope": "profiles/hosted/private-connectivity.yaml, tests/private_connectivity/",
+      "approval_ref": "https://github.com/codeXfactory/codexFactory/blob/95ccd3df862ea5a6c92dab2014fc0d3e7fff1710/openspec/changes/protect-hosted-connectivity-profile/review/ratification-2026-11-10.md",
+      "file_scope": "profiles/hosted/private-connectivity.yaml, tests/private_connectivity/, schemas/hosted-connectivity-profile.schema.json, scripts/validate-docs.sh, exact hosted profile member in scripts/merge_master/council_clearance.py, and necessary fixtures, regression and measured snapshot witnesses under tests/merge-master/",
       "release_path": "Exact synthetic hosted profile revision, then profile-specific release decision",
-      "verify": "python3 -m pytest tests/private_connectivity -q"
+      "verify": "python3 -m pytest tests/private_connectivity -q",
+      "prior_approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md"
     },
     "evidence_tooling": {
       "owner": "openxFactory feature 040",

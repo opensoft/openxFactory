@@ -11,7 +11,7 @@
     "output_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
   },
   "dependencies": {
-    "T004": "da41ed5b1c41e07f70969d562b2754ec51979bd64adc8eced99fdc8f98009645"
+    "T004": "6d7dfa7f126badafa54c511e3830467275b7ac074ba850513140cf2b6022a7be"
   },
   "cases": {
     "retries": {
@@ -82,5 +82,6 @@
       }
     }
   },
-  "qualification_scope": "Synthetic operation journal and adapter fixture. Real provider adapter qualification is still required before live gates."
+  "qualification_scope": "Synthetic operation journal and adapter fixture. Real provider adapter qualification is still required before live gates.",
+  "scope_record_update": "Domain scope ratified in codeXfactory/codexFactory#578; observations and original evidence references preserved."
 }
