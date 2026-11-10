@@ -1,0 +1,28 @@
+{
+  "task": "T003",
+  "verdict": "blocked",
+  "owner": "openxFactory feature 040",
+  "scope": "evidence_tooling",
+  "reason": "Pilot entry requires an approved environment, account or host, budget, test custody and drill limits. The environment selection is pending.",
+  "proposal": {
+    "environment": "Isolated synthetic Docker lab on Eagle",
+    "account": "Local Docker Desktop under the commissioning operator",
+    "region": "Local lab; no cloud region",
+    "cloud_spend": 0,
+    "fixtures": [
+      "tenant-a",
+      "tenant-b",
+      "separate control and workload containers",
+      "mock private HTTPS service"
+    ],
+    "limits": {
+      "revocation_seconds": 300,
+      "restore_seconds": 3600,
+      "backup_age_seconds": 86400,
+      "rollback_seconds": 900,
+      "probe_interval_seconds": 10,
+      "sustained_denial_seconds": 30
+    }
+  },
+  "decision_state": "Awaiting the commissioning operator's pilot entry decision. Draft settings are proposed, not approved limits."
+}
