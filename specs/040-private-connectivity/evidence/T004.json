@@ -1,0 +1,103 @@
+{
+  "task": "T004",
+  "verdict": "pass",
+  "scope": "neutral_binding",
+  "owner": "openxFactory",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
+  "revision_ref": "git:0ebf97ae67f1409a8bf3e10517cea9528b228788:contracts/private-connectivity/binding.schema.json",
+  "owner_check": {
+    "command": "python3 -m pytest tests/private_connectivity -q",
+    "exit_status": 0,
+    "output_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+  },
+  "dependencies": {
+    "T001": "f1549802fcc99d73f82901f321914fa8acf498b7215de34d20c0e7d3011ca7b0"
+  },
+  "consumer_pin": "git:156fcd4e9f66ff293a88f10b3c77bcff0c3bf4e5:src/private_connectivity/contract-pin.json",
+  "release_status": "Approved local pilot candidate. Production bundle publication follows the release process.",
+  "cases": {
+    "binding-shape": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+        }
+      }
+    },
+    "binding-scope": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt",
+      "checks": {
+        "wrong-customer": {
+          "passed": true,
+          "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+        },
+        "wrong-environment": {
+          "passed": true,
+          "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+        },
+        "wrong-endpoint": {
+          "passed": true,
+          "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+        },
+        "wrong-approval": {
+          "passed": true,
+          "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+        }
+      }
+    },
+    "readiness": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt",
+      "checks": {
+        "approval": {
+          "passed": true,
+          "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+        },
+        "enrollment": {
+          "passed": true,
+          "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+        },
+        "effective-policy": {
+          "passed": true,
+          "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+        }
+      }
+    },
+    "credential-custody": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt",
+      "checks": {
+        "binding": {
+          "passed": true,
+          "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+        },
+        "logs": {
+          "passed": true,
+          "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+        },
+        "support": {
+          "passed": true,
+          "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+        }
+      }
+    },
+    "routes": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt"
+        }
+      }
+    }
+  }
+}
