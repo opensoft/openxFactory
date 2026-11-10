@@ -11,7 +11,7 @@
     "output_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
-    "T009": "9559d769e367008718252ea49bbee9f842748179a189c75a55146a4c16d0e03b"
+    "T009": "9de219b83e714da438bd002dbba73fc3e05eca42ee21496e5b4a97e9106bc707"
   },
   "cases": {
     "policy-before-enroll": {

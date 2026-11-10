@@ -11,7 +11,7 @@
     "output_ref": "git:1e283972f0aee78a7fbd790af48b00fceea74157:tests/private_connectivity/evidence/qualification.txt"
   },
   "dependencies": {
-    "T004": "2f9c46e6c61148398c8e5ae1f9f444b02ee84f2243912b185c8159ee74b06b53"
+    "T004": "9321e4ab40bd01bebb4c0611d898587f6c7b9d420b0f11362ddc2c22fbf1f53e"
   },
   "cases": {
     "domain-inventory": {
@@ -34,10 +34,6 @@
           "passed": true,
           "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
         },
-        "revision": {
-          "passed": true,
-          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
-        },
         "tenant": {
           "passed": true,
           "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
@@ -51,6 +47,10 @@
           "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
         },
         "connectivity": {
+          "passed": true,
+          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+        },
+        "profile_revision": {
           "passed": true,
           "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
         }

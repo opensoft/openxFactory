@@ -93,9 +93,9 @@
   },
   "inventory": {
     "path": "scripts/estate-repository-inventory.yaml",
-    "revision": "5d6dfb175",
     "admission": "Provisional change-based rows reference the ratified repository-ownership packets.",
-    "aggregation": "Aggregation admission is a separate reviewed step."
+    "aggregation": "Aggregation admission is a separate reviewed step.",
+    "evidence_ref": "git:5d6dfb17588c545fac6449e133e3b37000aa735b:scripts/estate-repository-inventory.yaml"
   },
   "implementation_scope_notes": [
     "Candidate contract placement and existing CI dependency setup realize the already ratified pilot artifact and conformance scope. No bundle number, release publication, protection-floor change, or new required-check policy is introduced."

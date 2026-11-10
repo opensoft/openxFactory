@@ -74,7 +74,7 @@ SUBCHECKS = {
     ("T014", "shared-distinct-grants"): "two-installations distinct-grants explicit-approval",
     ("T014", "subscription-end"): "affected-revoked unrelated-retained entitlement-retained",
     ("T015", "hosted-failed-step"): "policy enrollment redacted-error unready",
-    ("T016", "profile-evidence"): "domain revision tenant deployment lifecycle connectivity",
+    ("T016", "profile-evidence"): "domain profile_revision tenant deployment lifecycle connectivity",
     ("T016", "catalog-deny"): "missing stale unqualified wrong-domain",
     ("T017", "hosted-unready"): "policy enrollment redacted-error unready",
     ("T019", "fence-and-quarantine"): "prior-writer-fenced no-early-activation",
