@@ -39,17 +39,25 @@ jobs:
             echo "exempt=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: The first non-empty body line names the lane
+      - name: Validate an optional lane declaration
         if: steps.author.outputs.exempt != 'true'
         env:
-          # Via env, never inlined into `run:` — a PR body is untrusted input.
+          # Untrusted PR body stays in data, never interpolated into run.
           BODY: ${{ github.event.pull_request.body }}
         run: |
-          first="$(printf '%s' "$BODY" | tr -d '\r' | sed -n '/[^[:space:]]/{p;q;}')"
-          if printf '%s' "$first" | grep -Eq '^Lane: [A-Za-z0-9-]+( \(.*\))?$'; then
-            echo "lane-line OK: $first"
+          # Amendment 21: absence is allowed outside a lane. CI does not
+          # attest actual membership; a lane-bound author still owes its tag.
+          body="$(printf '%s' "$BODY" | tr -d '\r')"
+          first="$(printf '%s\n' "$body" | sed -n '/[^[:space:]]/{p;q;}')"
+          declarations="$(printf '%s\n' "$body" | grep -Eic '^[[:space:]]*lane[[:space:]]*:' || true)"
+          if [ "$declarations" -eq 0 ]; then
+            echo "::notice::lane-line: no lane declaration supplied; conditional attribution permits absence outside a lane"
             exit 0
           fi
-          echo "lane-line: first non-empty body line was: ${first:-<empty>}"
-          echo "::error title=lane-line::PR body must open with 'Lane: <name>' (lane-collision-protocol Rule 5)."
+          if [ "$declarations" -eq 1 ] && printf '%s' "$first" | grep -Eq '^Lane: [A-Za-z0-9-]+( \(.*\))?$'; then
+            echo "lane-line OK: valid first-line lane declaration"
+            exit 0
+          fi
+          # Fixed text only: an invalid body may contain workflow commands.
+          echo "::error title=lane-line::A supplied lane declaration must be unique and the first non-empty line, using 'Lane: <name>' with an optional parenthesized suffix (Amendment 21)."
           exit 1

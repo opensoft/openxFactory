@@ -79,4 +79,5 @@ Read by `/speckit-tasks` and `/speckit-analyze` (shared protocol, "Build Tiers")
 
 <!-- SPECKIT START -->
 - Feature 040 implementation plan: [Private connectivity](specs/040-private-connectivity/plan.md)
+- Conditional lane-check feature plan: [Conditional lane check](specs/041-conditional-lane-check/plan.md)
 <!-- SPECKIT END -->
