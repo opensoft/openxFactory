@@ -6,7 +6,8 @@ sequenced_after: [add-private-connectivity]
 
 # Proposal: Implement the private connectivity binding
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-10 by Brett Heap. [Ratification record](review/ratification-2026-11-10.md)
 Kind: proposal
 Proposed: 2026-11-10
 

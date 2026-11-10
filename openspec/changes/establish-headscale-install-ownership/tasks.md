@@ -1,6 +1,7 @@
 # Tasks: Establish Headscale install ownership
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-10 by Brett Heap. [Ratification record](review/ratification-2026-11-10.md)
 
 ## 1. Review repository and operating ownership
 
