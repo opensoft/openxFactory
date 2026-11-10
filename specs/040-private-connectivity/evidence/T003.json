@@ -24,5 +24,5 @@
       "sustained_denial_seconds": 30
     }
   },
-  "decision_state": "Awaiting the commissioning operator's pilot entry decision. Draft settings are proposed, not approved limits."
+  "decision_state": "Brett Heap selected \"Use an isolated Docker lab on Eagle\" in session on 2026-11-10. Use the recorded synthetic fixture scope and zero cloud spend. The recorded draft windows are adopted as lab acceptance limits for this run."
 }
