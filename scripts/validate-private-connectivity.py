@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMA = ROOT / "contracts/private-connectivity/binding.schema.json"
+SCHEMA = ROOT / "specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json"
 
 
 def duplicate_guard(pairs):
@@ -81,7 +81,7 @@ def same_access(left, right):
 def approved(record, binding, now):
     if not record or record["status"] != "active":
         return False
-    if any(record[key] != binding[key] for key in ("installation_id", "customer_id", "environment", "network_ref")):
+    if any(record[key] != binding[key] for key in ("installation_id", "customer_id", "environment", "network_ref", "endpoint")):
         return False
     expires = datetime.fromisoformat(record["expires_at"].replace("Z", "+00:00"))
     return expires > now

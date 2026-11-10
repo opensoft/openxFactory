@@ -86,6 +86,11 @@ DENIAL_CASES = {
     "prior-binding-revoked",
 }
 LIVE_TASKS = {"T006", "T012", "T014", "T017", "T018", "T019", "T020", "T021"}
+LIVE_REVISION_PINS = {
+    "T012": "hosted_runtime", "T014": "installer_runtime",
+    "T017": "domain_profile", "T018": "ops_recovery",
+    "T019": "ops_recovery", "T020": "installer_runtime",
+}
 GATE_TASKS = {"T006", "T012", "T014", "T017", "T021"}
 IMPLEMENTATION_TASKS = set(CASES) - {"T003", "T006", "T021"}
 SCOPE_NAMES = {
@@ -266,6 +271,9 @@ def verify_file(path, task, cache=None):
         if task != "T006":
             g0 = verify_file(path.parent / "T006.json", "T006", cache)
             require(data["run_ref"] == g0["run_ref"] and pins == g0["candidate_pins"] and baseline == g0["policy_baseline"], f"{task}: pilot run, pins or policy baseline mismatch")
+            if task in LIVE_REVISION_PINS:
+                runtime = LIVE_REVISION_PINS[task]
+                require(runtime in pins and revision == pins[runtime], f"{task}: tested revision differs from approved {runtime}")
             for dependency in DEPENDENCIES[task]:
                 prior = cache[(str(path.parent / (dependency + ".json")), dependency)]
                 if dependency in LIVE_TASKS:

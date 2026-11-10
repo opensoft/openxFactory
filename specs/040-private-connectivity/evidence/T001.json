@@ -20,7 +20,7 @@
       "owner": "openxFactory",
       "repository": "opensoft/openxFactory",
       "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
-      "file_scope": "contracts/private-connectivity/, scripts/validate-private-connectivity.py, tests/private_connectivity/, atomic bundle inventory and changelog files at release cut",
+      "file_scope": "specs/040-private-connectivity/contracts/private-connectivity/ (approved pilot candidate), scripts/validate-private-connectivity.py, tests/private_connectivity/; promotion to contracts/private-connectivity/ with atomic bundle inventory and changelog at release cut",
       "release_path": "Approved pilot candidate and additive bundle allocated at cut",
       "verify": "python3 -m pytest tests/private_connectivity -q"
     },
@@ -28,7 +28,7 @@
       "owner": "xFactory-Installer",
       "repository": "opensoft/xFactory-Installer",
       "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
-      "file_scope": "src/private_connectivity/, tests/private_connectivity/, docs/private-connectivity.md",
+      "file_scope": "src/private_connectivity/, tests/private_connectivity/, docs/private-connectivity.md, .github/workflows/validate.yml (install the existing pinned validator dependency before the approved tests)",
       "release_path": "Installer candidate pinned to qualified neutral binding, then installer release",
       "verify": "make validate && make test"
     },
@@ -95,5 +95,8 @@
     "revision": "5d6dfb175",
     "admission": "Provisional change-based rows reference the ratified repository-ownership packets.",
     "aggregation": "Aggregation admission is a separate reviewed step."
-  }
+  },
+  "implementation_scope_notes": [
+    "Candidate contract placement and existing CI dependency setup realize the already ratified pilot artifact and conformance scope. No bundle number, release publication, protection-floor change, or new required-check policy is introduced."
+  ]
 }

@@ -128,7 +128,8 @@
         "expires_at",
         "scope",
         "ref",
-        "network_ref"
+        "network_ref",
+        "endpoint"
       ],
       "properties": {
         "installation_id": {
@@ -210,6 +211,10 @@
         "network_ref": {
           "type": "string",
           "minLength": 1
+        },
+        "endpoint": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },
@@ -225,7 +230,8 @@
         "scope",
         "ref",
         "routes",
-        "network_ref"
+        "network_ref",
+        "endpoint"
       ],
       "properties": {
         "installation_id": {
@@ -314,6 +320,10 @@
           }
         },
         "network_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "endpoint": {
           "type": "string",
           "minLength": 1
         }

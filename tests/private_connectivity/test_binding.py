@@ -16,7 +16,7 @@ def ready():
     context = {"installation_id": "factory-a", "customer_id": "tenant-a", "environment": "test"}
     access = {"sources": ["workload-a"], "destinations": ["private-a"], "ports": [443], "protocol": "tcp"}
     approval = {
-        **context, "network_ref": "network-a", "status": "active",
+        **context, "network_ref": "network-a", "endpoint": "https://control.synthetic.invalid", "status": "active",
         "expires_at": "2026-11-11T00:00:00Z", "scope": copy.deepcopy(access), "ref": REF,
     }
     binding = {
@@ -136,3 +136,11 @@ def test_cli_failure_redacts_input(tmp_path, capsys):
     assert "sensitive-fixture-value" not in capsys.readouterr().err
     path.write_text('{"private_connectivity":null,"private_connectivity":null}')
     assert VALIDATOR.main([str(path)]) == 2
+
+
+def test_other_valid_https_endpoint_cannot_reuse_existing_approval():
+    for state in ("approved", "enrolled", "ready"):
+        manifest = ready()
+        manifest["private_connectivity"]["state"] = state
+        manifest["private_connectivity"]["endpoint"] = "https://other-control.synthetic.invalid"
+        assert VALIDATOR.validate(manifest, NOW) == ["approval-unavailable"]

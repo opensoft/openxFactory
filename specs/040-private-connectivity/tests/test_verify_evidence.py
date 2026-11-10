@@ -73,7 +73,7 @@ class EvidenceTests(unittest.TestCase):
             }
         if task in CHECKER.LIVE_TASKS:
             record.update({
-                "run_ref": REV, "candidate_pins": {"synthetic": REV},
+                "run_ref": REV, "candidate_pins": {name: REV for name in set(CHECKER.LIVE_REVISION_PINS.values())},
                 "policy_baseline": {"tenant-a": REV, "tenant-b": REV},
             })
             if task not in {"T006", "T021"}:
@@ -169,6 +169,15 @@ class EvidenceTests(unittest.TestCase):
             record[field] = ALT if field == "run_ref" else {"other": ALT}
             with self.subTest(field=field):
                 self.reject("T012", record)
+
+    def test_live_tested_revision_must_equal_approved_owner_candidate(self):
+        for task in CHECKER.LIVE_REVISION_PINS:
+            record = self.make(task)
+            record["revision_ref"] = ALT
+            with self.subTest(task=task):
+                self.reject(task, record)
+            record["revision_ref"] = REV
+            self.write(task, record)
 
     def test_positive_control_required_for_every_boundary(self):
         original = self.make("T012")
