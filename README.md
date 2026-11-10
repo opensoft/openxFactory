@@ -543,6 +543,13 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [implement-private-connectivity-binding](openspec/changes/implement-private-connectivity-binding/proposal.md)
+  — ratified 2026-11-10, successor to add-private-connectivity for the neutral binding and xFactory-Installer. [PR #1301](https://github.com/opensoft/openxFactory/pull/1301)
+- [establish-headscale-install-ownership](openspec/changes/establish-headscale-install-ownership/proposal.md)
+  — ratified 2026-11-10, successor establishing Headscale-Install and the OpsxFactory operating boundary. [PR #1301](https://github.com/opensoft/openxFactory/pull/1301)
+- [establish-openxsoft-hosted-connectivity](openspec/changes/establish-openxsoft-hosted-connectivity/proposal.md)
+  — ratified 2026-11-10, successor establishing the hosted product repository and pilot domain owner. [PR #1301](https://github.com/opensoft/openxFactory/pull/1301)
+
 - [add-private-connectivity](openspec/changes/add-private-connectivity/proposal.md)
   — filed as draft [PR #1300](https://github.com/opensoft/openxFactory/pull/1300)
   on 2026-11-09 and [ratified by Brett Heap](openspec/changes/add-private-connectivity/review/ratification-2026-11-09.md)

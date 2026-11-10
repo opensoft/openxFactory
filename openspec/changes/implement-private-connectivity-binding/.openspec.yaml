@@ -1,0 +1,13 @@
+schema: spec-driven
+created: 2026-11-10
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-11-10-implement-private-connectivity-binding
+  reason: Draft a successor to add-private-connectivity for T001 ownership and scope review.
+  proposed_by: Codex at Brett Heap's request
+  proposed_on: 2026-11-10
+  approved_by: Brett Heap, in session. See review/ratification-2026-11-10.md.
+  approved_on: 2026-11-10
+related:
+  - openxFactory:change:add-private-connectivity
+  - openxFactory:pr:1300
