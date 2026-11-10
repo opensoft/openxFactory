@@ -3,7 +3,7 @@
   "verdict": "blocked",
   "scope": "evidence_tooling",
   "owner": "openxFactory feature 040",
-  "reason": "Human G4 acceptance remains required. Three fresh review findings are fixed in source and owner checks, but affected-path requalification is pending; the prior G4 packet is superseded.",
+  "reason": "Brett approved every named lab sign-off for the original immutable packet. Current-source managed migration, post-restore cleanup and the shared pin-register repair are still being qualified; technical acceptance remains held.",
   "approval_required_by": [
     "specs/040-private-connectivity/tasks.md T021",
     "specs/040-private-connectivity/contracts/pilot-evidence.md Records and verification"
@@ -33,15 +33,15 @@
     "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
     "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
     "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
-    "install_runtime": "git:1874fe695fc39277ac2c42f0350b13dd8dd63974:release/runtime-inventory.json",
-    "hosted_runtime": "git:7a88f1ccd5610532a29e15870fc20307ee530e79:release/runtime-inventory.json",
-    "installer_runtime": "git:ef1b15500ee5a3c795ca6542b757494655869eb9:src/private_connectivity/runtime-inventory.json",
+    "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+    "hosted_runtime": "git:22a8cdd4853679f95edae9024d465dc6502605d3:release/runtime-inventory.json",
+    "installer_runtime": "git:2687e67fc9e43ba54d553d336c722e1b70bbcadb:src/private_connectivity/runtime-inventory.json",
     "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
     "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
     "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
-    "ops_runtime": "git:21ac282a09bf531a997236f626d1e9677cb432d1:workflows/private-connectivity/runtime-inventory.json",
+    "ops_runtime": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
   "policy_baseline": {
@@ -51,23 +51,31 @@
     "tenant-hosted-new": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2"
   },
   "dependencies": {
-    "T006": "ccd7ab15287e8a6d4b8bc4390380218167fa64cf0f5728ab8485fb734f11b4be",
-    "T012": "42ca81d9d04d2ff894a71f2b406b3cafa0d8584fb775f3b7e44a12c1ee5157e9",
-    "T014": "8f552b648395bd271f9d6982d88c694c7c46b29508ff07c8f56f6c6d32d04000",
-    "T017": "33220795e2a9560358bb68002979535eee15cac8da5c2174c1d6127e4994877a",
-    "T018": "bea15df5ecdd885caedaa77f511c3008c1af5c4fda497592349afc83ad95472b",
-    "T019": "ee17b1fbf9c9f21b424e557217c7bae35d6ac8a80f2a1911a606962cbc7986c3",
-    "T020": "4a29b53f123858c25fd6eeaaeebad0d42d17d4aa650db78525eec7d1c700a081"
+    "T006": "f990e0d96f776c4592a6f1595366ab6e34ae98d9a0809d18bb39d87279a8d88e",
+    "T012": "9a0eb4f34509148805a9e34b6bf368847ab27d48b5c11f1d61092281169237db",
+    "T014": "2c4d5299051486f3c84b65da034862ad8fa265642a7445d9a88a1012ab41de7f",
+    "T017": "fa507561dae493e2781a3ed2598f77e549c2cce6c33e56e34002572dde0263a9",
+    "T018": "6ffc1e25c1578e2b993122b86843c1b7c76d8df69b1fa80d3805e9e5550822b2",
+    "T019": "2446d95310851cecc04919cd1f062b538f49e33b18f59d8e34a9a31fc5597813",
+    "T020": "646040fdf975caf8d8b2fe54f5a4091894e3e843ff22f043ebde296767573166"
   },
   "implementation_pull_requests_remain_draft": true,
   "pin_inventory": [
     {
       "repository": "opensoft/Headscale-Install",
-      "foreign_commit": "1874fe695fc39277ac2c42f0350b13dd8dd63974"
+      "foreign_commit": "07aad58f58c9c08a212215225b7167c983e391b1"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "22a8cdd4853679f95edae9024d465dc6502605d3"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "2687e67fc9e43ba54d553d336c722e1b70bbcadb"
     },
     {
       "repository": "opensoft/opsXfactory",
-      "foreign_commit": "21ac282a09bf531a997236f626d1e9677cb432d1"
+      "foreign_commit": "275d9d087677d100fca127069946d8d27ecf1041"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -76,10 +84,6 @@
     {
       "repository": "codeXfactory/codexFactory",
       "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
-    },
-    {
-      "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "7a88f1ccd5610532a29e15870fc20307ee530e79"
     },
     {
       "repository": "opensoft/opsXfactory",
@@ -98,8 +102,9 @@
       "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
     },
     {
-      "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "ef1b15500ee5a3c795ca6542b757494655869eb9"
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923"
     }
-  ]
+  ],
+  "human_approval_ref": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json"
 }

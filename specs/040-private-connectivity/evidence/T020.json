@@ -11,7 +11,7 @@
     "output_ref": "git:32ec86d8ff847227bbbae33d5ceac3c874f9f4e0:tests/private_connectivity/evidence/selection.txt"
   },
   "dependencies": {
-    "T019": "ee17b1fbf9c9f21b424e557217c7bae35d6ac8a80f2a1911a606962cbc7986c3"
+    "T019": "2446d95310851cecc04919cd1f062b538f49e33b18f59d8e34a9a31fc5597813"
   },
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "candidate_pins": {
