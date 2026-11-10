@@ -8,6 +8,8 @@ origin:
     evidence reference sites; review the additional shared-reader scope before implementation.
   proposed_by: Codex during authorized 040 implementation
   proposed_on: '2026-11-10'
+  approved_by: Brett Heap in session; see review/ratification-2026-11-10.md
+  approved_on: '2026-11-10'
 related:
 - openxFactory:change:implement-private-connectivity-binding
 - openxFactory:pr:1303

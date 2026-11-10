@@ -546,7 +546,7 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [register-private-connectivity-evidence-pins](openspec/changes/register-private-connectivity-evidence-pins/proposal.md)
-  — draft shared pin-register repair for feature 040 evidence; awaiting scope approval. [PR #1303](https://github.com/opensoft/openxFactory/pull/1303)
+  — ratified 2026-11-10, narrowly extending feature 040 evidence-tooling authority. [PR #1303](https://github.com/opensoft/openxFactory/pull/1303)
 - [implement-private-connectivity-binding](openspec/changes/implement-private-connectivity-binding/proposal.md)
   — ratified 2026-11-10, successor to add-private-connectivity for the neutral binding and xFactory-Installer. [PR #1301](https://github.com/opensoft/openxFactory/pull/1301)
 - [establish-headscale-install-ownership](openspec/changes/establish-headscale-install-ownership/proposal.md)

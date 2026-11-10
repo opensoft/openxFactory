@@ -1,6 +1,7 @@
 # Tasks: Register private connectivity evidence pins
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-10 by Brett Heap. [Ratification record](review/ratification-2026-11-10.md)
 
 ## 1. Authority and handoff
 
