@@ -11,7 +11,7 @@
     "output_ref": "git:1e283972f0aee78a7fbd790af48b00fceea74157:tests/private_connectivity/evidence/qualification.txt"
   },
   "dependencies": {
-    "T004": "274884eae8572cb1e6d2dd318536efd231337cd9d9a38d1bee587b69cd830c0e"
+    "T004": "2f9c46e6c61148398c8e5ae1f9f444b02ee84f2243912b185c8159ee74b06b53"
   },
   "cases": {
     "domain-inventory": {

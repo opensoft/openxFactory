@@ -6,7 +6,7 @@
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
   "decision_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
   "dependencies": {
-    "T001": "b4a15fc0fa4700bfdd2bae61c2840d1f55ff039d4a5fc823d5ad9d8a67b2d17e"
+    "T001": "6a304000e25da5f388383fbb270e2950267c11735dac380142e507b43d39d78b"
   },
   "limits": {
     "revocation_seconds": 300,

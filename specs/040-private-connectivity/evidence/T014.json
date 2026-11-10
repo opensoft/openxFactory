@@ -11,9 +11,9 @@
     "output_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/selection.txt"
   },
   "dependencies": {
-    "T006": "272acf421a2e96e27580d8ce5c91006d4f45d4e9658e19d57761077e8e25fa12",
-    "T012": "0b6fa57d10af8a46a1965db2384f5eb6203b61e48b69ce5a3aedf14c447c37e5",
-    "T013": "bdabd9d7241e1ae150a02bf632c4b3e7e106dc8262193aca5427a7024afeac97"
+    "T006": "9188a6608ffb67cb479c570ecec050edc7aa06f55979de52bbf95ac4564648a7",
+    "T012": "85035b150504fe440dd706d5db4170573cf7d609067de8d70309b6121914cb6f",
+    "T013": "397a26c1c6074e63d63188175a11fec2d8d8b23e05c6a540520ac47acac00e71"
   },
   "cases": {
     "new-local": {

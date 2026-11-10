@@ -11,8 +11,8 @@
     "output_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
-    "T004": "274884eae8572cb1e6d2dd318536efd231337cd9d9a38d1bee587b69cd830c0e",
-    "T010": "fac2b66c2c6a31ae5e047a7582239c3f09e179e0dbebe2a503956350e7299f6d"
+    "T004": "2f9c46e6c61148398c8e5ae1f9f444b02ee84f2243912b185c8159ee74b06b53",
+    "T010": "0f72409426a960cc2e5d38591978c563396db4a336acbd6769ddd593fde48dae"
   },
   "cases": {
     "hosted-new": {

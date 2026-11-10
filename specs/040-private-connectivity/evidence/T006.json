@@ -31,8 +31,8 @@
     "tenant-hosted-new": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2"
   },
   "dependencies": {
-    "T003": "5c6ef4cc13c9790d83270e4ba7e47e793b8525ceda1e0bac50bd7201075cc497",
-    "T005": "6fd834136867aac223ac44a2fe89273156e57b8f3f18f4771b6ed5cf8ee79a72"
+    "T003": "84096aae8803fe799c0ee9f53e411701b9708e60d54f1c425c0a8e2d8287d185",
+    "T005": "0226a10c03a7c4e99c190c1cdfb1b90d912bded4a254d08a78a136d154d08cb0"
   },
   "cases": {
     "offline": {
@@ -91,8 +91,8 @@
   },
   "domain_local_validation": {
     "result": "374 passed",
-    "source_revision": "48ca168dee528c09217f123a89589a721f015055",
-    "path": "tests/private_connectivity/evidence/governance.txt"
+    "path": "tests/private_connectivity/evidence/governance.txt",
+    "source_ref": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/evidence/governance.txt"
   },
   "ci_and_review": "All six implementation PRs remain draft. Local owner conformance is distinct from GitHub CI, exact-head review, bundle publication, G1+, and G4 owner acceptance.",
   "candidate_amendments": [

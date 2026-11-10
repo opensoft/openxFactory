@@ -9,11 +9,12 @@
     "accountable_administrator": "Brett Heap (brettheap), verified repository administrator. The commissioning instruction is recorded as acceptance for coordinating the synthetic codexFactory pilot. Individual domain release approvals follow qualification.",
     "scope_amendment": {
       "proposal": "codeXfactory/codexFactory#578",
-      "revision": "95ccd3df862ea5a6c92dab2014fc0d3e7fff1710",
       "decision": "Brett Heap: Ratify and implement the narrow repair; 2026-11-10",
       "bounds": "strict schema, required validation and exact definition-time protection only; no PR-time floor or shared pin advance",
-      "witness_path": "Existing snapshot producer writes specs/018-per-tree-floor-instance/behaviour-snapshot.json; this is the measured witness authorized by the narrow repair, with no producer or approval-rule change."
-    }
+      "witness_path": "Existing snapshot producer writes specs/018-per-tree-floor-instance/behaviour-snapshot.json; this is the measured witness authorized by the narrow repair, with no producer or approval-rule change.",
+      "ratification_ref": "https://github.com/codeXfactory/codexFactory/blob/95ccd3df862ea5a6c92dab2014fc0d3e7fff1710/openspec/changes/protect-hosted-connectivity-profile/review/ratification-2026-11-10.md"
+    },
+    "reference_convention": "Bootstrap and ratification observations are repository-qualified immutable evidence references. The approved scopes are unchanged; current runtime constraints remain the explicit G0 candidate pins."
   },
   "scopes": {
     "neutral_binding": {
@@ -76,18 +77,18 @@
   },
   "bootstrap": {
     "opensoft/Headscale-Install": {
-      "commit": "42372dff90d394315ecf29ddabe60466db412f73",
       "private": true,
       "default_branch": "main",
       "validation": "make test passed in py-bench",
-      "review_rule": "1 approval, dismiss stale reviews, last push approval; force pushes and deletion disabled"
+      "review_rule": "1 approval, dismiss stale reviews, last push approval; force pushes and deletion disabled",
+      "bootstrap_ref": "https://github.com/opensoft/Headscale-Install/blob/42372dff90d394315ecf29ddabe60466db412f73/README.md"
     },
     "opensoft/openXsoft-Hosted-Services": {
-      "commit": "31eada2c9cbf1ae4d35b1ee74f7644779c4f3e7c",
       "private": true,
       "default_branch": "main",
       "validation": "make test passed in py-bench",
-      "review_rule": "1 approval, dismiss stale reviews, last push approval; force pushes and deletion disabled"
+      "review_rule": "1 approval, dismiss stale reviews, last push approval; force pushes and deletion disabled",
+      "bootstrap_ref": "https://github.com/opensoft/openXsoft-Hosted-Services/blob/31eada2c9cbf1ae4d35b1ee74f7644779c4f3e7c/README.md"
     }
   },
   "inventory": {
