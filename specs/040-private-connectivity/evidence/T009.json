@@ -11,7 +11,7 @@
     "output_ref": "git:5de2c2708879c2c65fed952023f1c7064c59168b:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
-    "T004": "c2f34c8d5afa10ede2c4723c89ea6bf10485b1410dc71cc95c54b9ee3db5af53"
+    "T004": "5c4598478f648c7daea6ca490f6b24787e7234fd94cc43cdca9a979d74d34101"
   },
   "cases": {
     "standalone-entitlement": {

@@ -4,14 +4,14 @@
   "scope": "headscale_install",
   "owner": "Headscale-Install",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-headscale-install-ownership/review/ratification-2026-11-10.md",
-  "revision_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:release/runtime-inventory.json",
+  "revision_ref": "git:a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941:release/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/candidate.txt"
+    "output_ref": "git:a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
-    "T004": "c2f34c8d5afa10ede2c4723c89ea6bf10485b1410dc71cc95c54b9ee3db5af53"
+    "T004": "5c4598478f648c7daea6ca490f6b24787e7234fd94cc43cdca9a979d74d34101"
   },
   "cases": {
     "local-package": {
@@ -50,5 +50,5 @@
   },
   "qualification_scope": "Local synthetic Docker package: separate control and probes, pinned images, verified TLS, deny baseline, fenced protected snapshot, and no-network candidate config rehearsal. Actual database upgrade and live restore remain T019.",
   "supersedes_ref": "git:6a23ffcc9575098db85f18135e5e2a47d8e70f66:specs/040-private-connectivity/evidence/T007.json",
-  "candidate_update": "Final pre-entry matrix: isolated A upgrade source 0.29.6, B/local target 0.29.7, supported pinned client 1.104.4; all controls verified before enrollment."
+  "candidate_update": "Boundary-aware workload names and validated reuse; initial packaging, HTTPS configuration and pre-enrollment baseline unchanged. Fifteen current owner tests pass."
 }

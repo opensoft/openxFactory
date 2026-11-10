@@ -11,16 +11,16 @@
     "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
     "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
     "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
-    "binding_schema": "git:0ebf97ae67f1409a8bf3e10517cea9528b228788:contracts/private-connectivity/binding.schema.json",
-    "binding_validator": "git:0ebf97ae67f1409a8bf3e10517cea9528b228788:scripts/validate-private-connectivity.py",
-    "install_runtime": "git:4faeb9471e6382568a4ada3873d93d0c98c0380f:release/runtime-inventory.json",
-    "hosted_runtime": "git:e5dcc0da689ac52f23044974ff7c295cd08cd710:release/runtime-inventory.json",
-    "installer_runtime": "git:68aa941a104f06e70d8676ad2d50f471d54c047f:src/private_connectivity/runtime-inventory.json",
+    "binding_schema": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+    "binding_validator": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:scripts/validate-private-connectivity.py",
+    "install_runtime": "git:a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941:release/runtime-inventory.json",
+    "hosted_runtime": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:release/runtime-inventory.json",
+    "installer_runtime": "git:1b83b5a316f2974842e45c43c5ef256cab16eb74:src/private_connectivity/runtime-inventory.json",
     "ops_recovery": "git:4fd9090a53677dbf58ab9c82b98666598e8ca907:workflows/private-connectivity/recovery.py",
     "domain_profile": "git:4120400cf894affd6e535468609cc3b7bc11e198:profiles/hosted/private-connectivity.yaml",
     "domain_schema": "git:4120400cf894affd6e535468609cc3b7bc11e198:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:4120400cf894affd6e535468609cc3b7bc11e198:scripts/merge_master/council_clearance.py",
-    "evidence_checker": "git:8cc3a70bc9ab2f200f953965f1925af60b436ee3:specs/040-private-connectivity/verify-evidence.py"
+    "evidence_checker": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:specs/040-private-connectivity/verify-evidence.py"
   },
   "policy_baseline": {
     "tenant-a": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2",
@@ -28,29 +28,29 @@
     "customer-local": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2"
   },
   "dependencies": {
-    "T003": "7dd43d0167e6f2a0dce3e10e897046dd6c307a8a976dbc772c2e4571b123f3fa",
-    "T005": "5741455887e367d6a1c67327c7652c483aff17224101c80f22b47b7e8db58918"
+    "T003": "af1abf75337be71a49a830c279365df0ce5242f4ca9eba506a380d0d36b7a254",
+    "T005": "82a824d7b08f6402927960a9b735a90de1b6d17e36be72c32c00b9a66589a3df"
   },
   "cases": {
     "offline": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:5de2c2708879c2c65fed952023f1c7064c59168b:tests/qualification/evidence/candidate.txt",
+      "evidence_ref": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:5de2c2708879c2c65fed952023f1c7064c59168b:tests/qualification/evidence/candidate.txt"
+          "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt"
         }
       }
     },
     "candidate-pins": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:4faeb9471e6382568a4ada3873d93d0c98c0380f:release/runtime-inventory.json",
+      "evidence_ref": "git:a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941:release/runtime-inventory.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:e5dcc0da689ac52f23044974ff7c295cd08cd710:release/runtime-inventory.json"
+          "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:release/runtime-inventory.json"
         }
       }
     },
@@ -80,10 +80,10 @@
   "execution_authority": "Automated pilot entry under Brett Heap\u2019s ratified successor scopes and explicit Eagle Docker lab instruction, recorded in T001/T003. This is not a human release or G4 sign-off.",
   "qualification": "Initial entry verified deny-all, TLS and outside ingress with zero nodes. This source-only probe amendment retains that unchanged initialization proof; A now has two explicitly approved synthetic devices from the T010 attempt.",
   "offline_reports": {
-    "binding": "git:7c786caeded79a91e8c940c34cf9072371f42f17:tests/private_connectivity/evidence/pytest.txt",
-    "managed": "git:5de2c2708879c2c65fed952023f1c7064c59168b:tests/qualification/evidence/candidate.txt",
-    "install": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/candidate.txt",
-    "installer": "git:ef8ac62c88862af7bfeb63866b8b7ab95aa22322:tests/private_connectivity/evidence/selection.txt",
+    "binding": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:tests/private_connectivity/evidence/pytest.txt",
+    "managed": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt",
+    "install": "git:a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941:tests/qualification/evidence/candidate.txt",
+    "installer": "git:1b83b5a316f2974842e45c43c5ef256cab16eb74:tests/private_connectivity/evidence/selection.txt",
     "ops": "git:4fd9090a53677dbf58ab9c82b98666598e8ca907:tests/private_connectivity/evidence/qualification.txt"
   },
   "domain_local_validation": {
@@ -92,7 +92,7 @@
     "source_revision": "4120400cf894affd6e535468609cc3b7bc11e198",
     "path": "tests/private_connectivity/evidence/governance.txt"
   },
-  "ci_and_review": "PR #578 remains draft; broader CI and exact-head Codex review are pending. G0 grants local synthetic QA entry, not merge, publication, customer eligibility or expansion.",
+  "ci_and_review": "All six implementation PRs remain draft. Local owner conformance is distinct from GitHub CI, exact-head review, bundle publication, G1+, and G4 owner acceptance.",
   "candidate_amendments": [
     {
       "previous_g0_ref": "git:2c7737d709fb4de128261bb7ea599dc88d57cc67:specs/040-private-connectivity/evidence/T006.json",
@@ -128,6 +128,35 @@
           "tests": 16
         }
       }
+    },
+    {
+      "previous_g0_ref": "git:3c2f7cb72f6f60360e1b14d8f77d2e1548db780f:specs/040-private-connectivity/evidence/T006.json",
+      "reason": "Resolve Codex findings: endpoint-bound neutral approval; unpublished pilot schema outside contracts; exact live tested revision; boundary-scoped workload state; retryable expiry cleanup and supervisor; cached readiness reauthorization; migration target cleanup and cutover fence. Existing installer CI installs its pinned validator dependency.",
+      "previous_candidate_pins": {
+        "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+        "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+        "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+        "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+        "binding_schema": "git:0ebf97ae67f1409a8bf3e10517cea9528b228788:contracts/private-connectivity/binding.schema.json",
+        "binding_validator": "git:0ebf97ae67f1409a8bf3e10517cea9528b228788:scripts/validate-private-connectivity.py",
+        "install_runtime": "git:4faeb9471e6382568a4ada3873d93d0c98c0380f:release/runtime-inventory.json",
+        "hosted_runtime": "git:e5dcc0da689ac52f23044974ff7c295cd08cd710:release/runtime-inventory.json",
+        "installer_runtime": "git:68aa941a104f06e70d8676ad2d50f471d54c047f:src/private_connectivity/runtime-inventory.json",
+        "ops_recovery": "git:4fd9090a53677dbf58ab9c82b98666598e8ca907:workflows/private-connectivity/recovery.py",
+        "domain_profile": "git:4120400cf894affd6e535468609cc3b7bc11e198:profiles/hosted/private-connectivity.yaml",
+        "domain_schema": "git:4120400cf894affd6e535468609cc3b7bc11e198:schemas/hosted-connectivity-profile.schema.json",
+        "domain_floor": "git:4120400cf894affd6e535468609cc3b7bc11e198:scripts/merge_master/council_clearance.py",
+        "evidence_checker": "git:8cc3a70bc9ab2f200f953965f1925af60b436ee3:specs/040-private-connectivity/verify-evidence.py"
+      },
+      "initialization_and_binary_pins_unchanged": true,
+      "owner_reruns": {
+        "binding": 13,
+        "evidence_checker": 16,
+        "install": 15,
+        "hosted_product": 36,
+        "installer": 23
+      },
+      "required_rerun": "T008 and T010 actual owner qualification on these pins before accepting live gates. No G1 or later live gate has passed. The original zero-node deny baseline remains historical, and current A holds the two previously approved synthetic nodes."
     }
   ]
 }

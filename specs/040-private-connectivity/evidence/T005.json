@@ -4,80 +4,80 @@
   "scope": "hosted_product",
   "owner": "openXsoft.com product",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
-  "revision_ref": "git:49f087d129c86f39e0e5e4f8970adbc9fe809718:services/network-provisioning/operations.py",
+  "revision_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:release/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+    "output_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt"
   },
   "dependencies": {
-    "T004": "c2f34c8d5afa10ede2c4723c89ea6bf10485b1410dc71cc95c54b9ee3db5af53"
+    "T004": "5c4598478f648c7daea6ca490f6b24787e7234fd94cc43cdca9a979d74d34101"
   },
   "cases": {
     "retries": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt",
+      "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt",
       "checks": {
         "interrupted-provision": {
           "passed": true,
-          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+          "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt"
         },
         "interrupted-enroll": {
           "passed": true,
-          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+          "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt"
         },
         "duplicate": {
           "passed": true,
-          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+          "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt"
         }
       }
     },
     "changed-input": {
       "expected": "denied",
       "observed": "denied",
-      "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt",
+      "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+          "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt"
         }
       }
     },
     "reauthorization": {
       "expected": "denied",
       "observed": "denied",
-      "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt",
+      "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+          "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt"
         }
       }
     },
     "credentials": {
       "expected": "denied",
       "observed": "denied",
-      "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt",
+      "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt",
       "checks": {
         "expired": {
           "passed": true,
-          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+          "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt"
         },
         "replayed": {
           "passed": true,
-          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+          "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt"
         }
       }
     },
     "revocation-replay": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt",
+      "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:7d3c2bdeb3f3efefc907db4e7cf7b070f40035e8:tests/qualification/evidence/operations.txt"
+          "evidence_ref": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:tests/qualification/evidence/candidate.txt"
         }
       }
     }
