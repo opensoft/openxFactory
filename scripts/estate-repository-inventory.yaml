@@ -544,3 +544,22 @@ repositories:
     admitted_by:
       - kind: gitlink
         carrier: opensoft/xFactory
+
+  # Bootstrap identities commissioned after ratification of PR #1301.
+  - repository: opensoft/Headscale-Install
+    name: Headscale-Install
+    role: install, private connectivity
+    governance: governed
+    provisional: true
+    admitted_by:
+      - kind: change
+        change: establish-headscale-install-ownership
+
+  - repository: opensoft/openXsoft-Hosted-Services
+    name: openXsoft-Hosted-Services
+    role: hosted product, private connectivity and DomainxFactory onboarding
+    governance: governed
+    provisional: true
+    admitted_by:
+      - kind: change
+        change: establish-openxsoft-hosted-connectivity
