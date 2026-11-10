@@ -43,7 +43,7 @@ DEPENDENCIES = {
 }
 TASK_SCOPE = {
     "T003": "evidence_tooling", "T004": "neutral_binding",
-    "T005": "neutral_binding", "T006": "evidence_tooling",
+    "T005": "hosted_product", "T006": "evidence_tooling",
     "T007": "headscale_install", "T008": "installer",
     "T009": "hosted_product", "T010": "hosted_product", "T011": "ops",
     "T012": "hosted_product", "T013": "installer", "T014": "installer",
