@@ -1,4 +1,8 @@
-# Isolated candidate realization
+The pre-publication snapshot below is historical. Review corrections and final
+candidate evidence are in openXwallet feature 016 review.md and the paired PRs
+openXwallet #48 / openxFactory #1304. It is not a current hosted-CI receipt.
+
+# Initial isolated candidate realization (historical)
 
 Date: 2026-11-11. Status: draft profile with locally qualified candidate source.
 

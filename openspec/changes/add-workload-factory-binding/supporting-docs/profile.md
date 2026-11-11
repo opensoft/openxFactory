@@ -40,3 +40,26 @@ deployment qualification. Fixtures use synthetic OIDC and ephemeral keys. Their
 success cannot clear codeXfactory T002 or authorize any external effect.
 
 Unsupported grant constraints (including distinct-holder references) and unknown authority fields refuse. The selected wallet public-key material must match the current registry; the observer launches the selected reference worker and hashes its source/configuration independently. No hostile OS-isolation claim is made.
+
+## Reviewed conformance and refusal rules
+
+The verifier accepts the documented optional GitHub x5t header as metadata only;
+kid plus the approved key snapshot still selects trust. Both iat and nbf must
+independently be at or before the trusted clock, with now before exp and a maximum
+300-second exp-minus-iat lifetime. A backdated nbf grants no lifetime extension.
+
+Every grant parent field that is present must be a valid reference; null is not
+a root. Review-class chains (the existing exact review act token) refuse until
+the factory's canonical operator-anchor and review-register checks are composed.
+This candidate never bypasses them or implements an alternative issuer anchor.
+
+Existing replay state must retain its initialized schema/version and uniqueness
+constraints. Truncated, corrupted or unconstrained state refuses at restart and
+exercise; no automatic reinitialization discards history. This is not protection
+against an authorized host restoring a valid older backup.
+
+After blocking validation, after reservation and before returning a proof, the
+gate checks a fresh trusted clock against the earliest policy, wallet, grant,
+challenge, token, key-snapshot and observation deadline. Clock errors are fixed
+refusals. The observer validates the actual launched worker's invocation context
+and measures its verified owner source, transport identity and public binding.

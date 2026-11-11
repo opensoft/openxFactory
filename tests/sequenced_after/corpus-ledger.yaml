@@ -184,6 +184,7 @@ rows:
   add-worker-credential-by-reference: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-worker-enrollment-broker: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-worker-input-budget: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#1258", moved_on: "2026-10-06"}
+  add-workload-factory-binding: {state: active, class: sole, declares: absent, prose: false, moved_by: "#1304", moved_on: "2026-11-11"}
   add-xfactory-installer-repository: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   admit-code-leg-under-pinned-root: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1174", moved_on: "2026-09-27"}
   admit-deliberation-clearing-operation: {state: active, class: sole, declares: absent, prose: false, moved_by: "#645", moved_on: "2026-09-04"}

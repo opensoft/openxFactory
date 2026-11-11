@@ -39,7 +39,9 @@ and composition. The observer SHALL read its own selected reference artifacts.
 
 The gate SHALL reserve token and challenge identities durably before invoking the
 owning wallet proof API, recheck current authority before returning and retain
-reservations after ambiguous failures.
+reservations after ambiguous failures. It SHALL refuse corrupted or uninitialized
+existing replay state and missing uniqueness constraints. It SHALL check a fresh
+clock against all evidence deadlines after blocking work and before signing/return.
 
 #### Scenario: Restart or concurrent replay
 
