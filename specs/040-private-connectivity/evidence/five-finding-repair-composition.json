@@ -1,5 +1,5 @@
 {
-  "qualification": "Measured source composition for the five local review repairs",
+  "qualification": "Measured source composition for five original local review repairs and the additional durable cancellation-event repair",
   "comparisons": [
     {
       "original_ref": "git:003fc412b5538cf80b399f4a052f814acec45f1a:src/private_connectivity/selection.py",
@@ -10,8 +10,10 @@
         "Installer._rollback"
       ],
       "added_methods": [],
+      "removed_methods": [],
       "unchanged_methods": [
         "SelectionError.__init__",
+        "restoration_request",
         "Installer.__init__",
         "Installer.lifecycle",
         "Installer.installation_key",
@@ -45,7 +47,9 @@
       "added_methods": [
         "LocalPilotProvider.policy_lock"
       ],
+      "removed_methods": [],
       "unchanged_methods": [
+        "load_install",
         "LocalPilotProvider.__init__",
         "LocalPilotProvider.identity",
         "LocalPilotProvider.authorize",
@@ -66,15 +70,16 @@
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/network-provisioning/attachments.py",
-      "current_ref": "git:cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0:services/network-provisioning/attachments.py",
+      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/network-provisioning/attachments.py",
       "comparison": "AST comparison per method",
       "changed_methods": [
+        "ConnectivityService.__init__",
         "ConnectivityService.end_factory_subscription"
       ],
       "added_methods": [],
+      "removed_methods": [],
       "unchanged_methods": [
         "AttachmentError.__init__",
-        "ConnectivityService.__init__",
         "ConnectivityService._network",
         "ConnectivityService._approval",
         "ConnectivityService._apply",
@@ -89,37 +94,37 @@
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/network-provisioning/service.py",
-      "current_ref": "git:cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0:services/network-provisioning/service.py",
+      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/network-provisioning/service.py",
       "comparison": "byte-identical",
       "sha256": "aea37ff840f448fc8c0f141976d0885c6f9a98adbb29f35e69992b426e7c0023"
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/network-provisioning/operations.py",
-      "current_ref": "git:cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0:services/network-provisioning/operations.py",
+      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/network-provisioning/operations.py",
       "comparison": "byte-identical",
       "sha256": "d031bd164a806590982e962c8b20d917fecdc804571c09c4f245dade39b594e3"
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/network-provisioning/docker_nodes.py",
-      "current_ref": "git:cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0:services/network-provisioning/docker_nodes.py",
+      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/network-provisioning/docker_nodes.py",
       "comparison": "byte-identical",
       "sha256": "3de3234076aae87076f23ab876163805d57cf0ed410a61644ba034730292918c"
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/network-provisioning/supervisor.py",
-      "current_ref": "git:cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0:services/network-provisioning/supervisor.py",
+      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/network-provisioning/supervisor.py",
       "comparison": "byte-identical",
       "sha256": "687bf2b36e4d53b688d8569bad14ba3ae4c691ef7c17da11917c0bccb9a97847"
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/factory-onboarding/onboarding.py",
-      "current_ref": "git:cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0:services/factory-onboarding/onboarding.py",
+      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/factory-onboarding/onboarding.py",
       "comparison": "byte-identical",
       "sha256": "696e404653ce4e361bc35fba05ae3d5361c6a10f475b6197daf6d39026c82ab1"
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/factory-onboarding/pilot_binder.py",
-      "current_ref": "git:cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0:services/factory-onboarding/pilot_binder.py",
+      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/factory-onboarding/pilot_binder.py",
       "comparison": "byte-identical",
       "sha256": "ba9c4fee8e44003041fde8c1a2c42662f7a13dbc58e091ddbc58bcb672ddbfbf"
     },
@@ -137,7 +142,10 @@
         "DockerRecovery.activate"
       ],
       "added_methods": [],
+      "removed_methods": [],
       "unchanged_methods": [
+        "load_install",
+        "epoch",
         "DockerRecovery.__init__",
         "DockerRecovery.scoped",
         "DockerRecovery.control",
@@ -151,15 +159,67 @@
         "DockerRecovery.verify",
         "DockerRecovery.contain_replacement"
       ]
+    },
+    {
+      "original_ref": "git:cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0:services/network-provisioning/attachments.py",
+      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/network-provisioning/attachments.py",
+      "comparison": "AST comparison per method",
+      "changed_methods": [
+        "ConnectivityService.__init__",
+        "ConnectivityService.end_factory_subscription"
+      ],
+      "added_methods": [],
+      "removed_methods": [],
+      "unchanged_methods": [
+        "AttachmentError.__init__",
+        "ConnectivityService._network",
+        "ConnectivityService._approval",
+        "ConnectivityService._apply",
+        "ConnectivityService.authorize_attachment",
+        "ConnectivityService.attachment_state",
+        "ConnectivityService.binding_evidence",
+        "ConnectivityService.attach",
+        "ConnectivityService.detach",
+        "ConnectivityService.terminate",
+        "ConnectivityService.expire_approvals"
+      ]
+    },
+    {
+      "original_ref": "git:afb38d72d82c1385ecbdca9fb14b6f7d1a131c08:tests/qualification/qualify_local_review_fixes.py",
+      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:tests/qualification/qualify_local_review_fixes.py",
+      "comparison": "AST comparison per method",
+      "changed_methods": [
+        "Qualification.run_checks"
+      ],
+      "added_methods": [
+        "Qualification.cancellation_events"
+      ],
+      "removed_methods": [],
+      "unchanged_methods": [
+        "Qualification.__init__",
+        "Qualification.stage",
+        "Qualification.local_manifest",
+        "Qualification.record",
+        "Qualification.restore",
+        "Qualification.pair",
+        "Qualification.sharing",
+        "Qualification.cancellations",
+        "Qualification.authority"
+      ]
     }
   ],
   "scope": "Original actual direct/relay revocation and binary upgrade/restore measurements remain immutable historical evidence. Fresh targeted application, retry, authority and shadow activation checks qualify changed paths; no repeated full binary upgrade or full-cohort rerun is claimed.",
   "original_acceptance_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
   "current_human_acceptance": "Not inferred from the earlier approval; reviewed repair packet will carry a separate G4 disposition.",
+  "hosted_event_delta": "ConnectivityService.__init__ adds only the durable cancellation subject table. end_factory_subscription records a scoped event snapshot and reuses it across interruptions. Other runtime methods remain byte-identical; old live reports retain their capture-time driver and source inventories.",
   "pin_inventory": [
     {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "003fc412b5538cf80b399f4a052f814acec45f1a"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "26d1da814ac51737f4edab2cc86cd9778dc44c66"
     },
     {
       "repository": "opensoft/xFactory-Installer",
@@ -176,6 +236,10 @@
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "828c86b6913ab9fc2358ab4343eabdc9b992e0f3"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "afb38d72d82c1385ecbdca9fb14b6f7d1a131c08"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
