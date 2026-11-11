@@ -542,9 +542,9 @@ Every DomainxFactory must validate against the canonical contract:
 ## OpenSpec Records
 
 - [add-workload-factory-binding](openspec/changes/add-workload-factory-binding/proposal.md)
-  - draft candidate, commissioned 2026-11-11. Factory profile here; sole
-    implementation feature in openXwallet 016. Isolated evidence does not ratify
-    the profile, activate a deployment or clear codeXfactory pilot acceptance.
+  - source acceptance ratified by Brett Heap on 2026-11-11 at factory
+    102d5f906cc4 and adapter 9e0b60e89bb3; [owner decision](openspec/changes/add-workload-factory-binding/review/ratification-2026-11-11.md).
+    Live qualification and codeXfactory pilot acceptance remain separate gates.
 
 
 Active changes:

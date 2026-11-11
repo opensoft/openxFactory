@@ -1,6 +1,6 @@
 # Candidate factory/workload binding profile
 
-Status: draft candidate, 2026-11-11. Not a published contract or accepted pilot
+Status: ratified for source acceptance only, 2026-11-11. Not a published contract or accepted pilot
 binding. Runtime adapter API: `opensoft/openXwallet`,
 `specs/016-factory-workload-binding/contracts/adapter-api.md`.
 

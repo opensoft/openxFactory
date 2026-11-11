@@ -1,7 +1,8 @@
 ---
 code_surface: openXwallet, openxFactory (adapter candidate and tests; factory generated corpus-ledger row only, with governance documents and no factory product runtime)
 target_release: implemented (candidate source on main after review; no bundle cut or activation)
-Status: draft
+Status: ratified
+Ratified: 2026-11-11 by Brett Heap for source acceptance only at 102d5f906cc4, paired with openXwallet #48 at 9e0b60e89bb3; see review/ratification-2026-11-11.md.
 Proposed: 2026-11-11
 Origin: Brett Heap commissioned candidate implementation and isolated tests in the current chat; no profile ratification is asserted.
 ---
@@ -42,9 +43,9 @@ The adapter implements a library and test-only processes in openXwallet. This
 repository gains governance documents only. No live issuer enrollment, deployed
 service, provider credential, external operation, human approval, pilot acceptance,
 release, archive or consumer pin advancement is included. Feedback stays deferred;
-neither historically denied write is replayed. Draft status is intentional:
-candidate code and tests do not manufacture ratification. Live composition and
-owner acceptance remain separate gates.
+neither historically denied write is replayed. Brett ratified source acceptance
+at the exact snapshots recorded in [the owner decision](review/ratification-2026-11-11.md).
+Live composition, human approval and attended pilot acceptance remain separate gates.
 
 Supporting packet: [design](design.md), [candidate profile](supporting-docs/profile.md), [capability delta](specs/workload-factory-binding/spec.md), [governance handoff](tasks.md).
 
