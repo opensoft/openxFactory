@@ -3,7 +3,7 @@
   "verdict": "blocked",
   "scope": "evidence_tooling",
   "owner": "openxFactory feature 040",
-  "reason": "Original packet owner sign-offs are recorded. A revised reviewable technical supplement covers subsequent installer, hosted readiness and observer repairs; current supplement acceptance by rollout lead and affected owners is still required.",
+  "reason": "The original packet approval is recorded. Revised source and recovery repairs are technically qualified; T021 requires human approval of the revised immutable G4 supplement before lab acceptance is complete.",
   "approval_required_by": [
     "specs/040-private-connectivity/tasks.md T021",
     "specs/040-private-connectivity/contracts/pilot-evidence.md Records and verification"
@@ -44,7 +44,7 @@
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
     "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
-    "ops_runtime": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/runtime-inventory.json",
+    "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
   "policy_baseline": {
@@ -54,23 +54,19 @@
     "tenant-hosted-new": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2"
   },
   "dependencies": {
-    "T006": "773edd63ea1e2fa3df6f20ca2b55e34db8a4620d78f78fc0810a378acbbc81a7",
-    "T012": "5f3c0782c81d0a0719682ecec862b96adb4af7c49901b662b19b0e5d43ae170e",
-    "T014": "02141904037f9b7b301b14670b01a09f31e7a88288f16573ccf5abdaf5046c62",
-    "T017": "4a482d5b1da484ec4a6d9a7997eb74e8ad7820a65360618c014896c092b50cd8",
-    "T018": "74c03594f819ce469ff7fe69fc7c90f28e500e84bc9501424cb45f216e4ca50f",
-    "T019": "3dd3dd1d866c23fc0b96345d07248c0b5478daf12fd59fd769286cd7686b3169",
-    "T020": "70c6d5c6bd17201aac049ddf38ebff510e8ef8a23aaa473f738420116d95f340"
+    "T006": "aa2dba0394534b634e5d9f65073c6ca963ef2988e3ca8d1282c1e34ca442ba95",
+    "T012": "89346e5e31d94cb45ddd9d7816901bbda0e6a998ae29371236b63f1b0aecd1af",
+    "T014": "fc3f056e8ddb0b8f0fa622986ca54d9844bb2376471c594cd1d8db2eef9eac87",
+    "T017": "3d3efc46a074e39378345aa579502394301011365cef90edc8888306135ce9a9",
+    "T018": "61790af57ae47816287b80b1b2b81e3e8268a631b50cffc34b6dfd61545a80f6",
+    "T019": "b437035bbe34c6054d3506aaaaccafd97752a1c3d9e7ce7ef63870a01fd452d5",
+    "T020": "de76c65c6e6d21bac6b1c83f8e12bde572da0aa8298f1f4495e18d5940e344c8"
   },
   "implementation_pull_requests_remain_draft": true,
   "pin_inventory": [
     {
       "repository": "opensoft/Headscale-Install",
       "foreign_commit": "07aad58f58c9c08a212215225b7167c983e391b1"
-    },
-    {
-      "repository": "opensoft/opsXfactory",
-      "foreign_commit": "275d9d087677d100fca127069946d8d27ecf1041"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -103,6 +99,10 @@
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
     },
     {
       "repository": "opensoft/openxFactory",

@@ -8,10 +8,10 @@
   "owner_check": {
     "command": "python3 -m pytest tests/private_connectivity -q",
     "exit_status": 0,
-    "output_ref": "git:ec04538ee963f808d41d20e9034f56cba3e6a3d3:tests/private_connectivity/evidence/review-repair-checks.json"
+    "output_ref": "git:dfd74041f9dd1e57547a2db01c5939b4bd322c97:tests/private_connectivity/evidence/review-repair-checks.json"
   },
   "dependencies": {
-    "T017": "4a482d5b1da484ec4a6d9a7997eb74e8ad7820a65360618c014896c092b50cd8"
+    "T017": "3d3efc46a074e39378345aa579502394301011365cef90edc8888306135ce9a9"
   },
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "candidate_pins": {
@@ -29,7 +29,7 @@
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
     "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
-    "ops_runtime": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/runtime-inventory.json",
+    "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
   "policy_baseline": {
@@ -179,10 +179,6 @@
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
     },
     {
-      "repository": "opensoft/opsXfactory",
-      "foreign_commit": "275d9d087677d100fca127069946d8d27ecf1041"
-    },
-    {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
     },
@@ -231,6 +227,10 @@
       "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
     },
     {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "dfd74041f9dd1e57547a2db01c5939b4bd322c97"
+    },
+    {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
     },
@@ -240,7 +240,7 @@
     },
     {
       "repository": "opensoft/opsXfactory",
-      "foreign_commit": "ec04538ee963f808d41d20e9034f56cba3e6a3d3"
+      "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
     }
   ],
   "repair_qualification": {

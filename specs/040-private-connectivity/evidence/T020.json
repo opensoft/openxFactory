@@ -11,7 +11,7 @@
     "output_ref": "git:10aca828a3044d88b2880329530a51881c927df9:tests/private_connectivity/evidence/review-repair-checks.json"
   },
   "dependencies": {
-    "T019": "3dd3dd1d866c23fc0b96345d07248c0b5478daf12fd59fd769286cd7686b3169"
+    "T019": "b437035bbe34c6054d3506aaaaccafd97752a1c3d9e7ce7ef63870a01fd452d5"
   },
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "candidate_pins": {
@@ -29,7 +29,7 @@
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
     "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
-    "ops_runtime": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/runtime-inventory.json",
+    "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
   "policy_baseline": {
@@ -139,10 +139,6 @@
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
     },
     {
-      "repository": "opensoft/opsXfactory",
-      "foreign_commit": "275d9d087677d100fca127069946d8d27ecf1041"
-    },
-    {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
     },
@@ -181,6 +177,10 @@
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "e24ea82b75d0bf880e77c3fadca6b0e51a53dce9"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
     }
   ],
   "source_retirement_uncertainty_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/after-restore-repair.json",

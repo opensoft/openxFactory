@@ -11,9 +11,9 @@
     "output_ref": "git:66bfafadcd4d215eb2bebd384c39a5ba5943ad2e:tests/qualification/evidence/review-repair-checks.json"
   },
   "dependencies": {
-    "T006": "773edd63ea1e2fa3df6f20ca2b55e34db8a4620d78f78fc0810a378acbbc81a7",
+    "T006": "aa2dba0394534b634e5d9f65073c6ca963ef2988e3ca8d1282c1e34ca442ba95",
     "T010": "cad532acbf3567fa080ec4addcbb12576ca64667107407ffe084f5c12b015391",
-    "T011": "cac9f4cca1906be2c656232d9a67def4a2c1409015f14dbcae3a34d08ec4fbc7"
+    "T011": "b721bbe89d09cacd5d696f2ddf9ac7f3cea06308a01601959c691903af65857d"
   },
   "cases": {
     "standalone-a-b": {
@@ -198,7 +198,7 @@
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
     "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
-    "ops_runtime": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/runtime-inventory.json",
+    "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
   "policy_baseline": {
@@ -251,10 +251,6 @@
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
-    },
-    {
-      "repository": "opensoft/opsXfactory",
-      "foreign_commit": "275d9d087677d100fca127069946d8d27ecf1041"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
@@ -319,6 +315,10 @@
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "e24ea82b75d0bf880e77c3fadca6b0e51a53dce9"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
     }
   ],
   "repair_qualification": {

@@ -5,13 +5,14 @@
     "installer_runtime": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/runtime-inventory.json",
     "hosted_runtime": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:release/runtime-inventory.json",
     "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
-    "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py"
+    "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+    "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json"
   },
   "current_owner_tests": {
     "headscale_install": 26,
     "installer": 47,
     "hosted_product": 50,
-    "ops": 14
+    "ops": 17
   },
   "actual_repair_regressions_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
   "actual_post_restore_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/after-restore-repair.json",
@@ -33,6 +34,11 @@
     "retained_retry_setup": {
       "closure_ref": "git:5c752bf83f2cf92e01b4f2553d9197e8d5a2b909:tests/private_connectivity/evidence/rollback-retry.json",
       "resolution": "Earlier same-managed-boundary target rejected at policy; its source and pending identities explicitly retired, state retained. Supported managed-to-local target then passed the crash/retry/cleanup qualification."
+    },
+    "recovery_shadow_setup": {
+      "closure_ref": "git:493f4db039a70f6e7871e257591c3984d3f0d5a2:tests/private_connectivity/evidence/recovery-repairs.json",
+      "used_for_acceptance": false,
+      "resolution": "Corrected stopped shadow fixture membership; earlier owned A/B test subjects explicitly detached and denied; complete new shadow cases passed and state retained."
     }
   },
   "unchanged_measurements": "Original revocation and binary-upgrade/restore measurements remain immutable, retained against measured unchanged components; no fresh rerun of those timings is claimed.",
@@ -53,6 +59,10 @@
     {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "488e314addd79efa728d0c4e9b556a783aba0dc8"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "493f4db039a70f6e7871e257591c3984d3f0d5a2"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
@@ -81,6 +91,10 @@
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
     }
   ],
   "actual_retained_retry_ref": "git:5c752bf83f2cf92e01b4f2553d9197e8d5a2b909:tests/private_connectivity/evidence/rollback-retry.json",
@@ -325,6 +339,23 @@
       "finding": 4528931352,
       "path": "specs/040-private-connectivity/verify-evidence.py",
       "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "pr": 622,
+      "thread": "PRRT_kwDOTJL_7M61-3Nq",
+      "finding": 4532780583,
+      "path": "workflows/private-connectivity/docker_recovery.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "pr": 622,
+      "thread": "PRRT_kwDOTJL_7M61-3Nx",
+      "finding": 4532780592,
+      "path": "workflows/private-connectivity/docker_recovery.py",
+      "resolved_after_source_and_regression_audit": true
     }
-  ]
+  ],
+  "actual_recovery_adapter_repairs_ref": "git:493f4db039a70f6e7871e257591c3984d3f0d5a2:tests/private_connectivity/evidence/recovery-repairs.json"
 }

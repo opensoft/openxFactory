@@ -11,8 +11,8 @@
     "output_ref": "git:10aca828a3044d88b2880329530a51881c927df9:tests/private_connectivity/evidence/review-repair-checks.json"
   },
   "dependencies": {
-    "T006": "773edd63ea1e2fa3df6f20ca2b55e34db8a4620d78f78fc0810a378acbbc81a7",
-    "T012": "5f3c0782c81d0a0719682ecec862b96adb4af7c49901b662b19b0e5d43ae170e",
+    "T006": "aa2dba0394534b634e5d9f65073c6ca963ef2988e3ca8d1282c1e34ca442ba95",
+    "T012": "89346e5e31d94cb45ddd9d7816901bbda0e6a998ae29371236b63f1b0aecd1af",
     "T013": "a855ae754a9aef5a731db89396abfdc3ccc55df78834761ed18dcfc104540b05"
   },
   "cases": {
@@ -165,7 +165,7 @@
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
     "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
-    "ops_runtime": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/runtime-inventory.json",
+    "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
   "policy_baseline": {
@@ -226,10 +226,6 @@
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
     },
     {
-      "repository": "opensoft/opsXfactory",
-      "foreign_commit": "275d9d087677d100fca127069946d8d27ecf1041"
-    },
-    {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "2d8efb17698442445f6bcf8b17b3adb9eb6146fe"
     },
@@ -288,6 +284,10 @@
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "e24ea82b75d0bf880e77c3fadca6b0e51a53dce9"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
     }
   ],
   "repair_qualification": {

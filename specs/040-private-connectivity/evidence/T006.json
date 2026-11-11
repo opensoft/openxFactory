@@ -21,7 +21,7 @@
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
     "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
-    "ops_runtime": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/runtime-inventory.json",
+    "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
   "policy_baseline": {
@@ -87,7 +87,7 @@
     "managed": "git:66bfafadcd4d215eb2bebd384c39a5ba5943ad2e:tests/qualification/evidence/review-repair-checks.json",
     "install": "git:8eb1251253c7f62e0cfefc04f1e2e490d0c0fde3:tests/qualification/evidence/review-repair-checks.json",
     "installer": "git:10aca828a3044d88b2880329530a51881c927df9:tests/private_connectivity/evidence/review-repair-checks.json",
-    "ops": "git:ec04538ee963f808d41d20e9034f56cba3e6a3d3:tests/private_connectivity/evidence/review-repair-checks.json"
+    "ops": "git:dfd74041f9dd1e57547a2db01c5939b4bd322c97:tests/private_connectivity/evidence/review-repair-checks.json"
   },
   "domain_local_validation": {
     "result": "374 passed",
@@ -392,6 +392,10 @@
         "hosted managed and unbound readiness recovery"
       ],
       "authority": "Existing ratified installer/hosted implementation and approved isolated Eagle pilot scope; no human G4 claim."
+    },
+    {
+      "reason": "Require current grant registrations in restored databases and contain replacement after failed activation effects. Original recovery reader and binary images unchanged; isolated Docker adapter regression qualification pending.",
+      "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json"
     }
   ],
   "requalification_phase": "Existing isolated controls remain on approved 0.29.7 after the already qualified upgrade. Current-source paths are requalified without downgrading or resetting identities. Original .29.6-to-.29.7 upgrade evidence is retained only for byte-identical upgrade components.",
@@ -605,12 +609,16 @@
       "foreign_commit": "dbad1281b6aa30f7cc972badda9baf113fb3d790"
     },
     {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "dfd74041f9dd1e57547a2db01c5939b4bd322c97"
+    },
+    {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "e5dcc0da689ac52f23044974ff7c295cd08cd710"
     },
     {
       "repository": "opensoft/opsXfactory",
-      "foreign_commit": "ec04538ee963f808d41d20e9034f56cba3e6a3d3"
+      "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
     },
     {
       "repository": "opensoft/Headscale-Install",

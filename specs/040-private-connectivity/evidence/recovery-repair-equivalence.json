@@ -1,0 +1,41 @@
+{
+  "qualification": "Recovery repair composition; original full upgrade/restore timing is retained, not repeated",
+  "original_ref": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/docker_recovery.py",
+  "current_ref": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/docker_recovery.py",
+  "AST_identical_methods": [
+    "__init__",
+    "scoped",
+    "control",
+    "current_revocations",
+    "grants",
+    "fence",
+    "quarantine",
+    "restore",
+    "reconcile"
+  ],
+  "changed_methods": [
+    "verify",
+    "activate"
+  ],
+  "added_methods": [
+    "allowed_registrations",
+    "contain_replacement"
+  ],
+  "binary_and_snapshot_helper_unchanged": true,
+  "original_full_restore_ref": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T019.json",
+  "scope": "Actual shadow-controller negative registration and post-connect fault checks supplement the original normal upgrade, writer fencing, quarantine, reconciliation, allowed traffic, revocation and neighbor observations. Shadow names and aliases never replace the live A endpoint. No new full restore timing claimed.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "275d9d087677d100fca127069946d8d27ecf1041"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
+    }
+  ]
+}

@@ -48,7 +48,7 @@
       }
     }
   },
-  "qualification_scope": "Original actual per-instance backup and quarantined restore at unchanged Ops recovery revision and byte-identical install recovery/image components. The repaired enrollment and onboarding paths are separately qualified; no repeat upgrade is claimed.",
+  "qualification_scope": "Original actual per-instance backup and quarantined restore at unchanged Ops recovery revision and byte-identical install recovery/image components. The repaired enrollment and onboarding paths are separately qualified; no repeat upgrade is claimed. Current recovery adapter separately passed an actual stale-registration refusal and post-connect store/update-failure containment in isolated shadow controllers. Live A/B probes passed; original full upgrade/restore timing remains historical, not rerun.",
   "pin_inventory": [
     {
       "repository": "opensoft/opsXfactory",
@@ -57,6 +57,10 @@
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "493f4db039a70f6e7871e257591c3984d3f0d5a2"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
@@ -75,8 +79,16 @@
       "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
     },
     {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "dfd74041f9dd1e57547a2db01c5939b4bd322c97"
+    },
+    {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
     }
   ],
   "repair_qualification": {
@@ -85,5 +97,8 @@
     "managed_selection_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
     "original_measurements_preserved": true,
     "fresh_full_cohort_rerun_claimed": false
-  }
+  },
+  "recovery_adapter_qualification_ref": "git:493f4db039a70f6e7871e257591c3984d3f0d5a2:tests/private_connectivity/evidence/recovery-repairs.json",
+  "recovery_adapter_runtime_ref": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
+  "recovery_adapter_owner_checks_ref": "git:dfd74041f9dd1e57547a2db01c5939b4bd322c97:tests/private_connectivity/evidence/review-repair-checks.json"
 }
