@@ -1,6 +1,6 @@
 {
   "kind": "pc040-g4-review-packet",
-  "status": "superseded-pending-reviewed-repair-requalification",
+  "status": "superseded-by-accepted-repair-packet",
   "scope": "Synthetic isolated Docker lab on Eagle; lab acceptance only. Commercial deployment and per-domain release remain separate authorizations. All implementation pull requests stay draft.",
   "technical_tasks_completed": [
     "T001",
@@ -225,6 +225,10 @@
       "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
     },
     {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "50cafafa73351e6141cde07e39e41e427b75e6f8"
+    },
+    {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "7a88f1ccd5610532a29e15870fc20307ee530e79"
     },
@@ -276,5 +280,6 @@
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "fe630abc868255bd184d646fe51dcb8d1d448552"
     }
-  ]
+  ],
+  "accepted_repair_approval_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json"
 }

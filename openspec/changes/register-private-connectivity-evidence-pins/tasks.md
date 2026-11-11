@@ -10,5 +10,7 @@ Ratified: 2026-11-10 by Brett Heap. [Ratification record](review/ratification-20
 
 ## 2. Qualification and disposition
 
-- [ ] 2.1 Record the measured pin inventory, regression results, relevant doc-health suite and required CI result; verify original observations remain distinct from current candidate pins and no evidence path was excluded.
+- [x] 2.1 Record the measured pin inventory, regression results, relevant doc-health suite and required CI result; verify original observations remain distinct from current candidate pins and no evidence path was excluded.
 - [x] 2.2 Keep all implementation PRs draft and retain the G4 human gate; verify the final packet identifies this repair and its exact source evidence.
+
+Qualification: [2026-11-11 local and required-CI record](review/qualification-2026-11-11.md).

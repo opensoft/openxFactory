@@ -1,9 +1,9 @@
 {
   "task": "T021",
-  "verdict": "blocked",
+  "verdict": "pass",
   "scope": "evidence_tooling",
   "owner": "openxFactory feature 040",
-  "reason": "The original packet approval is recorded. Revised source and recovery repairs are technically qualified; T021 requires human approval of the revised immutable G4 supplement before lab acceptance is complete.",
+  "reason": "Brett Heap approved the revised G4 lab evidence for all five named roles on 2026-11-11. Acceptance is confined to the isolated Eagle lab; all six implementation PRs remain draft.",
   "approval_required_by": [
     "specs/040-private-connectivity/tasks.md T021",
     "specs/040-private-connectivity/contracts/pilot-evidence.md Records and verification"
@@ -16,15 +16,21 @@
     "hosted_domain"
   ],
   "gates_and_drills": {
-    "G0": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T006.json",
-    "G1": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T012.json",
-    "G2": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T014.json",
-    "G3": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T017.json",
-    "T018": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T018.json",
-    "T019": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T019.json",
-    "T020": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T020.json"
+    "G0": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T006.json",
+    "G1": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T012.json",
+    "G2": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T014.json",
+    "G3": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T017.json",
+    "T018": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T018.json",
+    "T019": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T019.json",
+    "T020": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T020.json"
   },
-  "signoffs": {},
+  "signoffs": {
+    "rollout_lead": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+    "installer": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+    "ops": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+    "hosted_product": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+    "hosted_domain": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json"
+  },
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "candidate_pins": {
     "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
@@ -67,6 +73,14 @@
     },
     {
       "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "18937a8adce972cc9cfda8d378d312c73b02e2e8"
+    },
+    {
+      "repository": "opensoft/openxFactory",
       "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
     },
     {
@@ -79,7 +93,7 @@
     },
     {
       "repository": "opensoft/openxFactory",
-      "openxfactory_commit": "4e9ebcdc937532d1bcf99a66dfcf033f0b753f48"
+      "openxfactory_commit": "50cafafa73351e6141cde07e39e41e427b75e6f8"
     },
     {
       "repository": "opensoft/opsXfactory",
@@ -110,14 +124,8 @@
       "openxfactory_commit": "fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923"
     }
   ],
-  "human_approval_ref": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
-  "current_supplement_approval_required": [
-    "rollout_lead",
-    "installer",
-    "ops",
-    "hosted_product",
-    "hosted_domain"
-  ],
+  "human_approval_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+  "current_supplement_approval_required": [],
   "original_packet_signoffs": {
     "rollout_lead": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
     "installer": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
@@ -125,5 +133,91 @@
     "hosted_product": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
     "hosted_domain": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json"
   },
-  "review_packet_ref": "git:af899bdc7ac89220398958c425482dd903cc6be1:specs/040-private-connectivity/evidence/G4-repair-review.json"
+  "review_packet_ref": "git:af899bdc7ac89220398958c425482dd903cc6be1:specs/040-private-connectivity/evidence/G4-repair-review.json",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
+  "decision_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+  "rollout_decision": "Accept the revised isolated lab evidence. No rollout expansion, commercial release or production deployment is authorized.",
+  "cases": {
+    "four-paths": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:af899bdc7ac89220398958c425482dd903cc6be1:specs/040-private-connectivity/evidence/G4-repair-review.json",
+      "checks": {
+        "local-headscale": {
+          "passed": true,
+          "evidence_ref": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T008.json"
+        },
+        "local-managed": {
+          "passed": true,
+          "evidence_ref": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T013.json"
+        },
+        "standalone": {
+          "passed": true,
+          "evidence_ref": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T012.json"
+        },
+        "hosted-factory": {
+          "passed": true,
+          "evidence_ref": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T017.json"
+        }
+      }
+    },
+    "gate-chain": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:af899bdc7ac89220398958c425482dd903cc6be1:specs/040-private-connectivity/evidence/G4-repair-review.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:af899bdc7ac89220398958c425482dd903cc6be1:specs/040-private-connectivity/evidence/G4-repair-review.json"
+        }
+      }
+    },
+    "drills": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:af899bdc7ac89220398958c425482dd903cc6be1:specs/040-private-connectivity/evidence/G4-repair-review.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:af899bdc7ac89220398958c425482dd903cc6be1:specs/040-private-connectivity/evidence/G4-repair-review.json"
+        }
+      }
+    },
+    "incidents-closed": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/review-repair-closures.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/review-repair-closures.json"
+        }
+      }
+    },
+    "owner-signoff": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json"
+        }
+      }
+    },
+    "rollout-decision": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json"
+        }
+      }
+    }
+  },
+  "ci_qualification_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/pin-register-qualification.json",
+  "commercial_release_authorized": false,
+  "production_deployment_authorized": false
 }

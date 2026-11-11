@@ -1,9 +1,9 @@
 {
   "kind": "pc040-g4-repair-review-packet",
-  "status": "awaiting-human-lab-signoffs",
+  "status": "lab-accepted",
   "scope": "Isolated synthetic Eagle Docker lab only. All six implementation PRs remain draft. No commercial release, production deployment or rollout expansion is authorized by this packet.",
   "original_human_approval_ref": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
-  "technical_tasks": "T001-T020 dependency evidence completed; T021 awaits approval of this repair supplement.",
+  "technical_tasks": "T001-T021 complete for the isolated Eagle Docker pilot; all implementation PRs remain draft.",
   "required_roles": [
     "rollout_lead",
     "installer",
@@ -119,6 +119,10 @@
       "foreign_commit": "4f9883f985e2310a5eb1e9c857ac8ad40511b813"
     },
     {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "50cafafa73351e6141cde07e39e41e427b75e6f8"
+    },
+    {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "5c752bf83f2cf92e01b4f2553d9197e8d5a2b909"
     },
@@ -158,5 +162,7 @@
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923"
     }
-  ]
+  ],
+  "acceptance_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+  "acceptance_date": "2026-11-11"
 }

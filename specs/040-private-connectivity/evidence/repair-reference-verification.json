@@ -1,6 +1,6 @@
 {
-  "qualification": "Actual immutable file reference resolution in explicit owner repositories; implicit fetching disabled",
-  "reference_count": 206,
+  "qualification": "Actual immutable file reference resolution after the five-role G4 acceptance record; explicit owner repositories and implicit fetching disabled",
+  "reference_count": 224,
   "verified_references": [
     {
       "repository": "opensoft/xFactory-Installer",
@@ -374,37 +374,72 @@
     },
     {
       "repository": "opensoft/openxFactory",
-      "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T006.json",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T006.json",
       "object_type": "blob"
     },
     {
       "repository": "opensoft/openxFactory",
-      "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T012.json",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T012.json",
       "object_type": "blob"
     },
     {
       "repository": "opensoft/openxFactory",
-      "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T014.json",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T014.json",
       "object_type": "blob"
     },
     {
       "repository": "opensoft/openxFactory",
-      "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T017.json",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T017.json",
       "object_type": "blob"
     },
     {
       "repository": "opensoft/openxFactory",
-      "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T018.json",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T018.json",
       "object_type": "blob"
     },
     {
       "repository": "opensoft/openxFactory",
-      "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T020.json",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T019.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T020.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
       "object_type": "blob"
     },
     {
       "repository": "opensoft/openxFactory",
       "reference": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:af899bdc7ac89220398958c425482dd903cc6be1:specs/040-private-connectivity/evidence/G4-repair-review.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T008.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/T013.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/review-repair-closures.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/pin-register-qualification.json",
       "object_type": "blob"
     },
     {
@@ -939,6 +974,36 @@
     },
     {
       "repository": "opensoft/openxFactory",
+      "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T006.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T012.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T014.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T017.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T018.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T020.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
       "reference": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T008.json",
       "object_type": "blob"
     },
@@ -1031,9 +1096,34 @@
       "repository": "opensoft/opsXfactory",
       "reference": "git:ec04538ee963f808d41d20e9034f56cba3e6a3d3:tests/private_connectivity/evidence/review-repair-checks.json",
       "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/pin-register-validation.txt",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/pin-register-provenance-validation.txt",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/repair-reference-verification.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:scripts/doc_health/pin_class.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "reference": "git:493f4db039a70f6e7871e257591c3984d3f0d5a2:workflows/private-connectivity/runtime-inventory.json",
+      "object_type": "blob"
     }
   ],
-  "does_not_claim_release_or_human_acceptance": true,
+  "does_not_claim_release_or_unperformed_review": true,
   "pin_inventory": [
     {
       "repository": "opensoft/xFactory-Installer",
@@ -1086,6 +1176,10 @@
     {
       "repository": "opensoft/Headscale-Install",
       "foreign_commit": "1874fe695fc39277ac2c42f0350b13dd8dd63974"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "18937a8adce972cc9cfda8d378d312c73b02e2e8"
     },
     {
       "repository": "opensoft/xFactory-Installer",
@@ -1186,6 +1280,10 @@
     {
       "repository": "opensoft/opsXfactory",
       "foreign_commit": "4fd9090a53677dbf58ab9c82b98666598e8ca907"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "50cafafa73351e6141cde07e39e41e427b75e6f8"
     },
     {
       "repository": "opensoft/xFactory-Installer",
@@ -1338,6 +1436,10 @@
     {
       "repository": "opensoft/Headscale-Install",
       "foreign_commit": "a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "af899bdc7ac89220398958c425482dd903cc6be1"
     },
     {
       "repository": "opensoft/openxFactory",
