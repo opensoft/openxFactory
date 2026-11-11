@@ -47,3 +47,5 @@ candidate code and tests do not manufacture ratification. Live composition and
 owner acceptance remain separate gates.
 
 Supporting packet: [design](design.md), [candidate profile](supporting-docs/profile.md), [capability delta](specs/workload-factory-binding/spec.md), [governance handoff](tasks.md).
+
+Measured candidate realization: [isolated qualification](supporting-docs/qualification.md).
