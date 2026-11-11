@@ -1,0 +1,4 @@
+Scope: Revised five-role G4 sign-off records and source pin inventories
+Command: python3 -m pytest specs/040-private-connectivity/tests tests/doc-health/test_pin_reachability.py tests/doc-health/test_sentinel_vocabulary.py -q
+152 passed, 3 warnings, 52 subtests passed in 780.43s (0:13:00)
+Exit status: 0
