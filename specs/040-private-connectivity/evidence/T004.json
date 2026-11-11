@@ -11,7 +11,7 @@
     "output_ref": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt"
   },
   "dependencies": {
-    "T001": "6e8c49907794dfa72b34af2c3a3e48fe65669d7308f816231e7c2de874d8e9a1"
+    "T001": "116e1a5751166bd78634a052d98585e397a68f86b500e2176de51d8333072a25"
   },
   "consumer_pin": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:src/private_connectivity/contract-pin.json",
   "release_status": "Approved feature-local pilot candidate outside published contracts; endpoint-bound authority. Serialized atomic bundle realization remains required before customer release.",

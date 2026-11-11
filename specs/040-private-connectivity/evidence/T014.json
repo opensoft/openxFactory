@@ -1,154 +1,154 @@
 {
   "task": "T014",
-  "verdict": "blocked",
+  "verdict": "pass",
   "scope": "installer",
   "owner": "xFactory-Installer",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
-  "revision_ref": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:src/private_connectivity/runtime-inventory.json",
+  "revision_ref": "git:080727f0184e9f7d28a249a45324b23a2edb7a9e:src/private_connectivity/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/selection.txt"
+    "output_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/review-repair-checks.json"
   },
   "dependencies": {
-    "T006": "f990e0d96f776c4592a6f1595366ab6e34ae98d9a0809d18bb39d87279a8d88e",
-    "T012": "9a0eb4f34509148805a9e34b6bf368847ab27d48b5c11f1d61092281169237db",
-    "T013": "a22ac32fe5813dc98af3d1df7aa4f7bb25a8554b6f6f8cbe51fec612dfa8a9f4"
+    "T006": "3f6474f970ff5f6ad86342d2a4b45790116805454b707a012d06b18eee28dd0c",
+    "T012": "8500205c7f4ef4277d80750c48a5ab0f4f321f72e05e870533b3c7b36dc2c542",
+    "T013": "bb9fc6694a9a66070bdfec4c7da6171b507d2c47a1f6854e9dc3cf1d6d773b52"
   },
   "cases": {
     "new-local": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
+      "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
+          "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json"
         }
       }
     },
     "existing-local": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
+      "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
+          "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json"
         }
       }
     },
     "unbound": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
+      "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
+          "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json"
         }
       }
     },
     "local-managed": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json",
+      "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         }
       }
     },
     "invalid-binding": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json",
+      "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
       "checks": {
         "endpoint": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         },
         "selection": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         },
         "policy": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         },
         "destination": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         },
         "port": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         }
       }
     },
     "managed-retry": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json",
+      "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         }
       }
     },
     "shared-distinct-grants": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json",
+      "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
       "checks": {
         "two-installations": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         },
         "distinct-grants": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         },
         "explicit-approval": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         }
       }
     },
     "detach": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json",
+      "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         }
       }
     },
     "subscription-end": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json",
+      "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
       "checks": {
         "affected-revoked": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         },
         "unrelated-retained": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         },
         "entitlement-retained": {
           "passed": true,
-          "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/managed-runtime.json"
+          "evidence_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json"
         }
       }
     }
   },
-  "qualification_scope": "Actual current pinned SDK. Managed selection, lost enrollment response and same-identity replay, scoped detach, distinct sharing, subscription cancellation, cutover and forced rollback ran after G1. Local install/existing/unbound qualification remained unchanged on these exact runtime bytes, with fresh G2 local application and effective-policy controls. This is synthetic lab acceptance, not a customer release.",
+  "qualification_scope": "Fresh v4 local selection and v7 managed selection, sharing, retry, detach and subscription cancellation; valid local migration paths exercise the final approval-clock check. Initial package commissioning remains retained, not repeated.",
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "candidate_pins": {
     "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
@@ -157,15 +157,15 @@
     "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
     "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
     "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
-    "install_runtime": "git:fc23f2e12cd75d14041015f811ca2855383ffb60:release/runtime-inventory.json",
-    "hosted_runtime": "git:fe630abc868255bd184d646fe51dcb8d1d448552:release/runtime-inventory.json",
-    "installer_runtime": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:src/private_connectivity/runtime-inventory.json",
+    "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+    "hosted_runtime": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:release/runtime-inventory.json",
+    "installer_runtime": "git:080727f0184e9f7d28a249a45324b23a2edb7a9e:src/private_connectivity/runtime-inventory.json",
     "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
     "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
     "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
-    "ops_runtime": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/runtime-inventory.json",
+    "ops_runtime": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
   "policy_baseline": {
@@ -178,22 +178,22 @@
     "tenant-a": {
       "reachable": true,
       "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
-      "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/g2-controls.json"
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
     },
     "tenant-b": {
       "reachable": true,
       "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
-      "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/g2-controls.json"
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
     },
     "customer-local": {
       "reachable": true,
       "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
-      "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/g2-controls.json"
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
     },
     "tenant-hosted-new": {
       "reachable": true,
       "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
-      "evidence_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/g2-controls.json"
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
     }
   },
   "fresh_local_scope_control_ref": "git:2d8efb17698442445f6bcf8b17b3adb9eb6146fe:tests/private_connectivity/evidence/g2-controls.json",
@@ -204,15 +204,26 @@
     "original_measurement_report_unchanged": true,
     "reason": "Qualified proof-label clarification only; required profile-revision evidence retained."
   },
-  "requalification_required": "Fresh reviewed repair candidates; predecessor physical evidence retained without claiming a rerun.",
   "pin_inventory": [
     {
       "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "043d72a7dc9fdaf8cc1c0257a375b1e565e7160a"
+      "foreign_commit": "06d70ff72136a456f2bb6a3fb4bb81eef344fe11"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "07aad58f58c9c08a212215225b7167c983e391b1"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e"
     },
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "275d9d087677d100fca127069946d8d27ecf1041"
     },
     {
       "repository": "opensoft/xFactory-Installer",
@@ -239,20 +250,37 @@
       "foreign_commit": "88b8e9309ce0c1db2dd476a228cec91cbe64eaa2"
     },
     {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "931dbca4193a35f2aceac32b5f78d867e80e81f6"
+    },
+    {
       "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2"
+      "foreign_commit": "a2744d68e20904927e2457dfea97482bb9488712"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
     },
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
     },
     {
-      "repository": "opensoft/Headscale-Install",
-      "foreign_commit": "fc23f2e12cd75d14041015f811ca2855383ffb60"
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "fe630abc868255bd184d646fe51dcb8d1d448552"
+      "foreign_commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d"
     }
-  ]
+  ],
+  "repair_qualification": {
+    "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json",
+    "actual_review_repairs_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
+    "managed_selection_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
+    "original_measurements_preserved": true,
+    "fresh_full_cohort_rerun_claimed": false
+  },
+  "final_preflight_equivalence": "The final authorization preflight is qualified by 44 regression tests and the actual current-source post-restore drill.",
+  "current_post_restore_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/after-restore-repair.json"
 }

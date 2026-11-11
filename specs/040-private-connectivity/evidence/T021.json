@@ -3,7 +3,7 @@
   "verdict": "blocked",
   "scope": "evidence_tooling",
   "owner": "openxFactory feature 040",
-  "reason": "Brett approved every named lab sign-off for the original immutable packet. Current-source managed migration, post-restore cleanup and the shared pin-register repair are still being qualified; technical acceptance remains held.",
+  "reason": "All current runtime gates and drills through T020 pass. Original named lab approvals are recorded. Final shared-tool validation and affected-owner approval of the repair supplement remain required; original Ops and domain measurements/components are unchanged.",
   "approval_required_by": [
     "specs/040-private-connectivity/tasks.md T021",
     "specs/040-private-connectivity/contracts/pilot-evidence.md Records and verification"
@@ -24,7 +24,10 @@
     "T019": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T019.json",
     "T020": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T020.json"
   },
-  "signoffs": {},
+  "signoffs": {
+    "ops": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
+    "hosted_domain": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json"
+  },
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "candidate_pins": {
     "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
@@ -51,13 +54,13 @@
     "tenant-hosted-new": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2"
   },
   "dependencies": {
-    "T006": "f990e0d96f776c4592a6f1595366ab6e34ae98d9a0809d18bb39d87279a8d88e",
-    "T012": "9a0eb4f34509148805a9e34b6bf368847ab27d48b5c11f1d61092281169237db",
-    "T014": "2c4d5299051486f3c84b65da034862ad8fa265642a7445d9a88a1012ab41de7f",
-    "T017": "fa507561dae493e2781a3ed2598f77e549c2cce6c33e56e34002572dde0263a9",
-    "T018": "6ffc1e25c1578e2b993122b86843c1b7c76d8df69b1fa80d3805e9e5550822b2",
-    "T019": "2446d95310851cecc04919cd1f062b538f49e33b18f59d8e34a9a31fc5597813",
-    "T020": "646040fdf975caf8d8b2fe54f5a4091894e3e843ff22f043ebde296767573166"
+    "T006": "3f6474f970ff5f6ad86342d2a4b45790116805454b707a012d06b18eee28dd0c",
+    "T012": "8500205c7f4ef4277d80750c48a5ab0f4f321f72e05e870533b3c7b36dc2c542",
+    "T014": "365f81d20ea49554ac46168e7e598a9c59878a9188207cb0904519fd55ac98f6",
+    "T017": "d770f88b392b9045aa5520a2c10e2ef3d3296f4dae422585d83f5801076fce38",
+    "T018": "a49afd6e6f70181d61ae248e4b3a4f383af5a27943c1470185d3db1f9240c90b",
+    "T019": "17b04b4d6c354bbec6ea319c060d15766427381fddca7fd4019534f55292a972",
+    "T020": "7ccd00db77eeab9fcfd3ba666e95bb92f8a7de491470fb7ed6604d2cfa6043e5"
   },
   "implementation_pull_requests_remain_draft": true,
   "pin_inventory": [
@@ -106,5 +109,10 @@
       "openxfactory_commit": "fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923"
     }
   ],
-  "human_approval_ref": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json"
+  "human_approval_ref": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
+  "current_supplement_approval_required": [
+    "rollout_lead",
+    "installer",
+    "hosted_product"
+  ]
 }

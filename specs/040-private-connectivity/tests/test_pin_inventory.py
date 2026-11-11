@@ -14,6 +14,13 @@ class PinInventoryTests(unittest.TestCase):
         rows=module.inventory(record,{"opensoft/openxFactory":{a},"opensoft/Headscale-Install":{b}})
         self.assertEqual(rows,[{"repository":"opensoft/openxFactory","openxfactory_commit":a},{"repository":"opensoft/Headscale-Install","foreign_commit":b}])
         self.assertEqual(record,original)
+    def test_foreign_label_cannot_hide_a_known_local_pin_or_root_url(self):
+        a="a"*40
+        value={"ref":"git:"+a+":source.md","pin_inventory":[{"repository":"opensoft/Headscale-Install","foreign_commit":a}]}
+        with self.assertRaises(ValueError):module.validate_stored_inventory(value,{a})
+        value["ref"]="https://github.com/opensoft/openxFactory/blob/"+a+"/source.md"
+        with self.assertRaises(ValueError):module.validate_stored_inventory(value,set())
+
     def test_unknown_or_ambiguous_owner_never_becomes_a_foreign_exemption(self):
         a="a"*40
         for owners in ({"opensoft/openxFactory":set()},{"opensoft/openxFactory":{a},"other/repo":{a}}):

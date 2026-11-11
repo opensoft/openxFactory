@@ -1,0 +1,74 @@
+{
+  "qualification": "Current review repair and incomplete-probe closures for G4",
+  "current_runtime_refs": {
+    "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+    "installer_runtime": "git:080727f0184e9f7d28a249a45324b23a2edb7a9e:src/private_connectivity/runtime-inventory.json",
+    "hosted_runtime": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:release/runtime-inventory.json",
+    "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+    "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py"
+  },
+  "current_owner_tests": {
+    "headscale_install": 26,
+    "installer": 44,
+    "hosted_product": 47,
+    "ops": 11
+  },
+  "actual_repair_regressions_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
+  "actual_post_restore_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/after-restore-repair.json",
+  "actual_post_upgrade_credentials_ref": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/upgraded-credentials.json",
+  "incomplete_attempts": {
+    "local_address_pool": {
+      "closure_ref": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/repair-lab-address-reclamation-round2.json",
+      "resolution": "Only owned clients with observed expired leases disconnected; state and control identity retained. Fresh local/managed/post-restore probes passed."
+    },
+    "managed_v5_v6": {
+      "closure_ref": "git:c9e864f71dd5d82fc9b43a20b1054f67c72ab4dc:tests/private_connectivity/evidence/managed-repair-attempts.json",
+      "resolution": "Six incomplete subjects explicitly retired. Fresh v7 and final post-restore drills passed."
+    },
+    "credential_setup_and_overlap": {
+      "closure_ref": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/credential-probe-attempts.json",
+      "accepted_serial_rerun_ref": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/upgraded-credentials.json",
+      "preliminary_results_used_for_acceptance": false
+    }
+  },
+  "unchanged_measurements": "Original revocation and binary-upgrade/restore measurements remain immutable, retained against measured unchanged components; no fresh rerun of those timings is claimed.",
+  "credential_material_recorded": false,
+  "pin_inventory": [
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "06d70ff72136a456f2bb6a3fb4bb81eef344fe11"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "07aad58f58c9c08a212215225b7167c983e391b1"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "4f9883f985e2310a5eb1e9c857ac8ad40511b813"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "c9e864f71dd5d82fc9b43a20b1054f67c72ab4dc"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d"
+    }
+  ]
+}

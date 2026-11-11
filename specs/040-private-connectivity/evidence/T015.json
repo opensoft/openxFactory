@@ -4,15 +4,15 @@
   "scope": "hosted_product",
   "owner": "openXsoft.com product",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
-  "revision_ref": "git:fe630abc868255bd184d646fe51dcb8d1d448552:release/runtime-inventory.json",
+  "revision_ref": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:release/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/candidate.txt"
+    "output_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repair-checks.json"
   },
   "dependencies": {
-    "T004": "6656b4d642181e06eb0967d20e0ff7be95acfbd5f9334e949e72df627fc5e658",
-    "T010": "da6bd748f7b610b5dfb5597b832d79fc08bb78f938977889b9ec70b3fa94e4c5"
+    "T004": "78b2d7dd32403ee8b7b082ec7541855f9f8abb4014cc777244a5e2586499cf7e",
+    "T010": "949b7cd9b2cd1b98fd4d43b5d63d600f9e5718b70f73d31a86cd453b752f831d"
   },
   "cases": {
     "hosted-new": {
@@ -29,22 +29,22 @@
     "hosted-reuse": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json",
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+          "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json"
         }
       }
     },
     "hosted-unbound": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json",
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+          "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json"
         }
       }
     },
@@ -94,7 +94,7 @@
       }
     }
   },
-  "qualification_scope": "Actual synthetic deployments on the exact G0 domain/profile/installer/service bytes. New managed customer, authorized reuse, no-network unbound deployment, failed-step recovery, cross-customer and application denial, external fixture ingress denial and independent lifecycle all passed. Catalog qualification was exercised only by the explicitly synthetic commissioning decision adapter; the release inventory remains customer-ineligible. Human owner acceptance is reserved for G4.",
+  "qualification_scope": "Fresh real hosted replacement survives elapsed stale-approval retry, private app remains 200, and unbound remains health 200/private 403. Original new-network creation, interrupted deployment, failed-step, ingress/auth and detach observations remain explicit against unchanged provisioning, binder and domain components; current 47-test onboarding suite covers readiness/CAS failure handling. SDK publication-clock behavior is separately qualified by 44 tests and fresh v7 selection.",
   "pin_inventory": [
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
@@ -105,8 +105,27 @@
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
     },
     {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "931dbca4193a35f2aceac32b5f78d867e80e81f6"
+    },
+    {
       "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "fe630abc868255bd184d646fe51dcb8d1d448552"
+      "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d"
     }
-  ]
+  ],
+  "repair_qualification": {
+    "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json",
+    "actual_review_repairs_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
+    "managed_selection_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
+    "original_measurements_preserved": true,
+    "fresh_full_cohort_rerun_claimed": false
+  }
 }

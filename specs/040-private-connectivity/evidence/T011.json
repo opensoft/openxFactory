@@ -4,14 +4,14 @@
   "scope": "ops",
   "owner": "OpsxFactory",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-headscale-install-ownership/review/ratification-2026-11-10.md",
-  "revision_ref": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/runtime-inventory.json",
+  "revision_ref": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/runtime-inventory.json",
   "owner_check": {
     "command": "python3 -m pytest tests/private_connectivity -q",
     "exit_status": 0,
-    "output_ref": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:tests/private_connectivity/evidence/qualification.txt"
+    "output_ref": "git:a524b9c12a0530149f1d1ecd3a33272fbd827a3c:tests/private_connectivity/evidence/review-repair-checks.json"
   },
   "dependencies": {
-    "T009": "4e8e72e0317ea2751d7cc8c091aa2339b5724c035fc84773cd9aa578f1e74dfe"
+    "T009": "c90cee97cd9210ebdf459ca67606fbe68345c7aca41ddb9700f84adfce461df3"
   },
   "cases": {
     "backup": {
@@ -48,7 +48,7 @@
       }
     }
   },
-  "qualification_scope": "Current-pins actual fenced .29.6 snapshot, .29.7 database startup in network-none quarantine, integrity/current revocations and stopped retained target; unchanged original source resumed. No live upgrade or G1 acceptance.",
+  "qualification_scope": "Original actual per-instance backup and quarantined restore at unchanged Ops recovery revision and byte-identical install recovery/image components. The repaired enrollment and onboarding paths are separately qualified; no repeat upgrade is claimed.",
   "pin_inventory": [
     {
       "repository": "opensoft/opsXfactory",
@@ -60,7 +60,30 @@
     },
     {
       "repository": "opensoft/opsXfactory",
-      "foreign_commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90"
+      "foreign_commit": "275d9d087677d100fca127069946d8d27ecf1041"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "931dbca4193a35f2aceac32b5f78d867e80e81f6"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "a524b9c12a0530149f1d1ecd3a33272fbd827a3c"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
     }
-  ]
+  ],
+  "repair_qualification": {
+    "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json",
+    "actual_review_repairs_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
+    "managed_selection_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
+    "original_measurements_preserved": true,
+    "fresh_full_cohort_rerun_claimed": false
+  }
 }

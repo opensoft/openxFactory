@@ -2614,3 +2614,19 @@ def test_private_connectivity_inventory_does_not_cover_another_feature(tmp_path)
     _write(repo,path,json.dumps({"openxfactory_commit":old},indent=2))
     _commit(repo,"unregistered other feature")
     assert not any(x.path==path for x in pc.member_sites(repo,"HEAD"))
+
+
+def test_committed_private_connectivity_inventory_cannot_hide_local_references():
+    import importlib.util
+    import json
+    import os
+    feature=REPO_ROOT/"specs/040-private-connectivity"
+    spec=importlib.util.spec_from_file_location("pc040_inventory_ci",feature/"register-evidence-pins.py")
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    paths=[p for p in pc.committed_paths(REPO_ROOT,"HEAD") if p.startswith("specs/040-private-connectivity/evidence/") and p.endswith(".json")]
+    records=[json.loads(pc.committed_text(REPO_ROOT,"HEAD",path)) for path in paths]
+    tokens=sorted({token for record in records for token in module.TOKEN.findall(json.dumps({k:v for k,v in record.items() if k!="pin_inventory"}))})
+    result=subprocess.run(["git","cat-file","--batch-check=%(objectname) %(objecttype)"],cwd=REPO_ROOT,input="\n".join(tokens)+"\n",capture_output=True,text=True,check=True,timeout=30,env={**os.environ,"GIT_NO_LAZY_FETCH":"1"})
+    local={line.split()[0] for line in result.stdout.splitlines() if line.endswith(" commit")}
+    assert records
+    for record in records:module.validate_stored_inventory(record,local)

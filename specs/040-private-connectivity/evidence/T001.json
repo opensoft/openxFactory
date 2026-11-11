@@ -70,10 +70,11 @@
       "owner": "openxFactory feature 040",
       "repository": "opensoft/openxFactory",
       "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
-      "file_scope": "specs/040-private-connectivity/verify-evidence.py, specs/040-private-connectivity/tests/test_verify_evidence.py, specs/040-private-connectivity/register-evidence-pins.py, feature 040 evidence ownership metadata and self-tests, scripts/doc_health/pin_class.py, directly affected tests/doc-health/test_pin_reachability.py cases",
+      "file_scope": "specs/040-private-connectivity/verify-evidence.py, specs/040-private-connectivity/tests/test_verify_evidence.py, specs/040-private-connectivity/register-evidence-pins.py, feature 040 evidence ownership metadata and self-tests, scripts/doc_health/pin_class.py, directly affected tests/doc-health/test_pin_reachability.py cases, measured census expectation in tests/doc-health/test_sentinel_vocabulary.py",
       "release_path": "Feature branch evidence tool and self-test",
-      "verify": "python3 -m unittest discover -s specs/040-private-connectivity/tests -p test_verify_evidence.py",
-      "additional_approval_ref": "https://github.com/opensoft/openxFactory/blob/998b8fd49398ea0d45e44c19b23f6973eb7810d4/openspec/changes/register-private-connectivity-evidence-pins/review/ratification-2026-11-10.md"
+      "verify": "python3 -m pytest specs/040-private-connectivity/tests tests/doc-health/test_pin_reachability.py tests/doc-health/test_sentinel_vocabulary.py -q",
+      "additional_approval_ref": "https://github.com/opensoft/openxFactory/blob/998b8fd49398ea0d45e44c19b23f6973eb7810d4/openspec/changes/register-private-connectivity-evidence-pins/review/ratification-2026-11-10.md",
+      "additional_verify": "python3 -m pytest tests/doc-health -q -rs; python3 -m pytest tests/private_connectivity specs/040-private-connectivity/tests -q; feature owner inventory --check against all named source repositories"
     }
   },
   "bootstrap": {

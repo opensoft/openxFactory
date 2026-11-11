@@ -1,6 +1,6 @@
 {
   "task": "T017",
-  "verdict": "blocked",
+  "verdict": "pass",
   "scope": "hosted_domain",
   "owner": "codexFactory maintainer coordination by Brett Heap",
   "approval_ref": "https://github.com/codeXfactory/codexFactory/blob/95ccd3df862ea5a6c92dab2014fc0d3e7fff1710/openspec/changes/protect-hosted-connectivity-profile/review/ratification-2026-11-10.md",
@@ -11,9 +11,9 @@
     "output_ref": "git:1e283972f0aee78a7fbd790af48b00fceea74157:tests/private_connectivity/evidence/qualification.txt"
   },
   "dependencies": {
-    "T014": "2c4d5299051486f3c84b65da034862ad8fa265642a7445d9a88a1012ab41de7f",
-    "T015": "eed7b5c69891f00859ebd8cb0cd07f7144461c2f04438261b1246b046f2405a6",
-    "T016": "4ff9647a134b485d29a59df2b7ea677c92ee7259deda8f48fd6f62d4cacf201b"
+    "T014": "365f81d20ea49554ac46168e7e598a9c59878a9188207cb0904519fd55ac98f6",
+    "T015": "f215db6c221793571818a5b5874dd880b1df9542cf6a7968cad9004ba056fead",
+    "T016": "91334752843c2d8f8f9a5a46dd42411da456d50fbe34fd5779294217ddcf7bf0"
   },
   "cases": {
     "hosted-new": {
@@ -30,22 +30,22 @@
     "hosted-reuse": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json",
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+          "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json"
         }
       }
     },
     "hosted-unbound": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json",
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+          "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json"
         }
       }
     },
@@ -139,7 +139,7 @@
       }
     }
   },
-  "qualification_scope": "Actual synthetic deployments on the exact G0 domain/profile/installer/service bytes. New managed customer, authorized reuse, no-network unbound deployment, failed-step recovery, cross-customer and application denial, external fixture ingress denial and independent lifecycle all passed. Catalog qualification was exercised only by the explicitly synthetic commissioning decision adapter; the release inventory remains customer-ineligible. Human owner acceptance is reserved for G4.",
+  "qualification_scope": "Fresh real hosted replacement survives elapsed stale-approval retry, private app remains 200, and unbound remains health 200/private 403. Original new-network creation, interrupted deployment, failed-step, ingress/auth and detach observations remain explicit against unchanged provisioning, binder and domain components; current 47-test onboarding suite covers readiness/CAS failure handling. SDK publication-clock behavior is separately qualified by 44 tests and fresh v7 selection.",
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "candidate_pins": {
     "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
@@ -148,15 +148,15 @@
     "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
     "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
     "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
-    "install_runtime": "git:fc23f2e12cd75d14041015f811ca2855383ffb60:release/runtime-inventory.json",
-    "hosted_runtime": "git:fe630abc868255bd184d646fe51dcb8d1d448552:release/runtime-inventory.json",
-    "installer_runtime": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:src/private_connectivity/runtime-inventory.json",
+    "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+    "hosted_runtime": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:release/runtime-inventory.json",
+    "installer_runtime": "git:080727f0184e9f7d28a249a45324b23a2edb7a9e:src/private_connectivity/runtime-inventory.json",
     "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
     "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
     "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
-    "ops_runtime": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/runtime-inventory.json",
+    "ops_runtime": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
   "policy_baseline": {
@@ -169,22 +169,22 @@
     "tenant-a": {
       "reachable": true,
       "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
-      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
     },
     "tenant-b": {
       "reachable": true,
       "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
-      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
     },
     "customer-local": {
       "reachable": true,
       "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
-      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
     },
     "tenant-hosted-new": {
       "reachable": true,
       "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
-      "evidence_ref": "git:11c157ee6e77229a041e5a7ec1d6a40b278486a8:tests/qualification/evidence/hosted-runtime.json"
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
     }
   },
   "validation_reverification": {
@@ -194,8 +194,15 @@
     "original_measurement_report_unchanged": true,
     "reason": "Qualified proof-label clarification only; required profile-revision evidence retained."
   },
-  "requalification_required": "Fresh reviewed repair candidates; predecessor physical evidence retained without claiming a rerun.",
   "pin_inventory": [
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "07aad58f58c9c08a212215225b7167c983e391b1"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e"
+    },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "11c157ee6e77229a041e5a7ec1d6a40b278486a8"
@@ -203,6 +210,10 @@
     {
       "repository": "codeXfactory/codexFactory",
       "foreign_commit": "1e283972f0aee78a7fbd790af48b00fceea74157"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "275d9d087677d100fca127069946d8d27ecf1041"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -225,24 +236,35 @@
       "foreign_commit": "88b8e9309ce0c1db2dd476a228cec91cbe64eaa2"
     },
     {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "931dbca4193a35f2aceac32b5f78d867e80e81f6"
+    },
+    {
       "repository": "codeXfactory/codexFactory",
       "foreign_commit": "95ccd3df862ea5a6c92dab2014fc0d3e7fff1710"
     },
     {
-      "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2"
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
     },
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
     },
     {
-      "repository": "opensoft/Headscale-Install",
-      "foreign_commit": "fc23f2e12cd75d14041015f811ca2855383ffb60"
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "fe630abc868255bd184d646fe51dcb8d1d448552"
+      "foreign_commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d"
     }
-  ]
+  ],
+  "repair_qualification": {
+    "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json",
+    "actual_review_repairs_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
+    "managed_selection_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
+    "original_measurements_preserved": true,
+    "fresh_full_cohort_rerun_claimed": false
+  }
 }

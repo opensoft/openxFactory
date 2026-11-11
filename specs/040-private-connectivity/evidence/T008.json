@@ -4,102 +4,126 @@
   "scope": "installer",
   "owner": "xFactory-Installer",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
-  "revision_ref": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:src/private_connectivity/runtime-inventory.json",
+  "revision_ref": "git:080727f0184e9f7d28a249a45324b23a2edb7a9e:src/private_connectivity/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:tests/private_connectivity/evidence/selection.txt"
+    "output_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/review-repair-checks.json"
   },
   "dependencies": {
-    "T007": "3a8f51279f68c1f3dcb87e5a7ace53c3de6a795570577163b9f4b83e76ff63dd"
+    "T007": "d1d0e0de152c0083bc052b8f7312871468af5399475697f36a8fa12dc87c9877"
   },
   "cases": {
     "new-local": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
+      "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
+          "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json"
         }
       }
     },
     "existing-local": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
+      "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
+          "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json"
         }
       }
     },
     "unbound": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
+      "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
+          "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json"
         }
       }
     },
     "local-scope": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
+      "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
+          "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json"
         }
       }
     },
     "local-unready": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json",
+      "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json",
       "checks": {
         "endpoint": {
           "passed": true,
-          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
+          "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json"
         },
         "authorization": {
           "passed": true,
-          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
+          "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json"
         },
         "policy": {
           "passed": true,
-          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
+          "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json"
         },
         "redacted-error": {
           "passed": true,
-          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
+          "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json"
         },
         "prior-state": {
           "passed": true,
-          "evidence_ref": "git:043d72a7dc9fdaf8cc1c0257a375b1e565e7160a:tests/private_connectivity/evidence/local-runtime-v2.json"
+          "evidence_ref": "git:a2744d68e20904927e2457dfea97482bb9488712:tests/private_connectivity/evidence/local-repair.json"
         }
       }
     }
   },
-  "qualification_scope": "Current pinned-source v2 local install/reuse owner qualification, after explicit retirement of the two quiesced predecessor approvals. Initial empty package installation remains linked as historical immutable proof; current endpoints, application policy, reauthorization, readiness and unbound compatibility were physically rerun.",
-  "scope_note": "Requalified after migration replacement/retry repairs. The later consumer pin changes only Docker null-IPAM handling; G2 must still test the final complete pinned candidate.",
+  "qualification_scope": "Fresh v4 owner selection, local policy and application checks, plus current 44-test publication-clock regression and v7 local migration checks. Initial empty installation and unchanged packaging remain explicitly retained original proofs; this does not claim a new zero-node install after the original commissioning.",
   "pin_inventory": [
     {
       "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "043d72a7dc9fdaf8cc1c0257a375b1e565e7160a"
+      "foreign_commit": "06d70ff72136a456f2bb6a3fb4bb81eef344fe11"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e"
     },
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
     },
     {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "931dbca4193a35f2aceac32b5f78d867e80e81f6"
+    },
+    {
       "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2"
+      "foreign_commit": "a2744d68e20904927e2457dfea97482bb9488712"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
     }
-  ]
+  ],
+  "repair_qualification": {
+    "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json",
+    "actual_review_repairs_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
+    "managed_selection_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
+    "original_measurements_preserved": true,
+    "fresh_full_cohort_rerun_claimed": false
+  },
+  "final_preflight_equivalence": "The final authorization preflight is qualified by 44 regression tests and the actual current-source post-restore drill.",
+  "current_post_restore_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/after-restore-repair.json"
 }

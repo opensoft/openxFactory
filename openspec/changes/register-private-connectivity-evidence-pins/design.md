@@ -24,3 +24,7 @@ A broad regex could misclassify foreign hashes as local or silently exempt a loc
 ## Migration Plan
 
 After ratification, extend T001's evidence-tooling authority with this exact scope. Implement and validate through feature 040, including the current feature chain and full relevant doc-health suite. Regenerate the corpus ledger with the PR number. Keep G4 blocked until all checks and affected human sign-offs are complete. All implementation PRs remain drafts.
+
+## Implementation placement note
+
+The measured standing-census assertion is in `tests/doc-health/test_sentinel_vocabulary.py`, not the initially named sibling test module. The authorized measured-census update applies there; the shared reader continues to use existing declarations and the coverage sweep remains intact. This is a placement correction within the ratified narrow repair.

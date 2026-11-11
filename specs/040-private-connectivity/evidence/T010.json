@@ -4,46 +4,46 @@
   "scope": "hosted_product",
   "owner": "openXsoft.com product",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
-  "revision_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:release/runtime-inventory.json",
+  "revision_ref": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:release/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:8256217d4b4822a26cdd68f377441fd1044a31e0:tests/qualification/evidence/candidate.txt"
+    "output_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repair-checks.json"
   },
   "dependencies": {
-    "T009": "4e8e72e0317ea2751d7cc8c091aa2339b5724c035fc84773cd9aa578f1e74dfe"
+    "T009": "c90cee97cd9210ebdf459ca67606fbe68345c7aca41ddb9700f84adfce461df3"
   },
   "cases": {
     "policy-before-enroll": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
+          "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
         }
       }
     },
     "managed-credential": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
+      "evidence_ref": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/upgraded-credentials.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
+          "evidence_ref": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/upgraded-credentials.json"
         }
       }
     },
     "route-approval": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
+          "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
         }
       }
     },
@@ -80,11 +80,11 @@
     "detach": {
       "expected": "verified",
       "observed": "verified",
-      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json",
       "checks": {
         "result": {
           "passed": true,
-          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
+          "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
         }
       }
     },
@@ -119,7 +119,7 @@
       }
     }
   },
-  "qualification_scope": "Current v2 actual lifecycle qualification. Retains both failed harness attempts and explicit scoped remediation, with a clean full rerun. No G1+ gate passed.",
+  "qualification_scope": "Fresh real G1 enrollment, route and scoped revocation plus elapsed-approval and failed-expiry cleanup qualification. Original credential replay/expiry, subscription and termination measurements are retained against byte-identical lifecycle/service methods; current owner checks pass 47 tests. The upgraded .29.7 controller also physically rejected the exact consumed key before expiry and an actually expired key; a normal 300-second single-use enrollment matched its approved node lease and was explicitly retired.",
   "pin_inventory": [
     {
       "repository": "opensoft/openxFactory",
@@ -131,7 +131,31 @@
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "8256217d4b4822a26cdd68f377441fd1044a31e0"
+      "foreign_commit": "4f9883f985e2310a5eb1e9c857ac8ad40511b813"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "931dbca4193a35f2aceac32b5f78d867e80e81f6"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d"
     }
-  ]
+  ],
+  "repair_qualification": {
+    "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json",
+    "actual_review_repairs_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
+    "managed_selection_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
+    "original_measurements_preserved": true,
+    "fresh_full_cohort_rerun_claimed": false
+  },
+  "post_upgrade_credential_qualification": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/upgraded-credentials.json"
 }

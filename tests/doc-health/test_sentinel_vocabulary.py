@@ -1140,7 +1140,11 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # than left standing, `vanished`/`arrived` are untouched, and the three
     # pre-existing `allow_remote=False` orphans are unrelated and unmoved.
     standing_sites, standing_members = pc.standing_census(report.results)
-    assert (standing_sites, standing_members) == (100, 29)
+    # register-private-connectivity-evidence-pins adds 264 measured
+    # per-record owner-resolved sites and exactly two standing members.
+    # Local pins retain reachability obligations; foreign ownership is
+    # checked by the feature inventory verifier and required doc-health test.
+    assert (standing_sites, standing_members) == (364, 31)
     # ...and the exclusion is exactly one declared row, not a hole a later
     # member can fall into unnoticed.
     assert [m.id for m in pc.rolling_members()] == ["gate-intent-snapshot-rev"]

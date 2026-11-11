@@ -35,3 +35,7 @@ None. The existing declared-coverage and reachability requirements remain in for
 ## Impact
 
 Proposed additional files: `scripts/doc_health/pin_class.py`, directly affected cases in `tests/doc-health/test_pin_reachability.py`, feature 040 evidence records and self-tests, and generated ledger/README records required by repository governance. No global exclusion, required-check removal, pin-floor advance, contract release cut, or runtime scope expansion is authorized. All six implementation PRs remain drafts. Human G4 sign-off remains required.
+
+## Implementation placement note
+
+The measured standing-census assertion is in `tests/doc-health/test_sentinel_vocabulary.py`, not the initially named sibling test module. The authorized measured-census update applies there; the shared reader continues to use existing declarations and the coverage sweep remains intact. This is a placement correction within the ratified narrow repair.
