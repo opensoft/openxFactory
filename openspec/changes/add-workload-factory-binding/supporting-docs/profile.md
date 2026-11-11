@@ -54,9 +54,11 @@ the factory's canonical operator-anchor and review-register checks are composed.
 This candidate never bypasses them or implements an alternative issuer anchor.
 
 Existing replay state must retain its initialized schema/version and uniqueness
-constraints. Truncated, corrupted or unconstrained state refuses at restart and
-exercise; no automatic reinitialization discards history. This is not protection
-against an authorized host restoring a valid older backup.
+constraints. Full database integrity, including index/table consistency, is
+checked at startup. The exact schema/version/constraints are checked inside every
+reservation transaction; uninitialized or malformed state is never reset.
+Storage remains a trusted-host boundary. No resistance to hostile live byte
+changes, deletion/recreation or restoration of an older valid backup is claimed.
 
 After blocking validation, after reservation and before returning a proof, the
 gate checks a fresh trusted clock against the earliest policy, wallet, grant,

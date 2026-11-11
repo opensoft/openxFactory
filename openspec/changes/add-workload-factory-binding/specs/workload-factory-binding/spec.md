@@ -9,8 +9,9 @@ Bind an authenticated reference workload to current bounded factory authority be
 The candidate adapter SHALL bind an authenticated workload to operator-selected
 current agent, wallet/key/custody and bounded existing grant records at exercise.
 It SHALL refuse inactive ancestors, unresolved/cyclic chains, widened scope or
-lifetime, unsupported authority and mismatched audience. It SHALL NOT derive
-human approval from workload authentication.
+lifetime, unsupported authority and mismatched audience. It SHALL refuse
+review-class chains until canonical factory anchor/register checks are composed.
+It SHALL NOT derive human approval from workload authentication.
 
 #### Scenario: Current permitted request
 
@@ -39,9 +40,13 @@ and composition. The observer SHALL read its own selected reference artifacts.
 
 The gate SHALL reserve token and challenge identities durably before invoking the
 owning wallet proof API, recheck current authority before returning and retain
-reservations after ambiguous failures. It SHALL refuse corrupted or uninitialized
-existing replay state and missing uniqueness constraints. It SHALL check a fresh
-clock against all evidence deadlines after blocking work and before signing/return.
+reservations after ambiguous failures. It SHALL perform full replay-store
+integrity validation at startup and check the exact initialized schema and
+uniqueness constraints transactionally at each reservation. Malformed existing
+state SHALL refuse without automatic reset. Storage SHALL be protected on a
+trusted host; adversarial live byte changes, deletion and valid-backup rollback
+are outside this candidate guarantee. It SHALL check a fresh clock against all
+evidence deadlines after blocking work and before signing/return.
 
 #### Scenario: Restart or concurrent replay
 
