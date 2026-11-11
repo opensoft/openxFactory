@@ -1,0 +1,49 @@
+---
+code_surface: openXwallet (candidate adapter library and isolated fixtures; no factory runtime here)
+target_release: implemented (candidate source on main after review; no bundle cut or activation)
+Status: draft
+Proposed: 2026-11-11
+Origin: Brett Heap commissioned candidate implementation and isolated tests in the current chat; no profile ratification is asserted.
+---
+
+## Why
+
+The accepted neutral wallet/MFA source proves possession, registry and custody
+behavior in isolation. It does not bind a workload to factory actor authority,
+bounded delegation or independently observed composition. The first codeXfactory
+pilot must refuse until those distinct factory trust facts are supplied.
+
+## What Changes
+
+- Define a narrow candidate composition of existing wallet, grant, trust and
+  workload vocabulary, with current operator-owned records checked at exercise.
+- Require exact signed workload identity and a separately signed observation
+  before a trusted gate can use its custody signing client.
+- Hand off to exactly one openXwallet Speckit feature:
+  `specs/016-factory-workload-binding/`.
+- Qualify positive/refusal, replay, outage and cleanup behavior with synthetic
+  identities and disposable reference custody, explicitly as isolated evidence.
+
+## Capabilities
+
+### New Capabilities
+
+- `workload-factory-binding`: candidate workload-to-wallet/actor/grant binding
+  with independent observation and one-use gated proof production.
+
+### Modified Capabilities
+
+None. Existing published schemas, grants, canonical validators and pins remain
+unchanged. The candidate profile is supporting material, not a promoted contract.
+
+## Impact
+
+The adapter implements a library and test-only processes in openXwallet. This
+repository gains governance documents only. No live issuer enrollment, deployed
+service, provider credential, external operation, human approval, pilot acceptance,
+release, archive or consumer pin advancement is included. Feedback stays deferred;
+neither historically denied write is replayed. Draft status is intentional:
+candidate code and tests do not manufacture ratification. Live composition and
+owner acceptance remain separate gates.
+
+Supporting packet: [design](design.md), [candidate profile](supporting-docs/profile.md), [capability delta](specs/workload-factory-binding/spec.md), [governance handoff](tasks.md).
