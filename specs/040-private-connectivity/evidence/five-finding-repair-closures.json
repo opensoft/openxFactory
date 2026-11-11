@@ -1,0 +1,75 @@
+{
+  "qualification": "Five local Codex review repairs and current-source targeted reruns",
+  "findings": [
+    {
+      "id": "recovery-current-authority",
+      "fixed_source_ref": "git:e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55:workflows/private-connectivity/docker_recovery.py",
+      "regression_ref": "git:2317ca3b48943de527f4d6fb7aca3da872c48dc1:tests/private_connectivity/evidence/local-review-fix-checks.json",
+      "actual_qualification_ref": "git:2317ca3b48943de527f4d6fb7aca3da872c48dc1:tests/private_connectivity/evidence/local-review-activation-authority.json"
+    },
+    {
+      "id": "pending-subscription-cleanup",
+      "fixed_source_ref": "git:cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0:services/network-provisioning/attachments.py",
+      "regression_ref": "git:0a437b7335d2d1129c1dde322b0639ac7f8477f2:tests/qualification/evidence/local-review-fix-checks.json",
+      "actual_qualification_ref": "git:0a437b7335d2d1129c1dde322b0639ac7f8477f2:tests/qualification/evidence/local-review-sharing-cancellation.json"
+    },
+    {
+      "id": "installer-workflow-yaml",
+      "fixed_source_ref": "git:5534d1c16892f20e17e2968efcb85dcffdee018c:.github/workflows/validate.yml",
+      "regression_ref": "git:70a2a9122ef8c6def16ce2ca7cdf0cf4ce17bed2:tests/private_connectivity/evidence/local-review-fix-checks.json",
+      "validation": "Base parsed; previously reviewed head had a ScannerError at line24; quoted fixed command parses and GitHub now creates repository-contract jobs. Runner completion remains a separate check."
+    },
+    {
+      "id": "local-shared-policy",
+      "fixed_source_ref": "git:450455a5aaa3a0eff13cc36a209c58d61ae8b8e5:src/private_connectivity/pilot_provider.py",
+      "regression_ref": "git:70a2a9122ef8c6def16ce2ca7cdf0cf4ce17bed2:tests/private_connectivity/evidence/local-review-fix-checks.json",
+      "actual_qualification_ref": "git:0a437b7335d2d1129c1dde322b0639ac7f8477f2:tests/qualification/evidence/local-review-sharing-cancellation.json"
+    },
+    {
+      "id": "final-publication-authority",
+      "fixed_source_ref": "git:450455a5aaa3a0eff13cc36a209c58d61ae8b8e5:src/private_connectivity/selection.py",
+      "regression_ref": "git:70a2a9122ef8c6def16ce2ca7cdf0cf4ce17bed2:tests/private_connectivity/evidence/local-review-fix-checks.json",
+      "actual_qualification_ref": "git:0a437b7335d2d1129c1dde322b0639ac7f8477f2:tests/qualification/evidence/local-review-publication-authority.json"
+    }
+  ],
+  "hosted_readiness_ref": "git:0a437b7335d2d1129c1dde322b0639ac7f8477f2:tests/qualification/evidence/local-review-hosted-requalification.json",
+  "earlier_shadow_probe_attempt_ref": "git:2317ca3b48943de527f4d6fb7aca3da872c48dc1:tests/private_connectivity/evidence/activation-authority-attempts.json",
+  "prior_human_acceptance_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+  "new_human_acceptance_inferred": false,
+  "full_cohort_or_upgrade_rerun_claimed": false,
+  "implementation_pull_requests_remain_draft": true,
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "0a437b7335d2d1129c1dde322b0639ac7f8477f2"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "2317ca3b48943de527f4d6fb7aca3da872c48dc1"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "450455a5aaa3a0eff13cc36a209c58d61ae8b8e5"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "50cafafa73351e6141cde07e39e41e427b75e6f8"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "5534d1c16892f20e17e2968efcb85dcffdee018c"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "70a2a9122ef8c6def16ce2ca7cdf0cf4ce17bed2"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55"
+    }
+  ]
+}
