@@ -1,0 +1,5 @@
+Command: python3 -m pytest tests/doc-health/test_pin_reachability.py tests/doc-health/test_sentinel_vocabulary.py -q -k repo_local_pin_in_this_repository or pin_counts_did_not_move or inventory
+.....                                                                    [100%]
+5 passed, 127 deselected in 23.27s
+
+Exit status: 0
