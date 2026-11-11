@@ -1,0 +1,137 @@
+{
+  "qualification": "Measured current repair composition against prior immutable physical qualifications",
+  "comparisons": [
+    {
+      "repository": "git@github.com:opensoft/xFactory-Installer",
+      "original_ref": "git:080727f0184e9f7d28a249a45324b23a2edb7a9e:src/private_connectivity/managed_provider.py",
+      "current_ref": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/managed_provider.py",
+      "comparison": "byte-identical",
+      "sha256": "c9093c3281778e2d4e1e33e7aef7f2d17f219c701cbe4f98a017746ab79c7568"
+    },
+    {
+      "repository": "git@github.com:opensoft/xFactory-Installer",
+      "original_ref": "git:080727f0184e9f7d28a249a45324b23a2edb7a9e:src/private_connectivity/pilot_provider.py",
+      "current_ref": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/pilot_provider.py",
+      "comparison": "byte-identical",
+      "sha256": "1b8d5a3231694c8a8bfa1efa63d4641b6ad40a7982af26fe0ca800f5a196558c"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "original_ref": "git:080727f0184e9f7d28a249a45324b23a2edb7a9e:src/private_connectivity/selection.py",
+      "current_ref": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/selection.py",
+      "comparison": "AST comparison per method",
+      "unchanged_methods": [
+        "__init__",
+        "lifecycle",
+        "installation_key",
+        "transaction",
+        "connect",
+        "current",
+        "pending",
+        "same_provider_identity",
+        "declared_binding",
+        "same_binding",
+        "record_request",
+        "select",
+        "_candidate",
+        "publish",
+        "fence",
+        "detach",
+        "_detach",
+        "migrate",
+        "_migrate",
+        "rollback"
+      ],
+      "changed_methods": [
+        "_select",
+        "_rollback"
+      ],
+      "changed_path_qualification": "Actual uncertain-enrollment/endpoint retry and retained restoration crash/retry qualification; 47 owner tests."
+    },
+    {
+      "repository": "git@github.com:opensoft/openXsoft-Hosted-Services",
+      "original_ref": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:services/network-provisioning/attachments.py",
+      "current_ref": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:services/network-provisioning/attachments.py",
+      "comparison": "byte-identical",
+      "sha256": "ac447eeee15e336c7eb472f332619788bc6064d9be182f2f6ec0dfe1edc200af"
+    },
+    {
+      "repository": "git@github.com:opensoft/openXsoft-Hosted-Services",
+      "original_ref": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:services/network-provisioning/service.py",
+      "current_ref": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:services/network-provisioning/service.py",
+      "comparison": "byte-identical",
+      "sha256": "aea37ff840f448fc8c0f141976d0885c6f9a98adbb29f35e69992b426e7c0023"
+    },
+    {
+      "repository": "git@github.com:opensoft/openXsoft-Hosted-Services",
+      "original_ref": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:services/network-provisioning/operations.py",
+      "current_ref": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:services/network-provisioning/operations.py",
+      "comparison": "byte-identical",
+      "sha256": "d031bd164a806590982e962c8b20d917fecdc804571c09c4f245dade39b594e3"
+    },
+    {
+      "repository": "git@github.com:opensoft/openXsoft-Hosted-Services",
+      "original_ref": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:services/network-provisioning/docker_nodes.py",
+      "current_ref": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:services/network-provisioning/docker_nodes.py",
+      "comparison": "byte-identical",
+      "sha256": "3de3234076aae87076f23ab876163805d57cf0ed410a61644ba034730292918c"
+    },
+    {
+      "repository": "git@github.com:opensoft/openXsoft-Hosted-Services",
+      "original_ref": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:services/network-provisioning/pilot_app.py",
+      "current_ref": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:services/network-provisioning/pilot_app.py",
+      "comparison": "byte-identical",
+      "sha256": "13f6abecc143e25b83da4c88365267d282ced9008748621228c2d45e469e300f"
+    },
+    {
+      "repository": "git@github.com:opensoft/openXsoft-Hosted-Services",
+      "original_ref": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:services/network-provisioning/supervisor.py",
+      "current_ref": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:services/network-provisioning/supervisor.py",
+      "comparison": "byte-identical",
+      "sha256": "687bf2b36e4d53b688d8569bad14ba3ae4c691ef7c17da11917c0bccb9a97847"
+    },
+    {
+      "repository": "git@github.com:opensoft/openXsoft-Hosted-Services",
+      "original_ref": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:services/factory-onboarding/pilot_binder.py",
+      "current_ref": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:services/factory-onboarding/pilot_binder.py",
+      "comparison": "byte-identical",
+      "sha256": "ba9c4fee8e44003041fde8c1a2c42662f7a13dbc58e091ddbc58bcb672ddbfbf"
+    },
+    {
+      "repository": "git@github.com:opensoft/opsXfactory",
+      "original_ref": "git:a524b9c12a0530149f1d1ecd3a33272fbd827a3c:workflows/private-connectivity/runtime-inventory.json",
+      "current_ref": "git:ec04538ee963f808d41d20e9034f56cba3e6a3d3:workflows/private-connectivity/runtime-inventory.json",
+      "comparison": "byte-identical",
+      "sha256": "9efaf1837d50b8eb8dbe8f9e7daa3025c647a415e735044a73cafa846d97c0a9"
+    }
+  ],
+  "retained_measurements": "Original revocation onset max 20.589473s and original upgrade/restore 58.542420s remain historical actual measurements. No repeat upgrade or full-cohort rerun is claimed. The original stricter observer already completed sustained denial inside the onset deadline in all five cases.",
+  "changed_hosted_path": "Persisted cached readiness restoration, qualified with transient managed/unbound failures and successful retries; current-result CAS tested against superseded operations.",
+  "scope": "Eagle synthetic lab only; separate G4 supplement acceptance required.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "488e314addd79efa728d0c4e9b556a783aba0dc8"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "a524b9c12a0530149f1d1ecd3a33272fbd827a3c"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec04538ee963f808d41d20e9034f56cba3e6a3d3"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d"
+    }
+  ]
+}
