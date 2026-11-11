@@ -541,6 +541,12 @@ Every DomainxFactory must validate against the canonical contract:
 
 ## OpenSpec Records
 
+- [add-workload-factory-binding](openspec/changes/add-workload-factory-binding/proposal.md)
+  - source acceptance ratified by Brett Heap on 2026-11-11 at factory
+    102d5f906cc4 and adapter 9e0b60e89bb3; [owner decision](openspec/changes/add-workload-factory-binding/review/ratification-2026-11-11.md).
+    Live qualification and codeXfactory pilot acceptance remain separate gates.
+
+
 Active changes:
 
 - [implement-private-connectivity-binding](openspec/changes/implement-private-connectivity-binding/proposal.md)
