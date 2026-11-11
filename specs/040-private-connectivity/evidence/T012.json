@@ -13,7 +13,7 @@
   "dependencies": {
     "T006": "aa2dba0394534b634e5d9f65073c6ca963ef2988e3ca8d1282c1e34ca442ba95",
     "T010": "cad532acbf3567fa080ec4addcbb12576ca64667107407ffe084f5c12b015391",
-    "T011": "b721bbe89d09cacd5d696f2ddf9ac7f3cea06308a01601959c691903af65857d"
+    "T011": "9b342372ca302961bd7280813094276cfa2249e14f6ae2c4412ccbd40235ea86"
   },
   "cases": {
     "standalone-a-b": {

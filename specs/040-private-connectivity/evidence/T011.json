@@ -4,11 +4,11 @@
   "scope": "ops",
   "owner": "OpsxFactory",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-headscale-install-ownership/review/ratification-2026-11-10.md",
-  "revision_ref": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:release/runtime-inventory.json",
+  "revision_ref": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
   "owner_check": {
     "command": "python3 -m pytest tests/private_connectivity -q",
     "exit_status": 0,
-    "output_ref": "git:66bfafadcd4d215eb2bebd384c39a5ba5943ad2e:tests/qualification/evidence/review-repair-checks.json"
+    "output_ref": "git:dfd74041f9dd1e57547a2db01c5939b4bd322c97:tests/private_connectivity/evidence/review-repair-checks.json"
   },
   "dependencies": {
     "T009": "5cf16b14bd691fd2a54f700456b571f561c3ba72478654c1a4140bf56ac07b3e"
@@ -63,20 +63,12 @@
       "foreign_commit": "493f4db039a70f6e7871e257591c3984d3f0d5a2"
     },
     {
-      "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "66bfafadcd4d215eb2bebd384c39a5ba5943ad2e"
-    },
-    {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "931dbca4193a35f2aceac32b5f78d867e80e81f6"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
-    },
-    {
-      "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
     },
     {
       "repository": "opensoft/opsXfactory",
@@ -100,5 +92,6 @@
   },
   "recovery_adapter_qualification_ref": "git:493f4db039a70f6e7871e257591c3984d3f0d5a2:tests/private_connectivity/evidence/recovery-repairs.json",
   "recovery_adapter_runtime_ref": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
-  "recovery_adapter_owner_checks_ref": "git:dfd74041f9dd1e57547a2db01c5939b4bd322c97:tests/private_connectivity/evidence/review-repair-checks.json"
+  "recovery_adapter_owner_checks_ref": "git:dfd74041f9dd1e57547a2db01c5939b4bd322c97:tests/private_connectivity/evidence/review-repair-checks.json",
+  "provenance_correction": "Align the primary Ops owner-check pointer with the same 17-test operator report already linked under recovery_adapter_owner_checks_ref in the reviewed packet. No source or physical observation changed."
 }
