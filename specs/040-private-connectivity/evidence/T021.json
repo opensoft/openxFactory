@@ -16,18 +16,15 @@
     "hosted_domain"
   ],
   "gates_and_drills": {
-    "G0": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T006.json",
-    "G1": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T012.json",
-    "G2": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T014.json",
-    "G3": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T017.json",
-    "T018": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T018.json",
-    "T019": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T019.json",
-    "T020": "git:b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711:specs/040-private-connectivity/evidence/T020.json"
+    "G0": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T006.json",
+    "G1": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T012.json",
+    "G2": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T014.json",
+    "G3": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T017.json",
+    "T018": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T018.json",
+    "T019": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T019.json",
+    "T020": "git:4e9ebcdc937532d1bcf99a66dfcf033f0b753f48:specs/040-private-connectivity/evidence/T020.json"
   },
-  "signoffs": {
-    "ops": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
-    "hosted_domain": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json"
-  },
+  "signoffs": {},
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "candidate_pins": {
     "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
@@ -81,6 +78,10 @@
       "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
     },
     {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "4e9ebcdc937532d1bcf99a66dfcf033f0b753f48"
+    },
+    {
       "repository": "opensoft/opsXfactory",
       "foreign_commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90"
     },
@@ -90,7 +91,7 @@
     },
     {
       "repository": "opensoft/openxFactory",
-      "openxfactory_commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711"
+      "openxfactory_commit": "af899bdc7ac89220398958c425482dd903cc6be1"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -113,6 +114,16 @@
   "current_supplement_approval_required": [
     "rollout_lead",
     "installer",
-    "hosted_product"
-  ]
+    "ops",
+    "hosted_product",
+    "hosted_domain"
+  ],
+  "original_packet_signoffs": {
+    "rollout_lead": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
+    "installer": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
+    "ops": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
+    "hosted_product": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
+    "hosted_domain": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json"
+  },
+  "review_packet_ref": "git:af899bdc7ac89220398958c425482dd903cc6be1:specs/040-private-connectivity/evidence/G4-repair-review.json"
 }
