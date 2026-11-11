@@ -1,0 +1,1513 @@
+{
+  "qualification": "Actual unique immutable file reference resolution against explicit source owner repositories; implicit fetching disabled",
+  "reference_count": 188,
+  "verified_references": [
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "488e314addd79efa728d0c4e9b556a783aba0dc8",
+      "path": "src/private_connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "10aca828a3044d88b2880329530a51881c927df9",
+      "path": "tests/private_connectivity/evidence/review-repair-checks.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "88b8e9309ce0c1db2dd476a228cec91cbe64eaa2",
+      "path": "tests/qualification/evidence/preflight.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "41b0dabf1594d72995f7634e42603f4d900ec349",
+      "path": "specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "41b0dabf1594d72995f7634e42603f4d900ec349",
+      "path": "scripts/validate-private-connectivity.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "07aad58f58c9c08a212215225b7167c983e391b1",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90",
+      "path": "workflows/private-connectivity/recovery.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "commit": "48ca168dee528c09217f123a89589a721f015055",
+      "path": "profiles/hosted/private-connectivity.yaml",
+      "object_type": "blob"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "commit": "48ca168dee528c09217f123a89589a721f015055",
+      "path": "schemas/hosted-connectivity-profile.schema.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "commit": "48ca168dee528c09217f123a89589a721f015055",
+      "path": "scripts/merge_master/council_clearance.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5",
+      "path": "specs/040-private-connectivity/verify-evidence.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "275d9d087677d100fca127069946d8d27ecf1041",
+      "path": "workflows/private-connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "commit": "48ca168dee528c09217f123a89589a721f015055",
+      "path": "tests/private_connectivity/pilot-runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "06d70ff72136a456f2bb6a3fb4bb81eef344fe11",
+      "path": "tests/private_connectivity/evidence/after-restore-repair.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "06d70ff72136a456f2bb6a3fb4bb81eef344fe11",
+      "path": "tests/private_connectivity/evidence/repair-authority-supplement.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "4f9883f985e2310a5eb1e9c857ac8ad40511b813",
+      "path": "tests/qualification/evidence/repair-authority-journal.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "e24ea82b75d0bf880e77c3fadca6b0e51a53dce9",
+      "path": "specs/040-private-connectivity/evidence/audited-repair-equivalence.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "5c752bf83f2cf92e01b4f2553d9197e8d5a2b909",
+      "path": "tests/private_connectivity/evidence/rollback-retry.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "0d06bc3feab06557a11ece68cde20d7ff56f5ae9",
+      "path": "tests/qualification/evidence/cached-recovery.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b",
+      "path": "openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "7a88f1ccd5610532a29e15870fc20307ee530e79",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "7a88f1ccd5610532a29e15870fc20307ee530e79",
+      "path": "tests/qualification/evidence/candidate.txt",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b",
+      "path": "openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "fc23f2e12cd75d14041015f811ca2855383ffb60",
+      "path": "deploy/pilot.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "07aad58f58c9c08a212215225b7167c983e391b1",
+      "path": "deploy/pilot.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "fc23f2e12cd75d14041015f811ca2855383ffb60",
+      "path": "deploy/application.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "07aad58f58c9c08a212215225b7167c983e391b1",
+      "path": "deploy/application.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "fc23f2e12cd75d14041015f811ca2855383ffb60",
+      "path": "deploy/recovery.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "07aad58f58c9c08a212215225b7167c983e391b1",
+      "path": "deploy/recovery.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "fc23f2e12cd75d14041015f811ca2855383ffb60",
+      "path": "packaging/pilot-images.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "07aad58f58c9c08a212215225b7167c983e391b1",
+      "path": "packaging/pilot-images.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "fe630abc868255bd184d646fe51dcb8d1d448552",
+      "path": "services/network-provisioning/service.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "22a8cdd4853679f95edae9024d465dc6502605d3",
+      "path": "services/network-provisioning/service.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "fe630abc868255bd184d646fe51dcb8d1d448552",
+      "path": "services/network-provisioning/attachments.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "22a8cdd4853679f95edae9024d465dc6502605d3",
+      "path": "services/network-provisioning/attachments.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "fe630abc868255bd184d646fe51dcb8d1d448552",
+      "path": "services/network-provisioning/operations.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "22a8cdd4853679f95edae9024d465dc6502605d3",
+      "path": "services/network-provisioning/operations.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "fe630abc868255bd184d646fe51dcb8d1d448552",
+      "path": "services/network-provisioning/docker_pilot.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "22a8cdd4853679f95edae9024d465dc6502605d3",
+      "path": "services/network-provisioning/docker_pilot.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "fe630abc868255bd184d646fe51dcb8d1d448552",
+      "path": "services/network-provisioning/docker_nodes.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "22a8cdd4853679f95edae9024d465dc6502605d3",
+      "path": "services/network-provisioning/docker_nodes.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "275d9d087677d100fca127069946d8d27ecf1041",
+      "path": "workflows/private-connectivity/recovery.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90",
+      "path": "workflows/private-connectivity/docker_recovery.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "275d9d087677d100fca127069946d8d27ecf1041",
+      "path": "workflows/private-connectivity/docker_recovery.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "fc23f2e12cd75d14041015f811ca2855383ffb60",
+      "path": "deploy/workloads.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "07aad58f58c9c08a212215225b7167c983e391b1",
+      "path": "deploy/workloads.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2",
+      "path": "src/private_connectivity/selection.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "2687e67fc9e43ba54d553d336c722e1b70bbcadb",
+      "path": "src/private_connectivity/selection.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "a2744d68e20904927e2457dfea97482bb9488712",
+      "path": "tests/private_connectivity/evidence/local-repair.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "931dbca4193a35f2aceac32b5f78d867e80e81f6",
+      "path": "specs/040-private-connectivity/evidence/review-repair-equivalence.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232",
+      "path": "tests/qualification/evidence/review-repairs.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995",
+      "path": "tests/private_connectivity/evidence/managed-repair.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "41b0dabf1594d72995f7634e42603f4d900ec349",
+      "path": "tests/private_connectivity/evidence/pytest.txt",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2",
+      "path": "src/private_connectivity/contract-pin.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "ec04538ee963f808d41d20e9034f56cba3e6a3d3",
+      "path": "tests/private_connectivity/evidence/review-repair-checks.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232",
+      "path": "tests/qualification/evidence/g1-repair.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "9edb47f5dcb3b893076a339a7ac3d930a6657613",
+      "path": "tests/private_connectivity/evidence/live-recovery.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "4f9883f985e2310a5eb1e9c857ac8ad40511b813",
+      "path": "tests/qualification/evidence/upgraded-credentials.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b",
+      "path": "openspec/changes/establish-headscale-install-ownership/review/ratification-2026-11-10.md",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "629abe64af9bc0074421f1c9b85f0e0c63d61c7b",
+      "path": "tests/private_connectivity/evidence/revocation.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "649116bdbadfe2ab0d825a0224f4fb2ad906c9be",
+      "path": "specs/040-private-connectivity/verify-evidence.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "66bfafadcd4d215eb2bebd384c39a5ba5943ad2e",
+      "path": "tests/qualification/evidence/review-repair-checks.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "371892163b7ef42b66f8fc63b55c91c7fbe23148",
+      "path": "tests/qualification/evidence/lifecycle-runtime-v2.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "901caa3dfb14832341b47b1cdd5763d49216106e",
+      "path": "src/private_connectivity/selection.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e",
+      "path": "src/private_connectivity/selection.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "f69934ee40d1bcd1fa5f60bd5a6b4d38f786d62b",
+      "path": "tests/private_connectivity/evidence/review-repair-checks.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "commit": "1e283972f0aee78a7fbd790af48b00fceea74157",
+      "path": "tests/private_connectivity/evidence/qualification.txt",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "11c157ee6e77229a041e5a7ec1d6a40b278486a8",
+      "path": "tests/qualification/evidence/hosted-runtime.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "commit": "95ccd3df862ea5a6c92dab2014fc0d3e7fff1710",
+      "path": "openspec/changes/protect-hosted-connectivity-profile/review/ratification-2026-11-10.md",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "0e364d6324e8d170149e497e1da3c35719ef8673",
+      "path": "tests/private_connectivity/evidence/recovery-runtime-v2.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711",
+      "path": "specs/040-private-connectivity/evidence/T006.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711",
+      "path": "specs/040-private-connectivity/evidence/T012.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711",
+      "path": "specs/040-private-connectivity/evidence/T014.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711",
+      "path": "specs/040-private-connectivity/evidence/T017.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711",
+      "path": "specs/040-private-connectivity/evidence/T018.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711",
+      "path": "specs/040-private-connectivity/evidence/T019.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711",
+      "path": "specs/040-private-connectivity/evidence/T020.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923",
+      "path": "specs/040-private-connectivity/evidence/G4-approval.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "69082c4f4ccdf835d9e7e5f47e187d46dfb0e662",
+      "path": "tests/qualification/evidence/g1.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "649116bdbadfe2ab0d825a0224f4fb2ad906c9be",
+      "path": "specs/040-private-connectivity/evidence/T003.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "65735cf951f63527e8f67cfd8509a5792aa40986",
+      "path": "specs/040-private-connectivity/evidence/G4-review.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e",
+      "path": "src/private_connectivity/managed_provider.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "488e314addd79efa728d0c4e9b556a783aba0dc8",
+      "path": "src/private_connectivity/managed_provider.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e",
+      "path": "src/private_connectivity/pilot_provider.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "488e314addd79efa728d0c4e9b556a783aba0dc8",
+      "path": "src/private_connectivity/pilot_provider.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "488e314addd79efa728d0c4e9b556a783aba0dc8",
+      "path": "src/private_connectivity/selection.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d",
+      "path": "services/network-provisioning/attachments.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8",
+      "path": "services/network-provisioning/attachments.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d",
+      "path": "services/network-provisioning/service.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8",
+      "path": "services/network-provisioning/service.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d",
+      "path": "services/network-provisioning/operations.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8",
+      "path": "services/network-provisioning/operations.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d",
+      "path": "services/network-provisioning/docker_nodes.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8",
+      "path": "services/network-provisioning/docker_nodes.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d",
+      "path": "services/network-provisioning/pilot_app.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8",
+      "path": "services/network-provisioning/pilot_app.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d",
+      "path": "services/network-provisioning/supervisor.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8",
+      "path": "services/network-provisioning/supervisor.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d",
+      "path": "services/factory-onboarding/pilot_binder.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8",
+      "path": "services/factory-onboarding/pilot_binder.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "a524b9c12a0530149f1d1ecd3a33272fbd827a3c",
+      "path": "workflows/private-connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "ec04538ee963f808d41d20e9034f56cba3e6a3d3",
+      "path": "workflows/private-connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232",
+      "path": "tests/qualification/evidence/review-repair-checks.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "1874fe695fc39277ac2c42f0350b13dd8dd63974",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "8eb1251253c7f62e0cfefc04f1e2e490d0c0fde3",
+      "path": "tests/qualification/evidence/review-repair-checks.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "commit": "48ca168dee528c09217f123a89589a721f015055",
+      "path": "tests/private_connectivity/evidence/governance.txt",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "2c7737d709fb4de128261bb7ea599dc88d57cc67",
+      "path": "specs/040-private-connectivity/evidence/T006.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "e5dcc0da689ac52f23044974ff7c295cd08cd710",
+      "path": "tests/qualification/evidence/enrollment-attempt-1.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "3c2f7cb72f6f60360e1b14d8f77d2e1548db780f",
+      "path": "specs/040-private-connectivity/evidence/T006.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "0ebf97ae67f1409a8bf3e10517cea9528b228788",
+      "path": "contracts/private-connectivity/binding.schema.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "0ebf97ae67f1409a8bf3e10517cea9528b228788",
+      "path": "scripts/validate-private-connectivity.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "4faeb9471e6382568a4ada3873d93d0c98c0380f",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "e5dcc0da689ac52f23044974ff7c295cd08cd710",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "68aa941a104f06e70d8676ad2d50f471d54c047f",
+      "path": "src/private_connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "4fd9090a53677dbf58ab9c82b98666598e8ca907",
+      "path": "workflows/private-connectivity/recovery.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "commit": "4120400cf894affd6e535468609cc3b7bc11e198",
+      "path": "profiles/hosted/private-connectivity.yaml",
+      "object_type": "blob"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "commit": "4120400cf894affd6e535468609cc3b7bc11e198",
+      "path": "schemas/hosted-connectivity-profile.schema.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "commit": "4120400cf894affd6e535468609cc3b7bc11e198",
+      "path": "scripts/merge_master/council_clearance.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "8cc3a70bc9ab2f200f953965f1925af60b436ee3",
+      "path": "specs/040-private-connectivity/verify-evidence.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "379479d40efe9eeb6f59915360802659ac8b19c8",
+      "path": "specs/040-private-connectivity/evidence/T006.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "9ebea8d532544e57aa4654a1df49fe3650e636e1",
+      "path": "specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "9ebea8d532544e57aa4654a1df49fe3650e636e1",
+      "path": "scripts/validate-private-connectivity.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "1b83b5a316f2974842e45c43c5ef256cab16eb74",
+      "path": "src/private_connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "9ebea8d532544e57aa4654a1df49fe3650e636e1",
+      "path": "specs/040-private-connectivity/verify-evidence.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "383d40708d5533e332b4bc14cb53f5506e02115b",
+      "path": "specs/040-private-connectivity/evidence/T006.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "88102331d3e0febf1788787f03edb9093b9a52d7",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "cf1a25772af6d5ef5108714a198744357c9b4f72",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "537d02716f8835a5564aef2b48786ccf7cbce68e",
+      "path": "src/private_connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "3e1e90e91b1ef222d9f6e470a755c93f008c80c3",
+      "path": "specs/040-private-connectivity/verify-evidence.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "412eb1d7bf71764f423a42369d0796a00639c466",
+      "path": "specs/040-private-connectivity/evidence/T006.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "86222b4c515a9a098f747612fa9d9d36b9853536",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "4a425aa6c41fdb178abdc390141d41c38e0ceafa",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "7edc5e74ce66f40d930eb7b7de3d73261892cd84",
+      "path": "src/private_connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "c3c04e7eda0fb2e2ed44dfb78dc592d64f508bc8",
+      "path": "specs/040-private-connectivity/evidence/T006.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "552535ffd0183bf8a57f89f0afa81ae9b56d61ac",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "cfd3ae72814a9abf6d66681bfa91ed03f4ee7a0e",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "0ce4ec9607a87e20c192f7559bc87e41656617d1",
+      "path": "src/private_connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "649116bdbadfe2ab0d825a0224f4fb2ad906c9be",
+      "path": "specs/040-private-connectivity/evidence/T006.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "798dfa7dd1836530efc42d5ab0ada5c31cefeced",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "6a93a3c9ab3762dc3d3070aaac856ab154629496",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "750551d4889e5af470b480089fe25dd1149a8121",
+      "path": "src/private_connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "dbad1281b6aa30f7cc972badda9baf113fb3d790",
+      "path": "workflows/private-connectivity/recovery.py",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "dbad1281b6aa30f7cc972badda9baf113fb3d790",
+      "path": "workflows/private-connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "9b4848bae95164a0d4537ad6406d467ca460f7cc",
+      "path": "tests/qualification/evidence/hosted-entry.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "fc23f2e12cd75d14041015f811ca2855383ffb60",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "fe630abc868255bd184d646fe51dcb8d1d448552",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2",
+      "path": "src/private_connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90",
+      "path": "workflows/private-connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "67a66651acc2abd0d49543b085b29f1701eb5e6d",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "6585a45e7c5787b9cd7c0205131ec5900769b52e",
+      "path": "src/private_connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941",
+      "path": "tests/qualification/evidence/candidate.txt",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "6c9f50475394b52e7fe2d7b5fc1235ce9117f039",
+      "path": "tests/qualification/evidence/local-snapshot.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "6c9f50475394b52e7fe2d7b5fc1235ce9117f039",
+      "path": "tests/qualification/evidence/local-quarantine.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "6a23ffcc9575098db85f18135e5e2a47d8e70f66",
+      "path": "specs/040-private-connectivity/evidence/T007.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "11c157ee6e77229a041e5a7ec1d6a40b278486a8",
+      "path": "release/domain-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d",
+      "path": "release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e",
+      "path": "src/private_connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "5de2c2708879c2c65fed952023f1c7064c59168b",
+      "path": "tests/qualification/evidence/provisioning.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "6a23ffcc9575098db85f18135e5e2a47d8e70f66",
+      "path": "specs/040-private-connectivity/evidence/T009.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "4f9883f985e2310a5eb1e9c857ac8ad40511b813",
+      "path": "tests/qualification/evidence/repair-lab-address-reclamation-round2.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "c9e864f71dd5d82fc9b43a20b1054f67c72ab4dc",
+      "path": "tests/private_connectivity/evidence/managed-repair-attempts.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "4f9883f985e2310a5eb1e9c857ac8ad40511b813",
+      "path": "tests/qualification/evidence/credential-probe-attempts.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "2d8efb17698442445f6bcf8b17b3adb9eb6146fe",
+      "path": "tests/private_connectivity/evidence/g2-controls.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "5d6dfb17588c545fac6449e133e3b37000aa735b",
+      "path": "scripts/estate-repository-inventory.yaml",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "998b8fd49398ea0d45e44c19b23f6973eb7810d4",
+      "path": "openspec/changes/register-private-connectivity-evidence-pins/review/ratification-2026-11-10.md",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "commit": "42372dff90d394315ecf29ddabe60466db412f73",
+      "path": "README.md",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "31eada2c9cbf1ae4d35b1ee74f7644779c4f3e7c",
+      "path": "README.md",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711",
+      "path": "specs/040-private-connectivity/evidence/T008.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711",
+      "path": "specs/040-private-connectivity/evidence/T013.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711",
+      "path": "specs/040-private-connectivity/evidence/final-readback.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "8fe8822ee2b5791ef4060d04adc7c8712edca53f",
+      "path": "tests/qualification/evidence/authority-journal.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "e03f884b9b1c246c3920e7cfa343d4f9cd7e29e5",
+      "path": "tests/private_connectivity/evidence/authority-supplement.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "8fe8822ee2b5791ef4060d04adc7c8712edca53f",
+      "path": "tests/qualification/evidence/enrollment-attempt-1.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711",
+      "path": "specs/040-private-connectivity/evidence/T010.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "8fe8822ee2b5791ef4060d04adc7c8712edca53f",
+      "path": "tests/qualification/evidence/lifecycle-attempt-1.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "8fe8822ee2b5791ef4060d04adc7c8712edca53f",
+      "path": "tests/qualification/evidence/lifecycle-attempt-2.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "8fe8822ee2b5791ef4060d04adc7c8712edca53f",
+      "path": "tests/qualification/evidence/lifecycle-attempt-3.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "8fe8822ee2b5791ef4060d04adc7c8712edca53f",
+      "path": "tests/qualification/evidence/lifecycle-attempt-4.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "8fe8822ee2b5791ef4060d04adc7c8712edca53f",
+      "path": "tests/qualification/evidence/lifecycle-v2-attempt-1.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "commit": "8fe8822ee2b5791ef4060d04adc7c8712edca53f",
+      "path": "tests/qualification/evidence/lifecycle-v2-attempt-2.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "9edb47f5dcb3b893076a339a7ac3d930a6657613",
+      "path": "tests/private_connectivity/evidence/live-recovery-attempt-1.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "9edb47f5dcb3b893076a339a7ac3d930a6657613",
+      "path": "tests/private_connectivity/evidence/live-recovery-attempt-2.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711",
+      "path": "tests/private_connectivity/evidence/sonar-local.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "commit": "ef1b15500ee5a3c795ca6542b757494655869eb9",
+      "path": "src/private_connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "commit": "21ac282a09bf531a997236f626d1e9677cb432d1",
+      "path": "workflows/private-connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    }
+  ],
+  "does_not_claim_release_or_human_acceptance": true,
+  "pin_inventory": [
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "06d70ff72136a456f2bb6a3fb4bb81eef344fe11"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "07aad58f58c9c08a212215225b7167c983e391b1"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "0ce4ec9607a87e20c192f7559bc87e41656617d1"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "0d06bc3feab06557a11ece68cde20d7ff56f5ae9"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "0e364d6324e8d170149e497e1da3c35719ef8673"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "0ebf97ae67f1409a8bf3e10517cea9528b228788"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "10aca828a3044d88b2880329530a51881c927df9"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "11c157ee6e77229a041e5a7ec1d6a40b278486a8"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "1874fe695fc39277ac2c42f0350b13dd8dd63974"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "1b83b5a316f2974842e45c43c5ef256cab16eb74"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "1e283972f0aee78a7fbd790af48b00fceea74157"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "21ac282a09bf531a997236f626d1e9677cb432d1"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "22a8cdd4853679f95edae9024d465dc6502605d3"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "2687e67fc9e43ba54d553d336c722e1b70bbcadb"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "275d9d087677d100fca127069946d8d27ecf1041"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "2c7737d709fb4de128261bb7ea599dc88d57cc67"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "2d8efb17698442445f6bcf8b17b3adb9eb6146fe"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "31eada2c9cbf1ae4d35b1ee74f7644779c4f3e7c"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "371892163b7ef42b66f8fc63b55c91c7fbe23148"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "379479d40efe9eeb6f59915360802659ac8b19c8"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "383d40708d5533e332b4bc14cb53f5506e02115b"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "3c2f7cb72f6f60360e1b14d8f77d2e1548db780f"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "3e1e90e91b1ef222d9f6e470a755c93f008c80c3"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "4120400cf894affd6e535468609cc3b7bc11e198"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "412eb1d7bf71764f423a42369d0796a00639c466"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "42372dff90d394315ecf29ddabe60466db412f73"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "488e314addd79efa728d0c4e9b556a783aba0dc8"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "4a425aa6c41fdb178abdc390141d41c38e0ceafa"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "4f9883f985e2310a5eb1e9c857ac8ad40511b813"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "4faeb9471e6382568a4ada3873d93d0c98c0380f"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "4fd9090a53677dbf58ab9c82b98666598e8ca907"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "537d02716f8835a5564aef2b48786ccf7cbce68e"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "552535ffd0183bf8a57f89f0afa81ae9b56d61ac"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "5c752bf83f2cf92e01b4f2553d9197e8d5a2b909"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "5d6dfb17588c545fac6449e133e3b37000aa735b"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "5de2c2708879c2c65fed952023f1c7064c59168b"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "629abe64af9bc0074421f1c9b85f0e0c63d61c7b"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "649116bdbadfe2ab0d825a0224f4fb2ad906c9be"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "65735cf951f63527e8f67cfd8509a5792aa40986"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "6585a45e7c5787b9cd7c0205131ec5900769b52e"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "66bfafadcd4d215eb2bebd384c39a5ba5943ad2e"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "67a66651acc2abd0d49543b085b29f1701eb5e6d"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "68aa941a104f06e70d8676ad2d50f471d54c047f"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "69082c4f4ccdf835d9e7e5f47e187d46dfb0e662"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "6a23ffcc9575098db85f18135e5e2a47d8e70f66"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "6a93a3c9ab3762dc3d3070aaac856ab154629496"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "6c9f50475394b52e7fe2d7b5fc1235ce9117f039"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "750551d4889e5af470b480089fe25dd1149a8121"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "798dfa7dd1836530efc42d5ab0ada5c31cefeced"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "7a88f1ccd5610532a29e15870fc20307ee530e79"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "7edc5e74ce66f40d930eb7b7de3d73261892cd84"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "86222b4c515a9a098f747612fa9d9d36b9853536"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "88102331d3e0febf1788787f03edb9093b9a52d7"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "88b8e9309ce0c1db2dd476a228cec91cbe64eaa2"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "8cc3a70bc9ab2f200f953965f1925af60b436ee3"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "8eb1251253c7f62e0cfefc04f1e2e490d0c0fde3"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "8fe8822ee2b5791ef4060d04adc7c8712edca53f"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "901caa3dfb14832341b47b1cdd5763d49216106e"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "931dbca4193a35f2aceac32b5f78d867e80e81f6"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "95ccd3df862ea5a6c92dab2014fc0d3e7fff1710"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "998b8fd49398ea0d45e44c19b23f6973eb7810d4"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "9b4848bae95164a0d4537ad6406d467ca460f7cc"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "9ebea8d532544e57aa4654a1df49fe3650e636e1"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "9edb47f5dcb3b893076a339a7ac3d930a6657613"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "a2744d68e20904927e2457dfea97482bb9488712"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "a524b9c12a0530149f1d1ecd3a33272fbd827a3c"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "b79dd7b69453dc4edf41734d9cb4ac6a3cbfc711"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "c3c04e7eda0fb2e2ed44dfb78dc592d64f508bc8"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "c9e864f71dd5d82fc9b43a20b1054f67c72ab4dc"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cf1a25772af6d5ef5108714a198744357c9b4f72"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cfd3ae72814a9abf6d66681bfa91ed03f4ee7a0e"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "dbad1281b6aa30f7cc972badda9baf113fb3d790"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "e03f884b9b1c246c3920e7cfa343d4f9cd7e29e5"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "e24ea82b75d0bf880e77c3fadca6b0e51a53dce9"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "e5dcc0da689ac52f23044974ff7c295cd08cd710"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec04538ee963f808d41d20e9034f56cba3e6a3d3"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "ef1b15500ee5a3c795ca6542b757494655869eb9"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "f69934ee40d1bcd1fa5f60bd5a6b4d38f786d62b"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "fc23f2e12cd75d14041015f811ca2855383ffb60"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "fe630abc868255bd184d646fe51dcb8d1d448552"
+    }
+  ]
+}

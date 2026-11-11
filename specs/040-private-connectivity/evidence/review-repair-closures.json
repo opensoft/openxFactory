@@ -84,5 +84,247 @@
     }
   ],
   "actual_retained_retry_ref": "git:5c752bf83f2cf92e01b4f2553d9197e8d5a2b909:tests/private_connectivity/evidence/rollback-retry.json",
-  "actual_cached_recovery_ref": "git:0d06bc3feab06557a11ece68cde20d7ff56f5ae9:tests/qualification/evidence/cached-recovery.json"
+  "actual_cached_recovery_ref": "git:0d06bc3feab06557a11ece68cde20d7ff56f5ae9:tests/qualification/evidence/cached-recovery.json",
+  "resolved_review_threads": [
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs611QJ1",
+      "finding": 4528630844,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs611QJ-",
+      "finding": 4528630856,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs611QKF",
+      "finding": 4528630867,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs6118XK",
+      "finding": 4528928708,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs6118XS",
+      "finding": 4528928715,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs612gjV",
+      "finding": 4529171438,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs612gje",
+      "finding": 4529171449,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs616MOo",
+      "finding": 4530766098,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs616MOx",
+      "finding": 4530766107,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs617kwt",
+      "finding": 4531348042,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs618Jxf",
+      "finding": 4531598458,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs618rS2",
+      "finding": 4531827962,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs61836a",
+      "finding": 4531912588,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "pr": 2,
+      "thread": "PRRT_kwDOTT_Sqs619SCF",
+      "finding": 4532091510,
+      "path": "src/private_connectivity/selection.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "pr": 1,
+      "thread": "PRRT_kwDOVpi0Ys611Qjf",
+      "finding": 4528633629,
+      "path": "deploy/workloads.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "pr": 1,
+      "thread": "PRRT_kwDOVpi0Ys612fPV",
+      "finding": 4529162624,
+      "path": "deploy/workloads.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "pr": 1,
+      "thread": "PRRT_kwDOVpi0Ys617jwD",
+      "finding": 4531340920,
+      "path": "deploy/workloads.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "pr": 1,
+      "thread": "PRRT_kwDOVpi0Ys618Ids",
+      "finding": 4531589724,
+      "path": "deploy/workloads.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "pr": 622,
+      "thread": "PRRT_kwDOTJL_7M616JZa",
+      "finding": 4530746701,
+      "path": "tests/private_connectivity/qualify_revocation.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "pr": 1,
+      "thread": "PRRT_kwDOVpi06s611RES",
+      "finding": 4528637070,
+      "path": "services/network-provisioning/attachments.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "pr": 1,
+      "thread": "PRRT_kwDOVpi06s611REa",
+      "finding": 4528637083,
+      "path": "services/factory-onboarding/onboarding.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "pr": 1,
+      "thread": "PRRT_kwDOVpi06s611REe",
+      "finding": 4528637089,
+      "path": "services/network-provisioning/service.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "pr": 1,
+      "thread": "PRRT_kwDOVpi06s6118ba",
+      "finding": 4528929183,
+      "path": "services/network-provisioning/attachments.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "pr": 1,
+      "thread": "PRRT_kwDOVpi06s612gEK",
+      "finding": 4529168098,
+      "path": "services/network-provisioning/attachments.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "pr": 1,
+      "thread": "PRRT_kwDOVpi06s616GZp",
+      "finding": 4530726366,
+      "path": "services/factory-onboarding/onboarding.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "pr": 1,
+      "thread": "PRRT_kwDOVpi06s617jqF",
+      "finding": 4531340328,
+      "path": "services/factory-onboarding/onboarding.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "pr": 1303,
+      "thread": "PRRT_kwDOTAvnrs611SqD",
+      "finding": 4528648020,
+      "path": "contracts/private-connectivity/README.md",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "pr": 1303,
+      "thread": "PRRT_kwDOTAvnrs611SqL",
+      "finding": 4528648030,
+      "path": "scripts/validate-private-connectivity.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "pr": 1303,
+      "thread": "PRRT_kwDOTAvnrs611SqS",
+      "finding": 4528648041,
+      "path": "specs/040-private-connectivity/verify-evidence.py",
+      "resolved_after_source_and_regression_audit": true
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "pr": 1303,
+      "thread": "PRRT_kwDOTAvnrs6118wN",
+      "finding": 4528931352,
+      "path": "specs/040-private-connectivity/verify-evidence.py",
+      "resolved_after_source_and_regression_audit": true
+    }
+  ]
 }

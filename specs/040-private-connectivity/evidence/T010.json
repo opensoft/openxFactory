@@ -4,14 +4,14 @@
   "scope": "hosted_product",
   "owner": "openXsoft.com product",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
-  "revision_ref": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:release/runtime-inventory.json",
+  "revision_ref": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:release/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repair-checks.json"
+    "output_ref": "git:66bfafadcd4d215eb2bebd384c39a5ba5943ad2e:tests/qualification/evidence/review-repair-checks.json"
   },
   "dependencies": {
-    "T009": "c90cee97cd9210ebdf459ca67606fbe68345c7aca41ddb9700f84adfce461df3"
+    "T009": "5cf16b14bd691fd2a54f700456b571f561c3ba72478654c1a4140bf56ac07b3e"
   },
   "cases": {
     "policy-before-enroll": {
@@ -119,8 +119,12 @@
       }
     }
   },
-  "qualification_scope": "Fresh real G1 enrollment, route and scoped revocation plus elapsed-approval and failed-expiry cleanup qualification. Original credential replay/expiry, subscription and termination measurements are retained against byte-identical lifecycle/service methods; current owner checks pass 47 tests. The upgraded .29.7 controller also physically rejected the exact consumed key before expiry and an actually expired key; a normal 300-second single-use enrollment matched its approved node lease and was explicitly retired.",
+  "qualification_scope": "Fresh real G1 enrollment, route and scoped revocation plus elapsed-approval and failed-expiry cleanup qualification. Original credential replay/expiry, subscription and termination measurements are retained against byte-identical lifecycle/service methods; current owner checks pass 47 tests. The upgraded .29.7 controller also physically rejected the exact consumed key before expiry and an actually expired key; a normal 300-second single-use enrollment matched its approved node lease and was explicitly retired. Audited current-source composition: 47 installer and 50 hosted tests; actual retained-restoration crash/retry and uncertain-enrollment endpoint failure preserve cleanup; managed/unbound cached retries restore only their own persisted readiness. Unchanged methods and bytes are explicitly compared; historical measurements retain their capture-time scope.",
   "pin_inventory": [
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "0d06bc3feab06557a11ece68cde20d7ff56f5ae9"
+    },
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
@@ -134,6 +138,14 @@
       "foreign_commit": "4f9883f985e2310a5eb1e9c857ac8ad40511b813"
     },
     {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "5c752bf83f2cf92e01b4f2553d9197e8d5a2b909"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "66bfafadcd4d215eb2bebd384c39a5ba5943ad2e"
+    },
+    {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "931dbca4193a35f2aceac32b5f78d867e80e81f6"
     },
@@ -142,12 +154,16 @@
       "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
     },
     {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
+    },
+    {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
     },
     {
-      "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d"
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "e24ea82b75d0bf880e77c3fadca6b0e51a53dce9"
     }
   ],
   "repair_qualification": {
@@ -155,7 +171,10 @@
     "actual_review_repairs_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
     "managed_selection_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
     "original_measurements_preserved": true,
-    "fresh_full_cohort_rerun_claimed": false
+    "fresh_full_cohort_rerun_claimed": false,
+    "audited_component_equivalence_ref": "git:e24ea82b75d0bf880e77c3fadca6b0e51a53dce9:specs/040-private-connectivity/evidence/audited-repair-equivalence.json",
+    "actual_retained_retry_ref": "git:5c752bf83f2cf92e01b4f2553d9197e8d5a2b909:tests/private_connectivity/evidence/rollback-retry.json",
+    "actual_cached_readiness_ref": "git:0d06bc3feab06557a11ece68cde20d7ff56f5ae9:tests/qualification/evidence/cached-recovery.json"
   },
   "post_upgrade_credential_qualification": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/upgraded-credentials.json"
 }

@@ -14,8 +14,8 @@
     "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
     "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
     "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
-    "hosted_runtime": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:release/runtime-inventory.json",
-    "installer_runtime": "git:080727f0184e9f7d28a249a45324b23a2edb7a9e:src/private_connectivity/runtime-inventory.json",
+    "hosted_runtime": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:release/runtime-inventory.json",
+    "installer_runtime": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/runtime-inventory.json",
     "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
     "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
@@ -84,10 +84,10 @@
   "qualification": "G0 source and entry amendment before G1. Original A/B/local initialization proof is immutable and historical. Fresh hosted-new initialization verified zero nodes, empty grants, TLS, no host ports and outside transport denial. All current owner qualifications and G1+ must verify these exact candidate inventories.",
   "offline_reports": {
     "binding": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt",
-    "managed": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repair-checks.json",
+    "managed": "git:66bfafadcd4d215eb2bebd384c39a5ba5943ad2e:tests/qualification/evidence/review-repair-checks.json",
     "install": "git:8eb1251253c7f62e0cfefc04f1e2e490d0c0fde3:tests/qualification/evidence/review-repair-checks.json",
-    "installer": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/review-repair-checks.json",
-    "ops": "git:a524b9c12a0530149f1d1ecd3a33272fbd827a3c:tests/private_connectivity/evidence/review-repair-checks.json"
+    "installer": "git:10aca828a3044d88b2880329530a51881c927df9:tests/private_connectivity/evidence/review-repair-checks.json",
+    "ops": "git:ec04538ee963f808d41d20e9034f56cba3e6a3d3:tests/private_connectivity/evidence/review-repair-checks.json"
   },
   "domain_local_validation": {
     "result": "374 passed",
@@ -348,7 +348,7 @@
       },
       "owner_checks": {
         "install": 26,
-        "installer": 44,
+        "installer": 46,
         "hosted": 47,
         "ops": 11
       },
@@ -363,22 +363,42 @@
       "source_retirement_repair": "Confirm original source revocation before creating a fresh rollback identity; uncertainty keeps original and target cleanup subjects durable.",
       "publication_time_repair": "Use the actual publication-time clock to reject approvals that expired during selection, target cutover or rollback preparation.",
       "durable_restoration_repair": "Persist the fresh restoration identity before policy/enrollment effects; validate restored approval with the actual clock before publication; clean or retain failed restoration subjects; namespace managed cleanup keys by attachment.",
-      "rollback_scope_preflight": "Confirm every rollback subject has the same authorized installation/customer/environment before fencing stored readiness."
+      "rollback_scope_preflight": "Confirm every rollback subject has the same authorized installation/customer/environment before fencing stored readiness.",
+      "retained_retry_repair": "Reject a rollback retry that would discard a different uncleaned/published identity; require explicit detach, and stage the two supplied cleanup subjects atomically."
+    },
+    {
+      "reason": "Preserve unresolved cleanup through pre-effect retry failures; restore only current hosted readiness after successful cached validation. Revocation qualification observer separates onset deadline from sustained observation; deployed recovery runtime unchanged.",
+      "previous_candidate_pins": {
+        "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+        "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+        "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+        "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+        "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+        "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
+        "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+        "hosted_runtime": "git:67a66651acc2abd0d49543b085b29f1701eb5e6d:release/runtime-inventory.json",
+        "installer_runtime": "git:6585a45e7c5787b9cd7c0205131ec5900769b52e:src/private_connectivity/runtime-inventory.json",
+        "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+        "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
+        "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
+        "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
+        "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+        "ops_runtime": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/runtime-inventory.json",
+        "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
+      },
+      "qualification_pending": [
+        "retained crash/retry",
+        "uncertain enrollment endpoint retry",
+        "hosted managed and unbound readiness recovery"
+      ],
+      "authority": "Existing ratified installer/hosted implementation and approved isolated Eagle pilot scope; no human G4 claim."
     }
   ],
   "requalification_phase": "Existing isolated controls remain on approved 0.29.7 after the already qualified upgrade. Current-source paths are requalified without downgrading or resetting identities. Original .29.6-to-.29.7 upgrade evidence is retained only for byte-identical upgrade components.",
   "pin_inventory": [
     {
-      "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "06d70ff72136a456f2bb6a3fb4bb81eef344fe11"
-    },
-    {
       "repository": "opensoft/Headscale-Install",
       "foreign_commit": "07aad58f58c9c08a212215225b7167c983e391b1"
-    },
-    {
-      "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e"
     },
     {
       "repository": "opensoft/xFactory-Installer",
@@ -387,6 +407,10 @@
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "0ebf97ae67f1409a8bf3e10517cea9528b228788"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "10aca828a3044d88b2880329530a51881c927df9"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
@@ -441,6 +465,10 @@
       "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
     },
     {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "488e314addd79efa728d0c4e9b556a783aba0dc8"
+    },
+    {
       "repository": "codeXfactory/codexFactory",
       "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
     },
@@ -471,6 +499,18 @@
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "65735cf951f63527e8f67cfd8509a5792aa40986"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "6585a45e7c5787b9cd7c0205131ec5900769b52e"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "66bfafadcd4d215eb2bebd384c39a5ba5943ad2e"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "67a66651acc2abd0d49543b085b29f1701eb5e6d"
     },
     {
       "repository": "opensoft/xFactory-Installer",
@@ -529,10 +569,6 @@
       "openxfactory_commit": "9ebea8d532544e57aa4654a1df49fe3650e636e1"
     },
     {
-      "repository": "opensoft/opsXfactory",
-      "foreign_commit": "a524b9c12a0530149f1d1ecd3a33272fbd827a3c"
-    },
-    {
       "repository": "opensoft/Headscale-Install",
       "foreign_commit": "a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941"
     },
@@ -554,6 +590,10 @@
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "cf1a25772af6d5ef5108714a198744357c9b4f72"
     },
     {
@@ -569,8 +609,8 @@
       "foreign_commit": "e5dcc0da689ac52f23044974ff7c295cd08cd710"
     },
     {
-      "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d"
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec04538ee963f808d41d20e9034f56cba3e6a3d3"
     },
     {
       "repository": "opensoft/Headscale-Install",

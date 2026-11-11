@@ -4,15 +4,15 @@
   "scope": "installer",
   "owner": "xFactory-Installer",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
-  "revision_ref": "git:080727f0184e9f7d28a249a45324b23a2edb7a9e:src/private_connectivity/runtime-inventory.json",
+  "revision_ref": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/review-repair-checks.json"
+    "output_ref": "git:10aca828a3044d88b2880329530a51881c927df9:tests/private_connectivity/evidence/review-repair-checks.json"
   },
   "dependencies": {
-    "T008": "8287f748372eab45c1b3f8b007130fbc46e154d3d22f60de24b25c67b638674d",
-    "T010": "949b7cd9b2cd1b98fd4d43b5d63d600f9e5718b70f73d31a86cd453b752f831d"
+    "T008": "6c864fbe485a75ddf212df3865bd47084a319ac21ae9ba607cf4fcc6ad4f7452",
+    "T010": "cad532acbf3567fa080ec4addcbb12576ca64667107407ffe084f5c12b015391"
   },
   "cases": {
     "local-managed": {
@@ -60,19 +60,31 @@
       }
     }
   },
-  "qualification_scope": "Fresh v7 actual managed selection, uncertain enrollment retry, scope isolation, detach, subscription cancellation, endpoint migration and forced rollback on the durable-restoration candidate; the final scope preflight is separately verified by 44 tests. The additional post-restore source-retirement drill follows T019.",
+  "qualification_scope": "Fresh v7 actual managed selection, uncertain enrollment retry, scope isolation, detach, subscription cancellation, endpoint migration and forced rollback on the durable-restoration candidate; the final scope preflight is separately verified by 47 tests. The additional post-restore source-retirement drill follows T019. Audited current-source composition: 47 installer and 50 hosted tests; actual retained-restoration crash/retry and uncertain-enrollment endpoint failure preserve cleanup; managed/unbound cached retries restore only their own persisted readiness. Unchanged methods and bytes are explicitly compared; historical measurements retain their capture-time scope.",
   "pin_inventory": [
     {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "06d70ff72136a456f2bb6a3fb4bb81eef344fe11"
     },
     {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "0d06bc3feab06557a11ece68cde20d7ff56f5ae9"
+    },
+    {
       "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e"
+      "foreign_commit": "10aca828a3044d88b2880329530a51881c927df9"
     },
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "488e314addd79efa728d0c4e9b556a783aba0dc8"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "5c752bf83f2cf92e01b4f2553d9197e8d5a2b909"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -85,6 +97,10 @@
     {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "e24ea82b75d0bf880e77c3fadca6b0e51a53dce9"
     }
   ],
   "repair_qualification": {
@@ -92,7 +108,10 @@
     "actual_review_repairs_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
     "managed_selection_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
     "original_measurements_preserved": true,
-    "fresh_full_cohort_rerun_claimed": false
+    "fresh_full_cohort_rerun_claimed": false,
+    "audited_component_equivalence_ref": "git:e24ea82b75d0bf880e77c3fadca6b0e51a53dce9:specs/040-private-connectivity/evidence/audited-repair-equivalence.json",
+    "actual_retained_retry_ref": "git:5c752bf83f2cf92e01b4f2553d9197e8d5a2b909:tests/private_connectivity/evidence/rollback-retry.json",
+    "actual_cached_readiness_ref": "git:0d06bc3feab06557a11ece68cde20d7ff56f5ae9:tests/qualification/evidence/cached-recovery.json"
   },
   "final_preflight_equivalence": "The final authorization preflight is qualified by 44 regression tests and the actual current-source post-restore drill.",
   "current_post_restore_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/after-restore-repair.json"

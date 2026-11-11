@@ -8,10 +8,10 @@
   "owner_check": {
     "command": "python3 -m pytest tests/private_connectivity -q",
     "exit_status": 0,
-    "output_ref": "git:a524b9c12a0530149f1d1ecd3a33272fbd827a3c:tests/private_connectivity/evidence/review-repair-checks.json"
+    "output_ref": "git:ec04538ee963f808d41d20e9034f56cba3e6a3d3:tests/private_connectivity/evidence/review-repair-checks.json"
   },
   "dependencies": {
-    "T018": "a49afd6e6f70181d61ae248e4b3a4f383af5a27943c1470185d3db1f9240c90b"
+    "T018": "74c03594f819ce469ff7fe69fc7c90f28e500e84bc9501424cb45f216e4ca50f"
   },
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "candidate_pins": {
@@ -22,8 +22,8 @@
     "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
     "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
     "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
-    "hosted_runtime": "git:f2e903e63021f4248c598e09be820ebcc1d83e9d:release/runtime-inventory.json",
-    "installer_runtime": "git:080727f0184e9f7d28a249a45324b23a2edb7a9e:src/private_connectivity/runtime-inventory.json",
+    "hosted_runtime": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:release/runtime-inventory.json",
+    "installer_runtime": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/runtime-inventory.json",
     "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
     "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
@@ -180,15 +180,15 @@
       "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json"
     }
   },
-  "qualification_scope": "Retained original actual measurement at the unchanged Ops recovery revision. All involved revocation/policy, snapshot/recovery, image and identity components are measured byte-identical to the current candidate. Numeric timings and original tested revisions are preserved; this is not a newly executed drill or a second .29.6-to-.29.7 upgrade. Fresh neighboring probes and affected enrollment/selection repairs are separately linked.",
+  "qualification_scope": "Retained original actual measurement at the unchanged Ops recovery revision. All involved revocation/policy, snapshot/recovery, image and identity components are measured byte-identical to the current candidate. Numeric timings and original tested revisions are preserved; this is not a newly executed drill or a second .29.6-to-.29.7 upgrade. Fresh neighboring probes and affected enrollment/selection repairs are separately linked. Audited current-source composition: 47 installer and 50 hosted tests; actual retained-restoration crash/retry and uncertain-enrollment endpoint failure preserve cleanup; managed/unbound cached retries restore only their own persisted readiness. Unchanged methods and bytes are explicitly compared; historical measurements retain their capture-time scope.",
   "pin_inventory": [
     {
       "repository": "opensoft/Headscale-Install",
       "foreign_commit": "07aad58f58c9c08a212215225b7167c983e391b1"
     },
     {
-      "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e"
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "0d06bc3feab06557a11ece68cde20d7ff56f5ae9"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -203,12 +203,20 @@
       "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
     },
     {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "488e314addd79efa728d0c4e9b556a783aba0dc8"
+    },
+    {
       "repository": "codeXfactory/codexFactory",
       "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "4f9883f985e2310a5eb1e9c857ac8ad40511b813"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "5c752bf83f2cf92e01b4f2553d9197e8d5a2b909"
     },
     {
       "repository": "opensoft/opsXfactory",
@@ -227,10 +235,6 @@
       "foreign_commit": "9edb47f5dcb3b893076a339a7ac3d930a6657613"
     },
     {
-      "repository": "opensoft/opsXfactory",
-      "foreign_commit": "a524b9c12a0530149f1d1ecd3a33272fbd827a3c"
-    },
-    {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
     },
@@ -239,12 +243,20 @@
       "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
     },
     {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
+    },
+    {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
     },
     {
-      "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "f2e903e63021f4248c598e09be820ebcc1d83e9d"
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "e24ea82b75d0bf880e77c3fadca6b0e51a53dce9"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec04538ee963f808d41d20e9034f56cba3e6a3d3"
     }
   ],
   "repair_qualification": {
@@ -252,7 +264,10 @@
     "actual_review_repairs_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
     "managed_selection_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
     "original_measurements_preserved": true,
-    "fresh_full_cohort_rerun_claimed": false
+    "fresh_full_cohort_rerun_claimed": false,
+    "audited_component_equivalence_ref": "git:e24ea82b75d0bf880e77c3fadca6b0e51a53dce9:specs/040-private-connectivity/evidence/audited-repair-equivalence.json",
+    "actual_retained_retry_ref": "git:5c752bf83f2cf92e01b4f2553d9197e8d5a2b909:tests/private_connectivity/evidence/rollback-retry.json",
+    "actual_cached_readiness_ref": "git:0d06bc3feab06557a11ece68cde20d7ff56f5ae9:tests/qualification/evidence/cached-recovery.json"
   },
   "retained_measurement": true,
   "post_restore_credential_recheck_ref": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/upgraded-credentials.json"
