@@ -1,0 +1,135 @@
+{
+  "status": "record",
+  "qualification": "Completed pin-register repair local and required-CI qualification before the G4 approval-record update",
+  "recorded_on": "2026-11-11",
+  "observed_at_utc": "2026-11-11T13:26:39.576430+00:00",
+  "full_local_validation_ref": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/pin-register-validation.txt",
+  "subsequent_provenance_validation_ref": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/pin-register-provenance-validation.txt",
+  "source_reference_resolution_ref": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:specs/040-private-connectivity/evidence/repair-reference-verification.json",
+  "measured_at_validated_source": {
+    "standing_sites": 541,
+    "standing_members": 31,
+    "immutable_file_references": 206,
+    "full_local_tests": 152,
+    "full_local_subtests": 52,
+    "subsequent_provenance_tests": 5
+  },
+  "required_ci": [
+    {
+      "repository": "opensoft/openxFactory",
+      "pull_request": 1303,
+      "tested_source_ref": "git:18937a8adce972cc9cfda8d378d312c73b02e2e8:scripts/doc_health/pin_class.py",
+      "draft": true,
+      "checks": [
+        {
+          "name": "clearing-dispatch-gate",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943253803/job/130269842900"
+        },
+        {
+          "name": "council-convening-gate",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943254008/job/130269843623"
+        },
+        {
+          "name": "doc-health-py314",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943253859/job/130269843903"
+        },
+        {
+          "name": "former-id-arrival-gate",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943253998/job/130269844217"
+        },
+        {
+          "name": "lane-line",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943253820/job/130269843040"
+        },
+        {
+          "name": "lane-line",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943256016/job/130269850494"
+        },
+        {
+          "name": "lane-line",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943276642/job/130269916582"
+        },
+        {
+          "name": "merge-master-approval",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943251258/job/130269839599"
+        },
+        {
+          "name": "openreposhape-pin",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943253849/job/130269843533"
+        },
+        {
+          "name": "openspec-cli-pin",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943253913/job/130269843885"
+        },
+        {
+          "name": "openxdox-consumer-gate",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943253855/job/130269843521"
+        },
+        {
+          "name": "wallet-validation",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943253789/job/130269842912"
+        },
+        {
+          "name": "pytest-suite",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943254119/job/130269956109"
+        },
+        {
+          "name": "release-tag-gate",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943254015/job/130269844314"
+        },
+        {
+          "name": "signed-execution-chain-gate",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/openxFactory/actions/runs/42943254022/job/130269843911"
+        },
+        {
+          "name": "SonarCloud Code Analysis",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://sonarcloud.io/dashboard?id=opensoft_openxFactory&pullRequest=1303"
+        }
+      ]
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "pull_request": 622,
+      "tested_source_ref": "git:493f4db039a70f6e7871e257591c3984d3f0d5a2:workflows/private-connectivity/runtime-inventory.json",
+      "draft": true,
+      "checks": [
+        {
+          "name": "opsx-validation",
+          "conclusion": "SUCCESS",
+          "evidence_url": "https://github.com/opensoft/opsXfactory/actions/runs/42941550885/job/130264423771"
+        }
+      ]
+    }
+  ],
+  "source_ownership": "Explicit root-local retention and verified foreign-owner inventory; no feature evidence exclusion.",
+  "original_vs_current": "Original measurements, current candidate pins, and measured component comparisons remain separate. This record does not claim another full pilot or upgrade rerun.",
+  "exact_head_codex_review": "Incomplete: latest requests reported a review quota limit. Passing CI and human lab sign-off do not assert a fresh Codex review.",
+  "review_quota_evidence_url": "https://github.com/opensoft/openxFactory/pull/1303#issuecomment-6784822175",
+  "implementation_pull_requests_remain_draft": true,
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "18937a8adce972cc9cfda8d378d312c73b02e2e8"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "493f4db039a70f6e7871e257591c3984d3f0d5a2"
+    }
+  ]
+}
