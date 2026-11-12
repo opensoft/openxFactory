@@ -54,3 +54,5 @@ The [data model](data-model.md), [interface contracts](contracts/connectivity-in
 ## Pilot Release Gates
 
 The rollout owner records pilot approval, participating owners, approved region and budget, qualified versions, and drill windows before running live tests. The pilot halts on cross-boundary access, exposed private ingress, credential leakage, duplicate provisioning, revived access after revocation, or a failed recovery or rollback window. Resume only after remediation and a clean rerun of the affected controls and adjacent isolation tests.
+
+The [merge-preparation record](merge-preparation.md) defines the owner PR landing order and final source/CI validation boundary.
