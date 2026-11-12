@@ -62,6 +62,7 @@ candidates:
       CUSTODY, not decision (add-ideation-intent-plane design D1).
     target_repos:
       - opensoft/openxFactory
+      - opensoft/openXfactory # Same GitHub repository; canonical rename spelling.
     # The content App that authors the custody pull request. Verified against
     # the standing candidate: `gh api repos/opensoft/openxFactory/pulls/176
     # --jq .user.login` -> `openxfactory[bot]`. A DISTINCT identity from the
