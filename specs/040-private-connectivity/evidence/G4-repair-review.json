@@ -1,9 +1,9 @@
 {
   "kind": "pc040-g4-repair-review-packet",
-  "status": "awaiting-current-owner-signoffs",
+  "status": "accepted",
   "scope": "Isolated synthetic Eagle Docker lab only. All six implementation PRs remain draft. No commercial release, production deployment or rollout expansion is authorized by this packet.",
   "original_human_approval_ref": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
-  "technical_tasks": "T001-T020 technically verified; T021 is blocked pending current five-role human disposition",
+  "technical_tasks": "T001-T021 complete for the isolated Eagle Docker pilot; all six implementation PRs remain draft.",
   "required_roles": [
     "rollout_lead",
     "installer",
@@ -166,11 +166,19 @@
     },
     {
       "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "bf1833f2c91eddc5f0be014df657b88ab403be06"
+    },
+    {
+      "repository": "opensoft/openxFactory",
       "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
     },
     {
       "repository": "opensoft/opsXfactory",
       "foreign_commit": "e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "f1b15812dd2693b161c585080dc7d20f5c44eb57"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -186,5 +194,9 @@
   "current_actual_thread_proof_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json",
   "current_actual_shadow_proof_ref": "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json",
   "prior_repair_approval_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
-  "human_acceptance_of_current_sources_inferred": false
+  "human_acceptance_of_current_sources_inferred": false,
+  "accepted_packet_ref": "git:bf1833f2c91eddc5f0be014df657b88ab403be06:specs/040-private-connectivity/evidence/G4-repair-review.json",
+  "acceptance_ref": "git:f1b15812dd2693b161c585080dc7d20f5c44eb57:specs/040-private-connectivity/evidence/G4-reviewed-repairs-approval.json",
+  "acceptance_date": "2026-11-11",
+  "human_acceptance_recorded": true
 }
