@@ -786,7 +786,7 @@ class TheRealFiles(unittest.TestCase):
     def test_the_enrolled_candidate_is_the_narrow_one(self) -> None:
         candidate = sole_candidate(envelope_document())
         self.assertEqual(
-            candidate.get("target_repos"), ["opensoft/openxFactory"],
+            candidate.get("target_repos"), ["opensoft/openxFactory", "opensoft/openXfactory"],
             "the class exists on this repository and nowhere else")
         self.assertEqual(
             candidate.get("expected_author"), ENROLLED_AUTHOR,

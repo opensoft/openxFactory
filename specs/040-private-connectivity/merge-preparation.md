@@ -120,3 +120,24 @@ change the required-check rulesets. Required human/code-owner approvals and
 the instruction to leave draft are still outstanding. A GitHub Codex review
 request is made after each meaningful push; quota refusals do not constitute
 a fresh remote review.
+
+## Subsequent landing authorization
+
+Brett Heap subsequently authorized marking all six PRs ready for review,
+requesting their required approvals and landing them in the recorded order
+after checks and approvals pass. He then explicitly authorized a one-time
+admin merge of codeXfactory #578 at head e6676356 after its required checks
+pass. That exception is limited to #578; the other required approvals remain
+in force, and Headscale-Install and Installer still land first.
+
+During the landing recheck, main had advanced through the governed repository
+casing maintenance in PR #1306. This branch adopted that canonical reader and
+its canonical regression module byte for byte. Only the approved spelling
+pairs receive compatibility; the earlier private-branch generic GitHub case
+normalization is superseded by the upstream governed implementation.
+The private-connectivity runtime inventories remain at their accepted bytes.
+
+The draft boundary and validation counts in the preparation snapshot above
+describe that historical snapshot. Current readiness, source head, checks,
+review requests and merge results are recorded on the six PRs and must be
+read again immediately before each landing.

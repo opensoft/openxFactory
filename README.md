@@ -1,4 +1,6 @@
-# openxFactory
+# openXfactory
+
+Canonical repository name: `openXfactory`. Historical records, frozen contract identifiers, and compatibility selectors retain their original spelling.
 
 `openxFactory` documents the open reference stack and domain-neutral xFactory
 layer used by Opensoft domain factory projects.
@@ -542,6 +544,12 @@ Every DomainxFactory must validate against the canonical contract:
   and [contracts/CHANGELOG.md](contracts/CHANGELOG.md).
 
 ## OpenSpec Records
+
+- [add-workload-factory-binding](openspec/changes/add-workload-factory-binding/proposal.md)
+  - source acceptance ratified by Brett Heap on 2026-11-11 at factory
+    102d5f906cc4 and adapter 9e0b60e89bb3; [owner decision](openspec/changes/add-workload-factory-binding/review/ratification-2026-11-11.md).
+    Live qualification and codeXfactory pilot acceptance remain separate gates.
+
 
 Active changes:
 
@@ -2076,6 +2084,8 @@ Active changes:
   `openspec archive` at 1.12.0 would refuse both; both findings vanish when the
   two archive. Evidence, with both BEFORE/AFTER totals verbatim:
   `openspec/changes/prepare-openspec-1-12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md`.
+
+- [preserve-openspec-repository-casing](openspec/changes/preserve-openspec-repository-casing/proposal.md) — authorized naming-maintenance candidate, selected-baseline backport; [feature 042](specs/042-openspec-repository-casing/plan.md).
 
 - [admit-deliberation-clearing-operation](openspec/changes/admit-deliberation-clearing-operation/proposal.md)
   — authored 2026-09-04, **`Status: ratified`** (2026-09-04, Brett Heap,
