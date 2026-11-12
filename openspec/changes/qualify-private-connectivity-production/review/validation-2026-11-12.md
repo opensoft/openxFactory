@@ -7,7 +7,7 @@ Date: 2026-11-12
 ## Scope
 
 Validate the [draft packet](../proposal.md) on base
-21fafd4f34bdd6ffdcd2ab80865fcbe994fc38f6. This note records proposal validation,
+469526935630d92f870a31b19d626725b55793e6 for draft PR #1309. This note records proposal validation,
 not runtime qualification or production authority.
 
 ## Passing checks
@@ -24,6 +24,9 @@ not runtime qualification or production authority.
 - The sequenced-after sweep passes with 248 change IDs.
 - Focused doc-health status-validity and duplicate-packet families pass.
 - Markdown relative links in this packet resolve; staged whitespace checks pass.
+- Existing sequenced-after, code-surface and target-release regression suites pass:
+  python3 -m pytest tests/sequenced_after tests/code_surface tests/target_release -q
+  reports 538 passed.
 
 ## Existing provenance findings
 
@@ -36,14 +39,17 @@ proposal-origin finding and declares only draft provenance.
 These errors are recorded as existing findings, not waived, repaired or described
 as a clean whole-repository provenance result.
 
-## Publication-dependent ledger check
+## Publication and corpus ledger
 
-The ledger diff correctly reports the new, unpublished change missing from the
-generated corpus ledger. Seeding requires a real PR number. Leave the ledger
-unchanged until that number exists, then use:
-python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<actual-PR-number>'
-and rerun --ledger-diff. The angle-bracket token in this instruction is not a
-ledger value and must be replaced by the assigned PR number.
+Draft [PR #1309](https://github.com/opensoft/openXfactory/pull/1309) publishes this
+proposal. The generator added exactly one row, attributed to #1309, using:
+python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#1309'.
 
-No PR number, ledger row, runtime acceptance, release version or operational
-approval is fabricated by this proposal.
+The generated ledger has 248 rows. Its --ledger-diff check passes and the
+sequencing sweep resolves the declared prerequisites. No existing ledger row
+was changed, no manual ledger edit was made, and no exception was added.
+
+The README and draft provenance link the assigned PR. Governance publication
+task 1.2 is complete; ratification and implementation/operational decisions are
+still pending. Publication does not grant staging, canary, commercial-release or
+expansion permission.

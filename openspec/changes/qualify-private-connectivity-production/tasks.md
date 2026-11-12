@@ -10,7 +10,7 @@ or runtime task list is created by this proposal. Feature 040 stays completed.
 ## 1. Review and publication
 
 - [ ] 1.1 Review and ratify the production qualification policy and owner boundaries. Verify an explicit ratification record identifying this packet and distinguishing policy acceptance from implementation, staging, canary, commercial release and expansion authority.
-- [ ] 1.2 When a PR is assigned, publish its actual number in the repository index and regenerate the corpus ledger with the sanctioned seed command. Verify the strict OpenSpec check, sequencing sweep and ledger diff; do not fabricate a PR or edit the generated ledger by hand.
+- [x] 1.2 Publish draft PR #1309 in the repository index and regenerate the corpus ledger with the sanctioned seed command using #1309. Verify the strict OpenSpec check, sequencing sweep and ledger diff; the assigned PR and generated row are recorded in review/validation-2026-11-12.md.
 
 ## 2. Implementation handoff
 
