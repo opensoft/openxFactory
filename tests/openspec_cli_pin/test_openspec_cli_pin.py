@@ -3020,3 +3020,23 @@ def test_collection_like_scope_text_does_not_gain_an_alias(
     assert "Traceback" not in printed.err
     assert "DISPOSITIONED FINDINGS" not in printed.out
     assert calls, "the valid pin still reaches corpus validation"
+
+
+def test_block_valued_repository_scope_does_not_crash_cli(
+        mod, tmp_path, fake_npm, capsys):
+    """Nested block values reach reconciliation through the real file parser."""
+    calls, served = fake_npm
+    served["verdict"] = 1
+    served["report"] = report((FINDING_ITEM, FINDING_PATH, FINDING_TEXT), items=90)
+    (tmp_path / "openspec").mkdir()
+    block = disposition_block(a_disposition()).replace(
+        "  - repo: 'openxFactory'\n", f"  - item: '{FINDING_ITEM}'\n    repo:\n      - openxFactory\n", 1).replace(
+            f"    item: '{FINDING_ITEM}'\n", "", 1)
+    path = write_pin(tmp_path, dispositions_block=block)
+    assert mod.read_pin(path)["dispositions"][0]["repo"] == ["openxFactory"]
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 1
+    printed = capsys.readouterr()
+    assert "Traceback" not in printed.err
+    assert "DISPOSITIONED FINDINGS" not in printed.out
+    assert calls

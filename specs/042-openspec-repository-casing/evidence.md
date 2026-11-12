@@ -22,10 +22,12 @@ Feedback remains deferred; neither historically blocked write is replayed.
 ## Local expert-panel correction
 
 The panel reproduced an unhashable repository scope at the in-memory
-`pinned_dispositions` / `reconcile` boundary. The restricted file parser returns
-collection-like scope text as strings; no file-driven crash was demonstrated.
-Equality comparisons now retain the prior out-of-scope behavior for these values
-without adding pin-shape rules. Two in-memory list/dict regressions failed before
-the correction; two CLI controls preserve refusal of uncovered findings without
-applying an alias. The complete reader suite passes 172 tests after correction.
-This review is local and does not stand in for a GitHub Codex receipt.
+`pinned_dispositions` / `reconcile` boundary. Inline collection-like scope text
+is parsed as a string; further review proved a nested block-valued `repo` is
+parsed as a list and reaches the same failure through the CLI. Equality
+comparisons retain the prior out-of-scope behavior without adding pin-shape
+rules. Two in-memory list/dict regressions failed before correction; two CLI text
+controls and a block-valued CLI regression prove uncovered findings still refuse
+without applying an alias or crashing. The complete reader suite passes 173
+tests after correction. This review is local and does not stand in for a GitHub
+Codex receipt.
