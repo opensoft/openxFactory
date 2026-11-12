@@ -437,6 +437,30 @@ class NonMember:
 # state at `origin/main` — see the module docstring on why the packet's table is
 # not the seed. Ordered by the capability that owns each artifact.
 PIN_CLASS: tuple[PinMember, ...] = (
+    # Feature 040 carries mixed-owner gate and source references. Its generated
+    # inventory declares every commit token in each record by repository;
+    # local derivation pins retain the same MUST_RESOLVE obligation.
+    PinMember(
+        id="private-connectivity-local-evidence",
+        paths=("specs/040-private-connectivity/evidence/*.json",),
+        key="openxfactory_commit", key_form="field",
+        generator="feature 040 register-evidence-pins.py",
+        reproduction=MEASURED, locality=REPO_LOCAL, presence=CURRENT,
+        key_expected=False,
+        note="Generated per-record inventory of owner-resolved local source "
+             "and authority commits; no evidence directory exclusion.",
+    ),
+    PinMember(
+        id="private-connectivity-foreign-evidence",
+        paths=("specs/040-private-connectivity/evidence/*.json",),
+        key="foreign_commit", key_form="field",
+        generator="feature 040 register-evidence-pins.py",
+        reproduction=MEASURED, locality=CROSS_REPOSITORY, presence=CURRENT,
+        key_expected=False,
+        note="Generated per-record foreign source inventory. Each entry names "
+             "its repository; the feature inventory verifier resolves the "
+             "object against that explicit owner's checkout.",
+    ),
     # ---- the cross-reference index and its rendered twin -------------------
     PinMember(
         id="cross-reference-index",

@@ -1,0 +1,174 @@
+{
+  "task": "T003",
+  "verdict": "pass",
+  "scope": "evidence_tooling",
+  "owner": "openxFactory feature 040",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
+  "decision_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
+  "dependencies": {
+    "T001": "116e1a5751166bd78634a052d98585e397a68f86b500e2176de51d8333072a25"
+  },
+  "limits": {
+    "revocation_seconds": 300,
+    "restore_seconds": 3600,
+    "backup_age_seconds": 86400,
+    "rollback_seconds": 900,
+    "probe_interval_seconds": 10,
+    "sustained_denial_seconds": 30
+  },
+  "lab": {
+    "host": "Eagle",
+    "account": "commissioning operator's local Docker Desktop",
+    "region": "local",
+    "cloud_spend": 0,
+    "prefix": "pc040-",
+    "customer_fixtures": [
+      "tenant-a",
+      "tenant-b",
+      "tenant-hosted-new"
+    ],
+    "profile": "synthetic codexFactory hosted profile",
+    "policy_boundaries": [
+      "tenant-a",
+      "tenant-b",
+      "customer-local",
+      "tenant-hosted-new"
+    ],
+    "disposable_instance": {
+      "customer": "tenant-b",
+      "environment": "dev",
+      "boundary": "b-drill",
+      "purpose": "independent network termination and protected retention; never a customer release",
+      "control_network": "pc040-fixture-b-drill",
+      "control_subnet": "198.19.40.64/28",
+      "deny_before_enrollment_required": true
+    },
+    "route_fixtures": {
+      "tenant-a": "198.19.41.0/28",
+      "tenant-b": "198.19.42.0/28",
+      "customer-local": "198.19.43.0/28",
+      "tenant-b-disposable": "198.19.44.0/28"
+    },
+    "fresh_hosted_customer": {
+      "customer": "tenant-hosted-new",
+      "environment": "test",
+      "boundary": "hosted-new",
+      "control_network": "pc040-fixture-hosted-new",
+      "control_subnet": "198.19.40.96/28",
+      "purpose": "First allocation of a managed network through hosted onboarding; the main A/B networks already exist.",
+      "deny_before_enrollment_required": true
+    },
+    "termination_fixture": {
+      "customer": "tenant-b-termination",
+      "environment": "test",
+      "boundary": "b-term",
+      "control_network": "pc040-fixture-b-term",
+      "control_subnet": "198.19.40.80/28",
+      "purpose": "Requalify termination with an attached synthetic device while retaining the earlier terminated tenant-b/dev identity.",
+      "deny_before_enrollment_required": true
+    }
+  },
+  "operators": {
+    "rollout_lead": "Brett Heap",
+    "signoff_owner": "Brett Heap",
+    "rollback_owner": "Brett Heap"
+  },
+  "custody": {
+    "keys": "lab-local generated material in isolated volumes, excluded from git and output",
+    "evidence": "redacted synthetic results under the feature evidence path"
+  },
+  "cases": {
+    "lab-scope": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
+      "checks": {
+        "account": {
+          "passed": true,
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "region": {
+          "passed": true,
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "budget": {
+          "passed": true,
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "synthetic-fixtures": {
+          "passed": true,
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
+        }
+      }
+    },
+    "operators": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
+      "checks": {
+        "rollout-lead": {
+          "passed": true,
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "signoff-owner": {
+          "passed": true,
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "rollback-owner": {
+          "passed": true,
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
+        }
+      }
+    },
+    "custody": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
+        }
+      }
+    },
+    "windows": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
+      "checks": {
+        "limits": {
+          "passed": true,
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "sampling": {
+          "passed": true,
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
+        },
+        "sustained-denial": {
+          "passed": true,
+          "evidence_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json"
+        }
+      }
+    }
+  },
+  "scope_record_update": "Domain scope ratified in codeXfactory/codexFactory#578; observations and original evidence references preserved.",
+  "scope_amendments": [
+    {
+      "recorded_by": "Codex commissioning within the authorized feature 040 implementation",
+      "authority": "Brett Heap selected: Use an isolated Docker lab on Eagle. The request authorizes continuing the dependency-ordered tasks and honoring pilot gates.",
+      "reason": "Hosted-new requires a fresh customer boundary; explicit new-network intent now refuses reuse of an earlier standalone network. The additional termination fixture preserves the previously terminated identity.",
+      "boundary": "Synthetic local Docker resources under pc040 ownership; no cloud spend, customer release, G4 sign-off or production authority.",
+      "human_release_signoff": false
+    }
+  ],
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "649116bdbadfe2ab0d825a0224f4fb2ad906c9be"
+    }
+  ]
+}

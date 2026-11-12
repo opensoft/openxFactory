@@ -1,0 +1,202 @@
+{
+  "kind": "pc040-g4-repair-review-packet",
+  "status": "accepted",
+  "scope": "Isolated synthetic Eagle Docker lab only. All six implementation PRs remain draft. No commercial release, production deployment or rollout expansion is authorized by this packet.",
+  "original_human_approval_ref": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
+  "technical_tasks": "T001-T021 complete for the isolated Eagle Docker pilot; all six implementation PRs remain draft.",
+  "required_roles": [
+    "rollout_lead",
+    "installer",
+    "ops",
+    "hosted_product",
+    "hosted_domain"
+  ],
+  "candidate_pins": {
+    "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+    "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+    "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+    "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+    "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+    "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
+    "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+    "hosted_runtime": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:release/runtime-inventory.json",
+    "installer_runtime": "git:734e5eac9b1211fa69318246b888f973e79b027d:src/private_connectivity/runtime-inventory.json",
+    "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+    "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
+    "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
+    "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
+    "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+    "ops_runtime": "git:e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55:workflows/private-connectivity/runtime-inventory.json",
+    "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
+  },
+  "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
+  "gate_refs": {
+    "G0": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T006.json",
+    "G1": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T012.json",
+    "G2": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T014.json",
+    "G3": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T017.json"
+  },
+  "drill_refs": {
+    "T018": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T018.json",
+    "T019": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T019.json",
+    "T020": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T020.json"
+  },
+  "offering_paths": {
+    "local-headscale": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T008.json",
+    "local-factory-with-managed-headscale": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T013.json",
+    "standalone-hosted-headscale": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T012.json",
+    "hosted-domain-factory": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T017.json"
+  },
+  "repaired_cases": {
+    "retained-rollback-crash-retry": "git:5c752bf83f2cf92e01b4f2553d9197e8d5a2b909:tests/private_connectivity/evidence/rollback-retry.json",
+    "pending-cleanup-and-cached-readiness": "git:0d06bc3feab06557a11ece68cde20d7ff56f5ae9:tests/qualification/evidence/cached-recovery.json",
+    "missing-restored-registration-and-failed-activation": "git:493f4db039a70f6e7871e257591c3984d3f0d5a2:tests/private_connectivity/evidence/recovery-repairs.json",
+    "post-upgrade-credential-expiry-and-consumed-key-replay": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/upgraded-credentials.json"
+  },
+  "local_owner_tests": {
+    "headscale_install": 26,
+    "installer": 53,
+    "hosted_product": 62,
+    "ops": 25,
+    "domain_connectivity": 18,
+    "domain_governance_regression": 374
+  },
+  "measured_scope": {
+    "original_full_drill_measurements_retained": true,
+    "full_upgrade_or_full_cohort_rerun_claimed": false,
+    "original_maximum_revocation_onset_seconds": 20.589472574996762,
+    "original_restore_seconds": 58.542419664998306,
+    "earlier_post_restore_rollback_seconds": 165.955442,
+    "current_retained_retry_recovery_seconds": 101.34361756998987,
+    "composition_refs": [
+      "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/audited-repair-equivalence.json",
+      "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/recovery-repair-equivalence.json",
+      "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-composition.json"
+    ],
+    "capture_time_authority": "Positive observations were made while their explicitly bounded synthetic approvals were valid. Later natural lease expiry does not renew authority. Fresh expired/withdrawn denial checks use actual elapsed time and recorded withdrawal.",
+    "current_thread_crash_cleanup_seconds": 15.058787876001588
+  },
+  "closed_review_and_probe_records_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-closures.json",
+  "authority_journals": {
+    "managed": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:tests/qualification/evidence/repair-authority-journal.json",
+    "local_and_rollback": "git:003fc412b5538cf80b399f4a052f814acec45f1a:tests/private_connectivity/evidence/audited-authority-supplement.json"
+  },
+  "pin_register_repair": {
+    "ratification_ref": "git:998b8fd49398ea0d45e44c19b23f6973eb7810d4:openspec/changes/register-private-connectivity-evidence-pins/review/ratification-2026-11-10.md",
+    "classification": "Explicit root-local reachability and verified foreign owner inventories; no evidence exclusion.",
+    "validation_log": "specs/040-private-connectivity/evidence/pin-register-validation.txt"
+  },
+  "review_boundaries": "Local conformance, historical actual drill measurements, fresh actual repair tests, GitHub checks, exact-head Codex reviews and human lab acceptance remain separate evidence. Current PR checks and reviews are reported in the PR; this packet does not declare them green.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "003fc412b5538cf80b399f4a052f814acec45f1a"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "07aad58f58c9c08a212215225b7167c983e391b1"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "0d06bc3feab06557a11ece68cde20d7ff56f5ae9"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "325356188f0c39e00e859b7338c050b4d1a29416"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "36c59db351490e0e337a077ceede86cc6679b220"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "493f4db039a70f6e7871e257591c3984d3f0d5a2"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "4f9883f985e2310a5eb1e9c857ac8ad40511b813"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "50cafafa73351e6141cde07e39e41e427b75e6f8"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "5c752bf83f2cf92e01b4f2553d9197e8d5a2b909"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "5fc3bcff060179a0cb9a93131736e3b61c276fc3"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "734e5eac9b1211fa69318246b888f973e79b027d"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "828c86b6913ab9fc2358ab4343eabdc9b992e0f3"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "88b8e9309ce0c1db2dd476a228cec91cbe64eaa2"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "998b8fd49398ea0d45e44c19b23f6973eb7810d4"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "afab2d5f0ad1d2c2bdd76920181388117c21ce8c"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "b9d699ce7f46ff4f7ce7e062743d71e200ed56a4"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "bf1833f2c91eddc5f0be014df657b88ab403be06"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "f1b15812dd2693b161c585080dc7d20f5c44eb57"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60"
+    }
+  ],
+  "current_repair_scope": "All five original findings and related findings discovered during local and current GitHub review. All affected failures have current regression and actual qualification closure.",
+  "local_codex_fix_review_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/local-codex-fix-review.json",
+  "current_actual_thread_proof_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json",
+  "current_actual_shadow_proof_ref": "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json",
+  "prior_repair_approval_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+  "human_acceptance_of_current_sources_inferred": false,
+  "accepted_packet_ref": "git:bf1833f2c91eddc5f0be014df657b88ab403be06:specs/040-private-connectivity/evidence/G4-repair-review.json",
+  "acceptance_ref": "git:f1b15812dd2693b161c585080dc7d20f5c44eb57:specs/040-private-connectivity/evidence/G4-reviewed-repairs-approval.json",
+  "acceptance_date": "2026-11-11",
+  "human_acceptance_recorded": true
+}

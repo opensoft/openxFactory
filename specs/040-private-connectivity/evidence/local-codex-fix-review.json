@@ -1,0 +1,114 @@
+{
+  "qualification": "Local Codex pr-review skill: nine delegated expert roles plus independent master review",
+  "status": "no-actionable-findings",
+  "source_cores": {
+    "installer": "git:734e5eac9b1211fa69318246b888f973e79b027d:src/private_connectivity/runtime-inventory.json",
+    "hosted": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:release/runtime-inventory.json",
+    "ops_qualification": "git:a121c0dd4a55d93e7046fc3c10c343ddae066ec3:tests/private_connectivity/qualify_recovery_repairs.py",
+    "domain_unchanged": "git:1e283972f0aee78a7fbd790af48b00fceea74157:profiles/hosted/private-connectivity.yaml"
+  },
+  "roles": [
+    {
+      "role": "architecture",
+      "agent": "review_architecture",
+      "outcome": "no additional actionable P0-P2 findings after final repair delta review"
+    },
+    {
+      "role": "performance",
+      "agent": "review_performance",
+      "outcome": "no additional actionable P0-P2 findings after final repair delta review"
+    },
+    {
+      "role": "security",
+      "agent": "review_security",
+      "outcome": "no additional actionable P0-P2 findings after final repair delta review"
+    },
+    {
+      "role": "qa",
+      "agent": "review_qa",
+      "outcome": "no additional actionable P0-P2 findings after final repair delta review"
+    },
+    {
+      "role": "static",
+      "agent": "review_static",
+      "outcome": "no additional actionable P0-P2 findings after final repair delta review"
+    },
+    {
+      "role": "contracts",
+      "agent": "review_contracts",
+      "outcome": "no additional actionable P0-P2 findings after final repair delta review"
+    },
+    {
+      "role": "persistence",
+      "agent": "review_persistence",
+      "outcome": "no additional actionable P0-P2 findings after final repair delta review"
+    },
+    {
+      "role": "reliability",
+      "agent": "review_reliability",
+      "outcome": "no additional actionable P0-P2 findings after final repair delta review"
+    },
+    {
+      "role": "maintainability",
+      "agent": "review_maintainability",
+      "outcome": "no additional actionable P0-P2 findings after final repair delta review"
+    }
+  ],
+  "owner_regressions": {
+    "installer": 53,
+    "hosted_product": 62,
+    "ops": 25
+  },
+  "master_checks": [
+    "Current GitHub review threads compared to code, confirmed findings reproduced before repair",
+    "Capture-time driver digests and source inventories checked against immutable source",
+    "Affected actual traffic checks independently distinguished from retained full-drill measurements",
+    "Technical evidence dependency chain and source ownership verified; G4 human acceptance not inferred"
+  ],
+  "actual_qualification_refs": [
+    "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json",
+    "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json"
+  ],
+  "closed_finding_ids": [
+    "recovery-current-authority",
+    "pending-subscription-cleanup",
+    "installer-workflow-yaml",
+    "local-shared-policy",
+    "final-publication-authority",
+    "stale-subscription-cancellation-event",
+    "detach-retry-subject-fence",
+    "tombstone-before-pending-crash",
+    "destructive-replacement-readiness",
+    "shadow-qualification-authority",
+    "prior-readiness-current-authority"
+  ],
+  "external_github_approval_or_bot_receipt_claimed": false,
+  "human_g4_signoff_claimed": false,
+  "all_six_prs_remain_draft": true,
+  "pin_inventory": [
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "1e283972f0aee78a7fbd790af48b00fceea74157"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "325356188f0c39e00e859b7338c050b4d1a29416"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "36c59db351490e0e337a077ceede86cc6679b220"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "734e5eac9b1211fa69318246b888f973e79b027d"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "a121c0dd4a55d93e7046fc3c10c343ddae066ec3"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "afab2d5f0ad1d2c2bdd76920181388117c21ce8c"
+    }
+  ]
+}

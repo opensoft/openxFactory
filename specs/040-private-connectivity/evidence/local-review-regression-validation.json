@@ -1,0 +1,62 @@
+{
+  "qualification": "Affected feature, pin-register, corpus and technical gate validation for reviewed current cohort",
+  "source_cohort_ref": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T006.json",
+  "review_packet_ref": "git:bf1833f2c91eddc5f0be014df657b88ab403be06:specs/040-private-connectivity/evidence/G4-repair-review.json",
+  "status": "pass",
+  "commands": [
+    {
+      "command": "python3 -m pytest specs/040-private-connectivity/tests tests/doc-health/test_pin_reachability.py tests/doc-health/test_sentinel_vocabulary.py -q",
+      "status": "pass",
+      "exit_status": 0,
+      "passed_tests": 152,
+      "passed_subtests": 52,
+      "elapsed_seconds": 116.36
+    },
+    {
+      "command": "python3 scripts/validate-sequenced-after.py --ledger-diff",
+      "status": "pass",
+      "exit_status": 0
+    },
+    {
+      "command": "python3 scripts/validate-sequenced-after.py",
+      "status": "pass",
+      "exit_status": 0
+    }
+  ],
+  "t001_through_t020_structurally_verified": true,
+  "t021_expected_blocked_for_current_owner_acceptance": true,
+  "github_ci_is_separate": true,
+  "all_six_prs_remain_draft": true,
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "bf1833f2c91eddc5f0be014df657b88ab403be06"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60"
+    }
+  ],
+  "attempts": [
+    {
+      "exit_status": 1,
+      "passed_tests": 151,
+      "passed_subtests": 52,
+      "failed_test": "test_the_pin_counts_did_not_move_and_no_site_is_classified_twice",
+      "reason": "The first witness was measured before the new records were committed. The committed-tree reader measured 688 sites and31 members, versus the premature witness660.",
+      "used_for_acceptance": false
+    }
+  ],
+  "standing_pin_census": {
+    "sites": 688,
+    "members": 31,
+    "measured_on_committed_evidence": true
+  },
+  "corpus_ledger_rows": 244,
+  "immutable_file_references_verified": 306,
+  "tested_file_sha256": {
+    "tests/doc-health/test_sentinel_vocabulary.py": "16d3b217d9c92a919f917493c8b2f35b42c4651dd0f46624a23d44ef277e21bf",
+    "specs/040-private-connectivity/verify-evidence.py": "08b370ce059cfec110f8a3a0d058f07cf5ddddb67b9c4675864d5427ed8b33c9",
+    "specs/040-private-connectivity/register-evidence-pins.py": "b94c623f1f8cf02872f47823f3e43b27957c6b149e16cd37be5c957c72c70119"
+  }
+}

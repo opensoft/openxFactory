@@ -1,0 +1,460 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": 1,
+  "kind": "xfactory-connectivity-binding-schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "installation_id",
+    "customer_id",
+    "environment",
+    "operator_mode",
+    "endpoint",
+    "network_ref",
+    "state",
+    "access",
+    "routes"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "xfactory_connectivity_binding"
+    },
+    "installation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "customer_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "environment": {
+      "enum": [
+        "dev",
+        "test",
+        "prod"
+      ]
+    },
+    "operator_mode": {
+      "enum": [
+        "customer_operated",
+        "managed"
+      ]
+    },
+    "endpoint": {
+      "type": "string",
+      "minLength": 1
+    },
+    "network_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "requested",
+        "approved",
+        "enrolled",
+        "ready",
+        "unready",
+        "revoked"
+      ]
+    },
+    "access": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sources",
+        "destinations",
+        "ports",
+        "protocol"
+      ],
+      "properties": {
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "destinations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "ports": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          }
+        },
+        "protocol": {
+          "enum": [
+            "tcp",
+            "udp"
+          ]
+        }
+      }
+    },
+    "routes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "installation_id",
+        "customer_id",
+        "environment",
+        "status",
+        "expires_at",
+        "scope",
+        "ref",
+        "network_ref",
+        "endpoint"
+      ],
+      "properties": {
+        "installation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "customer_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "environment": {
+          "enum": [
+            "dev",
+            "test",
+            "prod"
+          ]
+        },
+        "status": {
+          "enum": [
+            "active",
+            "expired",
+            "revoked"
+          ]
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sources",
+            "destinations",
+            "ports",
+            "protocol"
+          ],
+          "properties": {
+            "sources": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "destinations": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "ports": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 65535
+              }
+            },
+            "protocol": {
+              "enum": [
+                "tcp",
+                "udp"
+              ]
+            }
+          }
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^(git:[a-f0-9]{40}:.+|sha256:[a-f0-9]{64}|https://github\\.com/[^/]+/[^/]+/blob/[a-f0-9]{40}/.+)$"
+        },
+        "network_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "endpoint": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "route_approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "installation_id",
+        "customer_id",
+        "environment",
+        "status",
+        "expires_at",
+        "scope",
+        "ref",
+        "routes",
+        "network_ref",
+        "endpoint"
+      ],
+      "properties": {
+        "installation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "customer_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "environment": {
+          "enum": [
+            "dev",
+            "test",
+            "prod"
+          ]
+        },
+        "status": {
+          "enum": [
+            "active",
+            "expired",
+            "revoked"
+          ]
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sources",
+            "destinations",
+            "ports",
+            "protocol"
+          ],
+          "properties": {
+            "sources": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "destinations": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "ports": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 65535
+              }
+            },
+            "protocol": {
+              "enum": [
+                "tcp",
+                "udp"
+              ]
+            }
+          }
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^(git:[a-f0-9]{40}:.+|sha256:[a-f0-9]{64}|https://github\\.com/[^/]+/[^/]+/blob/[a-f0-9]{40}/.+)$"
+        },
+        "routes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "network_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "endpoint": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "enrollment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "network_ref",
+        "authorized",
+        "credential_ref",
+        "ref"
+      ],
+      "properties": {
+        "network_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authorized": {
+          "const": true
+        },
+        "credential_ref": {
+          "type": "string",
+          "pattern": "^(vault|secret|credential|binding|keyvault|kv)://[A-Za-z0-9._/-]+$"
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^(git:[a-f0-9]{40}:.+|sha256:[a-f0-9]{64}|https://github\\.com/[^/]+/[^/]+/blob/[a-f0-9]{40}/.+)$"
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "network_ref",
+        "revision",
+        "verified",
+        "scope",
+        "ref"
+      ],
+      "properties": {
+        "network_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^(git:[a-f0-9]{40}:.+|sha256:[a-f0-9]{64}|https://github\\.com/[^/]+/[^/]+/blob/[a-f0-9]{40}/.+)$"
+        },
+        "verified": {
+          "const": true
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sources",
+            "destinations",
+            "ports",
+            "protocol"
+          ],
+          "properties": {
+            "sources": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "destinations": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "ports": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 65535
+              }
+            },
+            "protocol": {
+              "enum": [
+                "tcp",
+                "udp"
+              ]
+            }
+          }
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^(git:[a-f0-9]{40}:.+|sha256:[a-f0-9]{64}|https://github\\.com/[^/]+/[^/]+/blob/[a-f0-9]{40}/.+)$"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowed",
+        "denied",
+        "policy_revision",
+        "ref"
+      ],
+      "properties": {
+        "allowed": {
+          "const": true
+        },
+        "denied": {
+          "const": true
+        },
+        "policy_revision": {
+          "type": "string",
+          "pattern": "^(git:[a-f0-9]{40}:.+|sha256:[a-f0-9]{64}|https://github\\.com/[^/]+/[^/]+/blob/[a-f0-9]{40}/.+)$"
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^(git:[a-f0-9]{40}:.+|sha256:[a-f0-9]{64}|https://github\\.com/[^/]+/[^/]+/blob/[a-f0-9]{40}/.+)$"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,748 @@
+{
+  "task": "T006",
+  "verdict": "pass",
+  "scope": "evidence_tooling",
+  "owner": "openxFactory feature 040",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
+  "decision_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
+  "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
+  "candidate_pins": {
+    "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+    "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+    "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+    "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+    "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+    "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
+    "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+    "hosted_runtime": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:release/runtime-inventory.json",
+    "installer_runtime": "git:734e5eac9b1211fa69318246b888f973e79b027d:src/private_connectivity/runtime-inventory.json",
+    "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+    "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
+    "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
+    "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
+    "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+    "ops_runtime": "git:e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55:workflows/private-connectivity/runtime-inventory.json",
+    "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
+  },
+  "policy_baseline": {
+    "tenant-a": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2",
+    "tenant-b": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2",
+    "customer-local": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2",
+    "tenant-hosted-new": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2"
+  },
+  "dependencies": {
+    "T003": "f3e89c3b5fa1e592231937e83ae988df241b611eea96f004c5717c1de04a3363",
+    "T005": "e00179e773825c5d0abc9e775f7a2b49314d8e1a2a692b6714478a6e7218d71b"
+  },
+  "cases": {
+    "offline": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:072c444811123ea3235dab23fea3c2f011457cd4:tests/qualification/evidence/local-review-fix-checks.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:072c444811123ea3235dab23fea3c2f011457cd4:tests/qualification/evidence/local-review-fix-checks.json"
+        }
+      }
+    },
+    "candidate-pins": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:release/runtime-inventory.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:release/runtime-inventory.json"
+        }
+      }
+    },
+    "deny-baseline": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json"
+        }
+      }
+    },
+    "probe-control": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json"
+        }
+      }
+    }
+  },
+  "execution_authority": "Automated pilot entry under Brett Heap\u2019s ratified successor scopes and explicit Eagle Docker lab instruction, recorded in T001/T003. This is not a human release or G4 sign-off.",
+  "qualification": "Composite G0: recorded initialization, deny baselines and unchanged images retain capture-time scope. New source entry preceded each affected run. Current Installer53, Hosted62 and Ops25 regressions pass. Actual sharing, cancellation events/faults, final publication authority, cached readiness, split-tombstone cleanup, stable detach, destructive replacement and isolated shadow activation checks are linked. No full upgrade or full-cohort rerun is claimed.",
+  "offline_reports": {
+    "binding": "git:41b0dabf1594d72995f7634e42603f4d900ec349:tests/private_connectivity/evidence/pytest.txt",
+    "managed": "git:072c444811123ea3235dab23fea3c2f011457cd4:tests/qualification/evidence/local-review-fix-checks.json",
+    "install": "git:8eb1251253c7f62e0cfefc04f1e2e490d0c0fde3:tests/qualification/evidence/review-repair-checks.json",
+    "installer": "git:854edf16d28d4e0d72b94abceed2bf01d4c7d91c:tests/private_connectivity/evidence/local-review-fix-checks.json",
+    "ops": "git:1b34f702d6b179980fbb644b2c41604844abbe0a:tests/private_connectivity/evidence/local-review-fix-checks.json"
+  },
+  "domain_local_validation": {
+    "result": "374 passed",
+    "path": "tests/private_connectivity/evidence/governance.txt",
+    "evidence_ref": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/evidence/governance.txt"
+  },
+  "ci_and_review": "All six implementation PRs remain draft. Local owner conformance is distinct from GitHub CI, exact-head review, bundle publication, G1+, and G4 owner acceptance.",
+  "candidate_amendments": [
+    {
+      "previous_g0_ref": "git:2c7737d709fb4de128261bb7ea599dc88d57cc67:specs/040-private-connectivity/evidence/T006.json",
+      "reason": "Authorized probe helper reads its protected synthetic token as UID 0; token permissions stay 0600.",
+      "changed_runtime_members": {
+        "install_runtime": [
+          "deploy/application.py"
+        ],
+        "hosted_runtime": [
+          "release/install-pin.json"
+        ],
+        "installer_runtime": [
+          "src/private_connectivity/headscale-pin.json"
+        ]
+      },
+      "initialization_and_binary_pins_unchanged": true,
+      "failure_ref": "git:e5dcc0da689ac52f23044974ff7c295cd08cd710:tests/qualification/evidence/enrollment-attempt-1.json",
+      "required_rerun": "T010 real enrollment/application qualification before acceptance; no downstream live gate has passed.",
+      "owner_reruns": {
+        "Headscale-Install": {
+          "command": "make validate && make test",
+          "exit_status": 0,
+          "tests": 13
+        },
+        "hosted_product": {
+          "command": "make validate && make test",
+          "exit_status": 0,
+          "tests": 30
+        },
+        "installer": {
+          "command": "make validate && make test",
+          "exit_status": 0,
+          "tests": 16
+        }
+      }
+    },
+    {
+      "previous_g0_ref": "git:3c2f7cb72f6f60360e1b14d8f77d2e1548db780f:specs/040-private-connectivity/evidence/T006.json",
+      "reason": "Resolve Codex findings: endpoint-bound neutral approval; unpublished pilot schema outside contracts; exact live tested revision; boundary-scoped workload state; retryable expiry cleanup and supervisor; cached readiness reauthorization; migration target cleanup and cutover fence. Existing installer CI installs its pinned validator dependency.",
+      "previous_candidate_pins": {
+        "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+        "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+        "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+        "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+        "binding_schema": "git:0ebf97ae67f1409a8bf3e10517cea9528b228788:contracts/private-connectivity/binding.schema.json",
+        "binding_validator": "git:0ebf97ae67f1409a8bf3e10517cea9528b228788:scripts/validate-private-connectivity.py",
+        "install_runtime": "git:4faeb9471e6382568a4ada3873d93d0c98c0380f:release/runtime-inventory.json",
+        "hosted_runtime": "git:e5dcc0da689ac52f23044974ff7c295cd08cd710:release/runtime-inventory.json",
+        "installer_runtime": "git:68aa941a104f06e70d8676ad2d50f471d54c047f:src/private_connectivity/runtime-inventory.json",
+        "ops_recovery": "git:4fd9090a53677dbf58ab9c82b98666598e8ca907:workflows/private-connectivity/recovery.py",
+        "domain_profile": "git:4120400cf894affd6e535468609cc3b7bc11e198:profiles/hosted/private-connectivity.yaml",
+        "domain_schema": "git:4120400cf894affd6e535468609cc3b7bc11e198:schemas/hosted-connectivity-profile.schema.json",
+        "domain_floor": "git:4120400cf894affd6e535468609cc3b7bc11e198:scripts/merge_master/council_clearance.py",
+        "evidence_checker": "git:8cc3a70bc9ab2f200f953965f1925af60b436ee3:specs/040-private-connectivity/verify-evidence.py"
+      },
+      "initialization_and_binary_pins_unchanged": true,
+      "owner_reruns": {
+        "binding": 13,
+        "evidence_checker": 16,
+        "install": 15,
+        "hosted_product": 36,
+        "installer": 23
+      },
+      "required_rerun": "T008 and T010 actual owner qualification on these pins before accepting live gates. No G1 or later live gate has passed. The original zero-node deny baseline remains historical, and current A holds the two previously approved synthetic nodes."
+    },
+    {
+      "previous_g0_ref": "git:379479d40efe9eeb6f59915360802659ac8b19c8:specs/040-private-connectivity/evidence/T006.json",
+      "reason": "Complete pilot boundaries; independent expiry cleanup per customer; refuse direct binding replacement and preserve completed migration retries; separate approved minimum subnet route and disposable tenant-B/dev control fixture.",
+      "previous_candidate_pins": {
+        "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+        "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+        "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+        "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+        "binding_schema": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+        "binding_validator": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:scripts/validate-private-connectivity.py",
+        "install_runtime": "git:a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941:release/runtime-inventory.json",
+        "hosted_runtime": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:release/runtime-inventory.json",
+        "installer_runtime": "git:1b83b5a316f2974842e45c43c5ef256cab16eb74:src/private_connectivity/runtime-inventory.json",
+        "ops_recovery": "git:4fd9090a53677dbf58ab9c82b98666598e8ca907:workflows/private-connectivity/recovery.py",
+        "domain_profile": "git:4120400cf894affd6e535468609cc3b7bc11e198:profiles/hosted/private-connectivity.yaml",
+        "domain_schema": "git:4120400cf894affd6e535468609cc3b7bc11e198:schemas/hosted-connectivity-profile.schema.json",
+        "domain_floor": "git:4120400cf894affd6e535468609cc3b7bc11e198:scripts/merge_master/council_clearance.py",
+        "evidence_checker": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:specs/040-private-connectivity/verify-evidence.py"
+      },
+      "core_initialization_and_binary_pins_unchanged": true,
+      "new_instance_rule": "b-drill is created only for the explicitly registered protected-retention drill, verifies deny-all and no nodes before any enrollment, and is fenced after termination. Core tenant-a, tenant-b and customer-local remain the required control baseline.",
+      "owner_reruns": {
+        "evidence_checker": 17,
+        "headscale_install": 17,
+        "hosted_product": 37,
+        "installer": 25
+      },
+      "required_rerun": "T008 local owner qualification, then T010 real managed lifecycle qualification on these pins. No G1+ gate has passed."
+    },
+    {
+      "previous_g0_ref": "git:383d40708d5533e332b4bc14cb53f5506e02115b:specs/040-private-connectivity/evidence/T006.json",
+      "reason": "Null-safe inspection of Docker host/none networks, which legitimately have no IPAM pool; retain the first lifecycle harness failure without a pass. No initialization or binary change.",
+      "previous_candidate_pins": {
+        "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+        "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+        "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+        "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+        "binding_schema": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+        "binding_validator": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:scripts/validate-private-connectivity.py",
+        "install_runtime": "git:88102331d3e0febf1788787f03edb9093b9a52d7:release/runtime-inventory.json",
+        "hosted_runtime": "git:cf1a25772af6d5ef5108714a198744357c9b4f72:release/runtime-inventory.json",
+        "installer_runtime": "git:537d02716f8835a5564aef2b48786ccf7cbce68e:src/private_connectivity/runtime-inventory.json",
+        "ops_recovery": "git:4fd9090a53677dbf58ab9c82b98666598e8ca907:workflows/private-connectivity/recovery.py",
+        "domain_profile": "git:4120400cf894affd6e535468609cc3b7bc11e198:profiles/hosted/private-connectivity.yaml",
+        "domain_schema": "git:4120400cf894affd6e535468609cc3b7bc11e198:schemas/hosted-connectivity-profile.schema.json",
+        "domain_floor": "git:4120400cf894affd6e535468609cc3b7bc11e198:scripts/merge_master/council_clearance.py",
+        "evidence_checker": "git:3e1e90e91b1ef222d9f6e470a755c93f008c80c3:specs/040-private-connectivity/verify-evidence.py"
+      },
+      "owner_reruns": {
+        "install": 17,
+        "hosted_product": 37,
+        "installer": 25
+      },
+      "required_rerun": "T010 lifecycle qualification before G1."
+    },
+    {
+      "previous_g0_ref": "git:412eb1d7bf71764f423a42369d0796a00639c466:specs/040-private-connectivity/evidence/T006.json",
+      "reason": "Reserve .3 for the scoped router and .2 for its private target; resume a retained owned app after a failed container start. Previous lifecycle attempt failed before any route or factory qualification.",
+      "previous_candidate_pins": {
+        "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+        "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+        "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+        "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+        "binding_schema": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+        "binding_validator": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:scripts/validate-private-connectivity.py",
+        "install_runtime": "git:86222b4c515a9a098f747612fa9d9d36b9853536:release/runtime-inventory.json",
+        "hosted_runtime": "git:4a425aa6c41fdb178abdc390141d41c38e0ceafa:release/runtime-inventory.json",
+        "installer_runtime": "git:7edc5e74ce66f40d930eb7b7de3d73261892cd84:src/private_connectivity/runtime-inventory.json",
+        "ops_recovery": "git:4fd9090a53677dbf58ab9c82b98666598e8ca907:workflows/private-connectivity/recovery.py",
+        "domain_profile": "git:4120400cf894affd6e535468609cc3b7bc11e198:profiles/hosted/private-connectivity.yaml",
+        "domain_schema": "git:4120400cf894affd6e535468609cc3b7bc11e198:schemas/hosted-connectivity-profile.schema.json",
+        "domain_floor": "git:4120400cf894affd6e535468609cc3b7bc11e198:scripts/merge_master/council_clearance.py",
+        "evidence_checker": "git:3e1e90e91b1ef222d9f6e470a755c93f008c80c3:specs/040-private-connectivity/verify-evidence.py"
+      },
+      "initialization_and_binary_pins_unchanged": true,
+      "owner_reruns": {
+        "install": 18,
+        "hosted_product": 37,
+        "installer": 25
+      },
+      "required_rerun": "T010 on this exact candidate before accepting G1."
+    },
+    {
+      "previous_g0_ref": "git:c3c04e7eda0fb2e2ed44dfb78dc592d64f508bc8:specs/040-private-connectivity/evidence/T006.json",
+      "reason": "Qualify the actual per-instance recovery adapter, fenced immutable snapshots, pure current-policy reconstruction and generation-aware owned state; bound node expiry to the actual approved expiry for local and managed enrollment.",
+      "previous_candidate_pins": {
+        "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+        "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+        "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+        "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+        "binding_schema": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+        "binding_validator": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:scripts/validate-private-connectivity.py",
+        "install_runtime": "git:552535ffd0183bf8a57f89f0afa81ae9b56d61ac:release/runtime-inventory.json",
+        "hosted_runtime": "git:cfd3ae72814a9abf6d66681bfa91ed03f4ee7a0e:release/runtime-inventory.json",
+        "installer_runtime": "git:0ce4ec9607a87e20c192f7559bc87e41656617d1:src/private_connectivity/runtime-inventory.json",
+        "ops_recovery": "git:4fd9090a53677dbf58ab9c82b98666598e8ca907:workflows/private-connectivity/recovery.py",
+        "domain_profile": "git:4120400cf894affd6e535468609cc3b7bc11e198:profiles/hosted/private-connectivity.yaml",
+        "domain_schema": "git:4120400cf894affd6e535468609cc3b7bc11e198:schemas/hosted-connectivity-profile.schema.json",
+        "domain_floor": "git:4120400cf894affd6e535468609cc3b7bc11e198:scripts/merge_master/council_clearance.py",
+        "evidence_checker": "git:3e1e90e91b1ef222d9f6e470a755c93f008c80c3:specs/040-private-connectivity/verify-evidence.py"
+      },
+      "core_initialization_and_binary_pins_unchanged": true,
+      "owner_reruns": {
+        "install": 21,
+        "hosted_product": 39,
+        "installer": 25,
+        "ops": 11
+      },
+      "required_rerun": "T011 actual quarantined restore before G1. G1/G2 must test these complete current pins; the earlier T008/T010 owner reports remain historical predecessor qualifications."
+    },
+    {
+      "previous_g0_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T006.json",
+      "reason": "Complete the ratified narrow domain repair and actual synthetic hosted deployment, typed durable installer retry and cleanup, explicit private route destinations, current node expiry, unbound deployment and independent recovery pins before any G1+ gate. Add a fresh hosted-new customer because existing standalone networks cannot satisfy new-network intent.",
+      "previous_candidate_pins": {
+        "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+        "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+        "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+        "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+        "binding_schema": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+        "binding_validator": "git:9ebea8d532544e57aa4654a1df49fe3650e636e1:scripts/validate-private-connectivity.py",
+        "install_runtime": "git:798dfa7dd1836530efc42d5ab0ada5c31cefeced:release/runtime-inventory.json",
+        "hosted_runtime": "git:6a93a3c9ab3762dc3d3070aaac856ab154629496:release/runtime-inventory.json",
+        "installer_runtime": "git:750551d4889e5af470b480089fe25dd1149a8121:src/private_connectivity/runtime-inventory.json",
+        "ops_recovery": "git:dbad1281b6aa30f7cc972badda9baf113fb3d790:workflows/private-connectivity/recovery.py",
+        "domain_profile": "git:4120400cf894affd6e535468609cc3b7bc11e198:profiles/hosted/private-connectivity.yaml",
+        "domain_schema": "git:4120400cf894affd6e535468609cc3b7bc11e198:schemas/hosted-connectivity-profile.schema.json",
+        "domain_floor": "git:4120400cf894affd6e535468609cc3b7bc11e198:scripts/merge_master/council_clearance.py",
+        "evidence_checker": "git:3e1e90e91b1ef222d9f6e470a755c93f008c80c3:specs/040-private-connectivity/verify-evidence.py",
+        "ops_runtime": "git:dbad1281b6aa30f7cc972badda9baf113fb3d790:workflows/private-connectivity/runtime-inventory.json"
+      },
+      "binary_pins_unchanged": true,
+      "fresh_boundary_entry_ref": "git:9b4848bae95164a0d4537ad6406d467ca460f7cc:tests/qualification/evidence/hosted-entry.json",
+      "commissioning_scope_ref": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/evidence/T003.json",
+      "owner_reruns": {
+        "binding": 15,
+        "checker": 17,
+        "install": 22,
+        "hosted": 44,
+        "installer": 36,
+        "ops": 11,
+        "domain": 374
+      },
+      "required_rerun": "Current-source T008/T010/T011 owner qualification before G1; all four policy boundaries require positive controls at G1\u2013G3 and drills. Earlier owner runtime reports remain historical predecessor evidence. No G1+ gate has passed.",
+      "human_release_signoff": false
+    },
+    {
+      "reason": "Resolve outstanding Codex review: provision and termination share one protected service lock. Pending termination and recovery cannot be reactivated by cached or new provisioning requests.",
+      "changed_runtime_members": [
+        "services/network-provisioning/service.py",
+        "services/network-provisioning/attachments.py"
+      ],
+      "owner_reruns": {
+        "hosted": 45
+      },
+      "before_any_G1_gate": true,
+      "affected_cases": "G1 real standalone provisioning and denial on retained terminated identity, plus regression of interrupted termination. T010 enrollment, policy, expiry and scoped lifecycle passed on predecessor 8256217; its unchanged attachment behaviors and report remain explicit."
+    },
+    {
+      "reason": "Clarify the profile_revision proof label and qualify historical foreign-repository observations. The same exact profile revision assertion remains required; no case, proof, limit, scope or runtime source changed. All recorded gates are reverified with the clarified feature evidence validator.",
+      "previous_checker": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/verify-evidence.py",
+      "current_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+      "runtime_candidate_pins_unchanged": true,
+      "physical_gate_evidence_unchanged": true,
+      "validation_rerun": "32 tests and 52 subtests passed; full current evidence chain reverified."
+    },
+    {
+      "reason": "Repair fresh Codex findings on expired enrollment, concurrent installer lifecycle ownership and stale onboarding invalidation. No new owner, image, contract schema, policy baseline, destination or route scope. G4 is held pending affected-path requalification.",
+      "predecessor_review_packet_ref": "git:65735cf951f63527e8f67cfd8509a5792aa40986:specs/040-private-connectivity/evidence/G4-review.json",
+      "previous_candidate_pins": {
+        "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+        "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+        "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+        "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+        "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+        "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
+        "install_runtime": "git:fc23f2e12cd75d14041015f811ca2855383ffb60:release/runtime-inventory.json",
+        "hosted_runtime": "git:fe630abc868255bd184d646fe51dcb8d1d448552:release/runtime-inventory.json",
+        "installer_runtime": "git:c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2:src/private_connectivity/runtime-inventory.json",
+        "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+        "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
+        "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
+        "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
+        "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+        "ops_runtime": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/runtime-inventory.json",
+        "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
+      },
+      "owner_checks": {
+        "install": 26,
+        "installer": 46,
+        "hosted": 47,
+        "ops": 11
+      },
+      "requalification_required": [
+        "invalid expiry before effects and failed expiry cleanup",
+        "concurrent same-installation selection and scoped detach",
+        "fresh hosted replacement survives a rejected stale retry",
+        "current-source local/managed selection and rollback"
+      ],
+      "unchanged_component_evidence": "Original network, domain, route, upgrade and restore proofs remain immutable; retained cases must identify exact unchanged component bytes explicitly. No fresh human acceptance is inferred.",
+      "scope_note": "Enrollment rollback also covers an uncertain inner enrollment whose finite lease was not confirmed.",
+      "source_retirement_repair": "Confirm original source revocation before creating a fresh rollback identity; uncertainty keeps original and target cleanup subjects durable.",
+      "publication_time_repair": "Use the actual publication-time clock to reject approvals that expired during selection, target cutover or rollback preparation.",
+      "durable_restoration_repair": "Persist the fresh restoration identity before policy/enrollment effects; validate restored approval with the actual clock before publication; clean or retain failed restoration subjects; namespace managed cleanup keys by attachment.",
+      "rollback_scope_preflight": "Confirm every rollback subject has the same authorized installation/customer/environment before fencing stored readiness.",
+      "retained_retry_repair": "Reject a rollback retry that would discard a different uncleaned/published identity; require explicit detach, and stage the two supplied cleanup subjects atomically."
+    },
+    {
+      "reason": "Preserve unresolved cleanup through pre-effect retry failures; restore only current hosted readiness after successful cached validation. Revocation qualification observer separates onset deadline from sustained observation; deployed recovery runtime unchanged.",
+      "previous_candidate_pins": {
+        "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+        "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+        "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+        "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+        "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+        "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
+        "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+        "hosted_runtime": "git:67a66651acc2abd0d49543b085b29f1701eb5e6d:release/runtime-inventory.json",
+        "installer_runtime": "git:6585a45e7c5787b9cd7c0205131ec5900769b52e:src/private_connectivity/runtime-inventory.json",
+        "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+        "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
+        "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
+        "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
+        "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+        "ops_runtime": "git:275d9d087677d100fca127069946d8d27ecf1041:workflows/private-connectivity/runtime-inventory.json",
+        "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
+      },
+      "qualification_pending": [
+        "retained crash/retry",
+        "uncertain enrollment endpoint retry",
+        "hosted managed and unbound readiness recovery"
+      ],
+      "authority": "Existing ratified installer/hosted implementation and approved isolated Eagle pilot scope; no human G4 claim."
+    },
+    {
+      "reason": "Require current grant registrations in restored databases and contain replacement after failed activation effects. Original recovery reader and binary images unchanged; isolated Docker adapter regression qualification pending.",
+      "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json"
+    },
+    {
+      "previous_candidate_pins": {
+        "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+        "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+        "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+        "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+        "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+        "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
+        "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+        "hosted_runtime": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:release/runtime-inventory.json",
+        "installer_runtime": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/runtime-inventory.json",
+        "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+        "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
+        "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
+        "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
+        "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+        "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
+        "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
+      },
+      "reason": "User-authorized repair and targeted qualification of five local review findings. Quote Installer CI command; recheck final binding authority; serialize local policy effects across installations; reconcile pending cancellation with identity-scoped retry keys; require current recovering state and entitlement before and during recovery activation.",
+      "execution_authority": "Brett Heap instructed fix all five findings, rerun affected regression and pilot checks, review fixes here with Codex review skills, and keep all six PRs draft.",
+      "owner_tests": {
+        "installer": 52,
+        "hosted": 53,
+        "ops": 24
+      },
+      "fresh_pilot_cases_pending": [
+        "local shared policy serialization and detach",
+        "managed cutover/restoration authority withdrawal",
+        "subscription pending cleanup retries",
+        "recovery activation after termination and late entitlement loss"
+      ],
+      "original_images_and_initialization_proofs_retained": true
+    },
+    {
+      "reason": "Local security fix-review found stale cancellation events could revoke a later explicit attachment approval. Persist event subject snapshots and cache the outer cancellation result; repeat pending/completed event qualification.",
+      "previous_hosted_runtime": "git:cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0:release/runtime-inventory.json",
+      "current_hosted_runtime": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:release/runtime-inventory.json",
+      "owner_tests": 57,
+      "fresh_checks_pending": [
+        "policy/node failure retries",
+        "completed old event preserves later approval",
+        "pending old event preserves later approval"
+      ]
+    },
+    {
+      "reason": "Address confirmed current GitHub Codex threads: stable detach subject fencing; reconcile tombstoned active attachments after a crash; validate actual prior readiness after destructive failed replacement; isolate old shadow qualification authority from live network state.",
+      "previous_candidate_pins": {
+        "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+        "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+        "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+        "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+        "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+        "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
+        "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+        "hosted_runtime": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:release/runtime-inventory.json",
+        "installer_runtime": "git:450455a5aaa3a0eff13cc36a209c58d61ae8b8e5:src/private_connectivity/runtime-inventory.json",
+        "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+        "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
+        "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
+        "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
+        "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+        "ops_runtime": "git:e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55:workflows/private-connectivity/runtime-inventory.json",
+        "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
+      },
+      "changed_runtime_members": {
+        "installer_runtime": [
+          "src/private_connectivity/selection.py"
+        ],
+        "hosted_runtime": [
+          "services/network-provisioning/attachments.py",
+          "services/factory-onboarding/onboarding.py",
+          "release/installer-pin.json"
+        ]
+      },
+      "ops_runtime_unchanged": true,
+      "owner_reruns": {
+        "installer": 53,
+        "hosted_product": 60,
+        "ops": 25
+      },
+      "actual_affected_path_reruns_required": [
+        "tombstone crash supervisor cleanup",
+        "revoked current plus pending detach same-key retry",
+        "managed and unbound destructive replacement recovery",
+        "isolated shadow registration and post-connect containment"
+      ]
+    },
+    {
+      "reason": "Local static expert found failed-replacement preservation also needs full current managed and factory authority. Reuse verify_current with the exact stored approval and expected-result CAS. Correct physical managed replacement injection to reuse the existing approved binding; previous attempt failed at policy before reaching deployment injection and is not accepted.",
+      "previous_hosted_runtime": "git:5e3794691dadf274bef5f9c58a2ce5fce2be9d3f:release/runtime-inventory.json",
+      "current_hosted_runtime": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:release/runtime-inventory.json",
+      "hosted_owner_regressions": 62,
+      "required_actual_rerun": "Review-thread current-source qualification including managed/unbound destructive replacement and successful retry."
+    }
+  ],
+  "requalification_phase": "Current owner regressions and all affected actual qualification paths passed. Final local nine-expert review is clear. T021 remains blocked for current human G4 acceptance.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "072c444811123ea3235dab23fea3c2f011457cd4"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "07aad58f58c9c08a212215225b7167c983e391b1"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "0ce4ec9607a87e20c192f7559bc87e41656617d1"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "0ebf97ae67f1409a8bf3e10517cea9528b228788"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "1b34f702d6b179980fbb644b2c41604844abbe0a"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "1b83b5a316f2974842e45c43c5ef256cab16eb74"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "26d1da814ac51737f4edab2cc86cd9778dc44c66"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "275d9d087677d100fca127069946d8d27ecf1041"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "2c7737d709fb4de128261bb7ea599dc88d57cc67"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "379479d40efe9eeb6f59915360802659ac8b19c8"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "383d40708d5533e332b4bc14cb53f5506e02115b"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "3c2f7cb72f6f60360e1b14d8f77d2e1548db780f"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "3e1e90e91b1ef222d9f6e470a755c93f008c80c3"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "4120400cf894affd6e535468609cc3b7bc11e198"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "412eb1d7bf71764f423a42369d0796a00639c466"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "450455a5aaa3a0eff13cc36a209c58d61ae8b8e5"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "488e314addd79efa728d0c4e9b556a783aba0dc8"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "4a425aa6c41fdb178abdc390141d41c38e0ceafa"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "4faeb9471e6382568a4ada3873d93d0c98c0380f"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "4fd9090a53677dbf58ab9c82b98666598e8ca907"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "537d02716f8835a5564aef2b48786ccf7cbce68e"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "552535ffd0183bf8a57f89f0afa81ae9b56d61ac"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "5e3794691dadf274bef5f9c58a2ce5fce2be9d3f"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "5fc3bcff060179a0cb9a93131736e3b61c276fc3"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "649116bdbadfe2ab0d825a0224f4fb2ad906c9be"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "65735cf951f63527e8f67cfd8509a5792aa40986"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "6585a45e7c5787b9cd7c0205131ec5900769b52e"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "67a66651acc2abd0d49543b085b29f1701eb5e6d"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "68aa941a104f06e70d8676ad2d50f471d54c047f"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "6a93a3c9ab3762dc3d3070aaac856ab154629496"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "734e5eac9b1211fa69318246b888f973e79b027d"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "750551d4889e5af470b480089fe25dd1149a8121"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "798dfa7dd1836530efc42d5ab0ada5c31cefeced"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "7edc5e74ce66f40d930eb7b7de3d73261892cd84"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "854edf16d28d4e0d72b94abceed2bf01d4c7d91c"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "86222b4c515a9a098f747612fa9d9d36b9853536"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "88102331d3e0febf1788787f03edb9093b9a52d7"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "88b8e9309ce0c1db2dd476a228cec91cbe64eaa2"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "8cc3a70bc9ab2f200f953965f1925af60b436ee3"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "8eb1251253c7f62e0cfefc04f1e2e490d0c0fde3"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "9b4848bae95164a0d4537ad6406d467ca460f7cc"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "9ebea8d532544e57aa4654a1df49fe3650e636e1"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "afab2d5f0ad1d2c2bdd76920181388117c21ce8c"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "c3c04e7eda0fb2e2ed44dfb78dc592d64f508bc8"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "c994cc02d30dcbc1cd0a1c9e58a7ac19794fa4b2"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cf1a25772af6d5ef5108714a198744357c9b4f72"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cfd3ae72814a9abf6d66681bfa91ed03f4ee7a0e"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "dbad1281b6aa30f7cc972badda9baf113fb3d790"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "e5dcc0da689ac52f23044974ff7c295cd08cd710"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "fc23f2e12cd75d14041015f811ca2855383ffb60"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "fe630abc868255bd184d646fe51dcb8d1d448552"
+    }
+  ],
+  "local_review_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/local-codex-fix-review.json"
+}

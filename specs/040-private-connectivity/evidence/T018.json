@@ -1,0 +1,310 @@
+{
+  "task": "T018",
+  "verdict": "pass",
+  "scope": "ops",
+  "owner": "OpsxFactory",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-headscale-install-ownership/review/ratification-2026-11-10.md",
+  "revision_ref": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+  "owner_check": {
+    "command": "python3 -m pytest tests/private_connectivity -q",
+    "exit_status": 0,
+    "output_ref": "git:1b34f702d6b179980fbb644b2c41604844abbe0a:tests/private_connectivity/evidence/local-review-fix-checks.json"
+  },
+  "dependencies": {
+    "T017": "1f69f700bf78b3160f8421b27d033569b1d3a0dfa6b5074e761e5d66a312e7a2"
+  },
+  "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
+  "candidate_pins": {
+    "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+    "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+    "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+    "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+    "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+    "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
+    "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+    "hosted_runtime": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:release/runtime-inventory.json",
+    "installer_runtime": "git:734e5eac9b1211fa69318246b888f973e79b027d:src/private_connectivity/runtime-inventory.json",
+    "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+    "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
+    "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
+    "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
+    "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+    "ops_runtime": "git:e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55:workflows/private-connectivity/runtime-inventory.json",
+    "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
+  },
+  "policy_baseline": {
+    "tenant-a": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2",
+    "tenant-b": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2",
+    "customer-local": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2",
+    "tenant-hosted-new": "sha256:2288a5b40b8984d648f981ce5bce325cb274908ed11e816becfce86f861439c2"
+  },
+  "positive_controls": {
+    "tenant-a": {
+      "reachable": true,
+      "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
+      "evidence_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json"
+    },
+    "tenant-b": {
+      "reachable": true,
+      "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
+      "evidence_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json"
+    },
+    "customer-local": {
+      "reachable": true,
+      "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
+      "evidence_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json"
+    },
+    "tenant-hosted-new": {
+      "reachable": true,
+      "probe": "Independent TLS-verified health from the legitimate isolated fixture namespace",
+      "evidence_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json"
+    }
+  },
+  "cases": {
+    "direct-existing": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:629abe64af9bc0074421f1c9b85f0e0c63d61c7b:tests/private_connectivity/evidence/revocation.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:629abe64af9bc0074421f1c9b85f0e0c63d61c7b:tests/private_connectivity/evidence/revocation.json"
+        }
+      },
+      "metrics": {
+        "elapsed_seconds": 11.84696704299131,
+        "max_probe_gap_seconds": 4.295827832000214,
+        "sustained_denial_seconds": 32.877890957999625,
+        "allowed_after_deadline": false,
+        "quarantine_used": false
+      },
+      "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json"
+    },
+    "direct-new": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:629abe64af9bc0074421f1c9b85f0e0c63d61c7b:tests/private_connectivity/evidence/revocation.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:629abe64af9bc0074421f1c9b85f0e0c63d61c7b:tests/private_connectivity/evidence/revocation.json"
+        }
+      },
+      "metrics": {
+        "elapsed_seconds": 14.54744866299734,
+        "max_probe_gap_seconds": 4.058041944997967,
+        "sustained_denial_seconds": 31.67067739801132,
+        "allowed_after_deadline": false,
+        "quarantine_used": false
+      },
+      "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json"
+    },
+    "relay-existing": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:629abe64af9bc0074421f1c9b85f0e0c63d61c7b:tests/private_connectivity/evidence/revocation.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:629abe64af9bc0074421f1c9b85f0e0c63d61c7b:tests/private_connectivity/evidence/revocation.json"
+        }
+      },
+      "metrics": {
+        "elapsed_seconds": 10.603919015004067,
+        "max_probe_gap_seconds": 3.89966577400628,
+        "sustained_denial_seconds": 32.01511374099937,
+        "allowed_after_deadline": false,
+        "quarantine_used": false
+      },
+      "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json"
+    },
+    "relay-new": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:629abe64af9bc0074421f1c9b85f0e0c63d61c7b:tests/private_connectivity/evidence/revocation.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:629abe64af9bc0074421f1c9b85f0e0c63d61c7b:tests/private_connectivity/evidence/revocation.json"
+        }
+      },
+      "metrics": {
+        "elapsed_seconds": 11.445465861004777,
+        "max_probe_gap_seconds": 5.9138711980049266,
+        "sustained_denial_seconds": 33.53528857100173,
+        "allowed_after_deadline": false,
+        "quarantine_used": false
+      },
+      "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json"
+    },
+    "disconnected-peer": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:629abe64af9bc0074421f1c9b85f0e0c63d61c7b:tests/private_connectivity/evidence/revocation.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:629abe64af9bc0074421f1c9b85f0e0c63d61c7b:tests/private_connectivity/evidence/revocation.json"
+        }
+      },
+      "metrics": {
+        "elapsed_seconds": 20.589472574996762,
+        "max_probe_gap_seconds": 6.478366322990041,
+        "sustained_denial_seconds": 34.192617941007484,
+        "allowed_after_deadline": false,
+        "quarantine_used": false
+      },
+      "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json"
+    }
+  },
+  "qualification_scope": "Composite current-source qualification: original per-case observations and numeric drill measurements retain their immutable source, driver and capture-time authority. Measured method/byte comparisons and fresh affected-path proofs qualify changed behavior. Current owner checks: Installer53, Hosted62, Ops25. Actual targeted qualification covers shared policies, final authority, cancellation retries/events, split tombstone cleanup, same-key detach after restart, destructive replacement recovery and isolated shadow activation. No new full-cohort revocation or binary-upgrade measurement is claimed.",
+  "validation_reverification": {
+    "previous_checker": "git:649116bdbadfe2ab0d825a0224f4fb2ad906c9be:specs/040-private-connectivity/verify-evidence.py",
+    "current_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+    "physical_runtime_pins_unchanged": true,
+    "original_measurement_report_unchanged": true,
+    "reason": "Qualified proof-label clarification only; required profile-revision evidence retained."
+  },
+  "pin_inventory": [
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "07aad58f58c9c08a212215225b7167c983e391b1"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "0d06bc3feab06557a11ece68cde20d7ff56f5ae9"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "1b34f702d6b179980fbb644b2c41604844abbe0a"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "325356188f0c39e00e859b7338c050b4d1a29416"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "36c59db351490e0e337a077ceede86cc6679b220"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "488e314addd79efa728d0c4e9b556a783aba0dc8"
+    },
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "5c752bf83f2cf92e01b4f2553d9197e8d5a2b909"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "5fc3bcff060179a0cb9a93131736e3b61c276fc3"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "629abe64af9bc0074421f1c9b85f0e0c63d61c7b"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "649116bdbadfe2ab0d825a0224f4fb2ad906c9be"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "734e5eac9b1211fa69318246b888f973e79b027d"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "88b8e9309ce0c1db2dd476a228cec91cbe64eaa2"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "931dbca4193a35f2aceac32b5f78d867e80e81f6"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "afab2d5f0ad1d2c2bdd76920181388117c21ce8c"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "e24ea82b75d0bf880e77c3fadca6b0e51a53dce9"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
+    }
+  ],
+  "repair_qualification": {
+    "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json",
+    "actual_review_repairs_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
+    "managed_selection_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
+    "original_measurements_preserved": true,
+    "fresh_full_cohort_rerun_claimed": false,
+    "audited_component_equivalence_ref": "git:e24ea82b75d0bf880e77c3fadca6b0e51a53dce9:specs/040-private-connectivity/evidence/audited-repair-equivalence.json",
+    "actual_retained_retry_ref": "git:5c752bf83f2cf92e01b4f2553d9197e8d5a2b909:tests/private_connectivity/evidence/rollback-retry.json",
+    "actual_cached_readiness_ref": "git:0d06bc3feab06557a11ece68cde20d7ff56f5ae9:tests/qualification/evidence/cached-recovery.json"
+  },
+  "retained_measurement": true,
+  "five_finding_requalification": {
+    "source_composition_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-composition.json",
+    "closure_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-closures.json",
+    "local_review_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/local-codex-fix-review.json",
+    "actual_current_thread_proof": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json",
+    "actual_current_shadow_proof": "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json",
+    "historical_observations_and_measurements_preserved": true,
+    "full_cohort_or_upgrade_rerun_claimed": false,
+    "human_g4_acceptance_inferred": false
+  },
+  "retained_prior_candidate_pins": {
+    "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+    "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+    "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+    "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+    "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+    "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
+    "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+    "hosted_runtime": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:release/runtime-inventory.json",
+    "installer_runtime": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/runtime-inventory.json",
+    "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+    "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
+    "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
+    "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
+    "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+    "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
+    "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
+  },
+  "retained_qualification_scope": "Retained original actual measurement at the unchanged Ops recovery revision. All involved revocation/policy, snapshot/recovery, image and identity components are measured byte-identical to the current candidate. Numeric timings and original tested revisions are preserved; this is not a newly executed drill or a second .29.6-to-.29.7 upgrade. Fresh neighboring probes and affected enrollment/selection repairs are separately linked. Audited current-source composition: 47 installer and 50 hosted tests; actual retained-restoration crash/retry and uncertain-enrollment endpoint failure preserve cleanup; managed/unbound cached retries restore only their own persisted readiness. Unchanged methods and bytes are explicitly compared; historical measurements retain their capture-time scope. Current five-finding repair qualification: changed local shared-policy, late publication authority, cancellation fault/retry/event identity, cached readiness and shadow activation paths are separately executed and linked. Original per-case direct/relay, installation, credential, cutover and binary restore observations retain their original source, driver and capture-time authority; source composition identifies unchanged methods and bytes. Current owner suites: Installer52, Hosted57, Ops24. This record composes retained observations and fresh affected-path evidence; it does not assert a fresh full-cohort or binary-upgrade run."
+}

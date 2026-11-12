@@ -1,0 +1,31 @@
+{
+  "status": "record",
+  "authority": "Brett Heap",
+  "date": "2026-11-11",
+  "decision": "Approve revised G4 lab sign-offs for all five roles; keep all six PRs draft.",
+  "decision_source": "Explicit user instruction in this chat. This records the requested five-role lab sign-off; it is separate from GitHub pull-request reviews.",
+  "approved_packet_ref": "git:af899bdc7ac89220398958c425482dd903cc6be1:specs/040-private-connectivity/evidence/G4-repair-review.json",
+  "roles": [
+    "rollout_lead",
+    "installer",
+    "ops",
+    "hosted_product",
+    "hosted_domain"
+  ],
+  "previous_approval_ref": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
+  "scope": "Revised isolated synthetic Eagle Docker lab evidence, including the reviewed installer, hosted readiness and Ops recovery repairs. The redundant T011 owner pointer was aligned with the same Ops report already linked in the approved packet; runtime pins and physical observations did not change.",
+  "implementation_pull_requests_remain_draft": true,
+  "commercial_release_authorized": false,
+  "production_deployment_authorized": false,
+  "rollout_expansion_authorized": false,
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "af899bdc7ac89220398958c425482dd903cc6be1"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923"
+    }
+  ]
+}

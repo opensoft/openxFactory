@@ -1,0 +1,19 @@
+{
+  "qualification": "Restore only retained active-generation owned pilot controls and service fixtures for the authorized new checks",
+  "started_owned_containers": [
+    "pc040-control-a",
+    "pc040-control-b",
+    "pc040-control-local",
+    "pc040-control-hosted-new",
+    "pc040-node-dbbce595d27953cc",
+    "pc040-node-6b40fffa488a8427",
+    "pc040-node-8fc96550e1117212",
+    "pc040-node-5323b08b79289ce3"
+  ],
+  "retained_state_a": "pc040-restored-a-t019-215137642429",
+  "images_unchanged": true,
+  "fenced_old_writers_started": false,
+  "expired_client_approvals_renewed": false,
+  "unrelated_benches_restarted": false,
+  "pin_inventory": []
+}

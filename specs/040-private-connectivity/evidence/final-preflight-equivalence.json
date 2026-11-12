@@ -1,0 +1,58 @@
+{
+  "qualification": "Measured exact executable equivalence for the final authorization preflight delta",
+  "before_ref": "git:901caa3dfb14832341b47b1cdd5763d49216106e:src/private_connectivity/selection.py",
+  "after_ref": "git:080727f0184e9f7d28a249a45324b23a2edb7a9e:src/private_connectivity/selection.py",
+  "unchanged_methods": [
+    {
+      "method": "select",
+      "identical_ast_sha256": "ccaa367f54891148f3bf3b9bbe3d22db154f9b42a77810dac3f86c7cf0046caf"
+    },
+    {
+      "method": "_select",
+      "identical_ast_sha256": "b9f3fb2366afd87beb5816f70bdd4cfe623c6ead56206a52a238fc65b1675f2b"
+    },
+    {
+      "method": "migrate",
+      "identical_ast_sha256": "d5d3c39cc7bdf93cd21db8e87e2a0871483f1962567fef5d76367f0bab0ef2d6"
+    },
+    {
+      "method": "_migrate",
+      "identical_ast_sha256": "f4bd73ed04d5c33565218b6701f1d7e34c213c430800d27ed6f58c5bab801494"
+    },
+    {
+      "method": "detach",
+      "identical_ast_sha256": "89a3ef6326941c77264a00e3e5d19a845a1fc81a673fa5861c89fbd7e26c0160"
+    },
+    {
+      "method": "_detach",
+      "identical_ast_sha256": "c541592e9bd427950d61875e4e6ace87651ea2e79fc6395b1e6d0c051366cab7"
+    }
+  ],
+  "unchanged_members": [
+    {
+      "file": "src/private_connectivity/managed_provider.py",
+      "identical_sha256": "c9093c3281778e2d4e1e33e7aef7f2d17f219c701cbe4f98a017746ab79c7568"
+    },
+    {
+      "file": "src/private_connectivity/pilot_provider.py",
+      "identical_sha256": "1b8d5a3231694c8a8bfa1efa63d4641b6ad40a7982af26fe0ca800f5a196558c"
+    }
+  ],
+  "rollback_body_after_three_authorization_statements_identical_sha256": "4e1444faf640278b70f16ad92c6fba966d6d614512d9bc7199d594cd709eac50",
+  "new_guard_qualified_by_ref": "git:f69934ee40d1bcd1fa5f60bd5a6b4d38f786d62b:tests/private_connectivity/evidence/review-repair-checks.json",
+  "meaning": "Fresh v7 physical selection/migration/restoration used the identical operation bodies before the additional scope authorization guard. The 44-test final candidate validates that guard; the post-restore drill also exercises it physically.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "080727f0184e9f7d28a249a45324b23a2edb7a9e"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "901caa3dfb14832341b47b1cdd5763d49216106e"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "f69934ee40d1bcd1fa5f60bd5a6b4d38f786d62b"
+    }
+  ]
+}

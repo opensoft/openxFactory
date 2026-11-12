@@ -1,0 +1,15 @@
+schema: spec-driven
+created: 2026-11-10
+skip_specs: true
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-11-10-register-private-connectivity-evidence-pins
+  reason: Complete the authorized 040 implementation after CI identified undeclared
+    evidence reference sites; review the additional shared-reader scope before implementation.
+  proposed_by: Codex during authorized 040 implementation
+  proposed_on: '2026-11-10'
+  approved_by: Brett Heap in session; see review/ratification-2026-11-10.md
+  approved_on: '2026-11-10'
+related:
+- openxFactory:change:implement-private-connectivity-binding
+- openxFactory:pr:1303

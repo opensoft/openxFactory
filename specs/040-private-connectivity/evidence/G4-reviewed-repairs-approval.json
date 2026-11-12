@@ -1,0 +1,62 @@
+{
+  "status": "record",
+  "authority": "Brett Heap",
+  "date": "2026-11-11",
+  "recorded_at_utc": "2026-11-12T00:50:45.016086+00:00",
+  "decision": "Approve the revised G4 lab packet for all five roles; record the sign-offs, complete T021 and keep all six PRs draft.",
+  "decision_source": "Explicit user approval in this Codex conversation. Brett Heap authorized recording the sign-offs for every named lab role; this is separate from GitHub pull-request approvals.",
+  "user_instruction": "I approve the revised G4 lab packet for all five roles. Go ahead and record the sign-offs, complete T021, rerun validation, and keep all six PRs draft.",
+  "approved_packet_ref": "git:bf1833f2c91eddc5f0be014df657b88ab403be06:specs/040-private-connectivity/evidence/G4-repair-review.json",
+  "approved_packet_sha256": "8b620a9ccf3dcc0a41bab78d4f2c99d39c07eec3ad9ed3e1ffd7dcc3125ef9c1",
+  "roles": [
+    "rollout_lead",
+    "installer",
+    "ops",
+    "hosted_product",
+    "hosted_domain"
+  ],
+  "role_signoffs": {
+    "rollout_lead": {
+      "decision": "approved",
+      "authority": "Brett Heap",
+      "basis": "Explicit approval of this packet for all five named lab roles"
+    },
+    "installer": {
+      "decision": "approved",
+      "authority": "Brett Heap",
+      "basis": "Explicit approval of this packet for all five named lab roles"
+    },
+    "ops": {
+      "decision": "approved",
+      "authority": "Brett Heap",
+      "basis": "Explicit approval of this packet for all five named lab roles"
+    },
+    "hosted_product": {
+      "decision": "approved",
+      "authority": "Brett Heap",
+      "basis": "Explicit approval of this packet for all five named lab roles"
+    },
+    "hosted_domain": {
+      "decision": "approved",
+      "authority": "Brett Heap",
+      "basis": "Explicit approval of this packet for all five named lab roles"
+    }
+  },
+  "previous_approval_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+  "scope": "Acceptance of the revised isolated synthetic Eagle Docker lab packet, including the qualified runtime source cohort, the reviewed repairs, retained historical full-drill observations and fresh affected-path qualification. Acceptance preserves those capture-time boundaries.",
+  "implementation_pull_requests_remain_draft": true,
+  "github_pull_request_approval_granted": false,
+  "commercial_release_authorized": false,
+  "production_deployment_authorized": false,
+  "rollout_expansion_authorized": false,
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "50cafafa73351e6141cde07e39e41e427b75e6f8"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "bf1833f2c91eddc5f0be014df657b88ab403be06"
+    }
+  ]
+}

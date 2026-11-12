@@ -1,0 +1,208 @@
+{
+  "task": "T010",
+  "verdict": "pass",
+  "scope": "hosted_product",
+  "owner": "openXsoft.com product",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
+  "revision_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:release/runtime-inventory.json",
+  "owner_check": {
+    "command": "make validate && make test",
+    "exit_status": 0,
+    "output_ref": "git:072c444811123ea3235dab23fea3c2f011457cd4:tests/qualification/evidence/local-review-fix-checks.json"
+  },
+  "dependencies": {
+    "T009": "68288a4a535b3a1a66aee8c65d5b8d22697705179418a0050877db46aa9e5d50"
+  },
+  "cases": {
+    "policy-before-enroll": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
+        }
+      }
+    },
+    "managed-credential": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/upgraded-credentials.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/upgraded-credentials.json"
+        }
+      }
+    },
+    "route-approval": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
+        }
+      }
+    },
+    "share-scoped": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
+      "checks": {
+        "two-installations": {
+          "passed": true,
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
+        },
+        "distinct-grants": {
+          "passed": true,
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
+        },
+        "explicit-approval": {
+          "passed": true,
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
+        }
+      }
+    },
+    "share-denied": {
+      "expected": "denied",
+      "observed": "denied",
+      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
+        }
+      }
+    },
+    "detach": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/g1-repair.json"
+        }
+      }
+    },
+    "subscription-end": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:da8619d8c1aafe429b69979a57a82129fc9f1909:tests/qualification/evidence/local-review-cancellation-events.json",
+      "checks": {
+        "affected-revoked": {
+          "passed": true,
+          "evidence_ref": "git:da8619d8c1aafe429b69979a57a82129fc9f1909:tests/qualification/evidence/local-review-cancellation-events.json"
+        },
+        "unrelated-retained": {
+          "passed": true,
+          "evidence_ref": "git:da8619d8c1aafe429b69979a57a82129fc9f1909:tests/qualification/evidence/local-review-cancellation-events.json"
+        },
+        "entitlement-retained": {
+          "passed": true,
+          "evidence_ref": "git:da8619d8c1aafe429b69979a57a82129fc9f1909:tests/qualification/evidence/local-review-cancellation-events.json"
+        }
+      },
+      "retained_prior_evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
+    },
+    "terminate": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:371892163b7ef42b66f8fc63b55c91c7fbe23148:tests/qualification/evidence/lifecycle-runtime-v2.json"
+        }
+      }
+    }
+  },
+  "qualification_scope": "Composite current-source qualification: original per-case observations and numeric drill measurements retain their immutable source, driver and capture-time authority. Measured method/byte comparisons and fresh affected-path proofs qualify changed behavior. Current owner checks: Installer53, Hosted62, Ops25. Actual targeted qualification covers shared policies, final authority, cancellation retries/events, split tombstone cleanup, same-key detach after restart, destructive replacement recovery and isolated shadow activation. No new full-cohort revocation or binary-upgrade measurement is claimed.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "072c444811123ea3235dab23fea3c2f011457cd4"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "0d06bc3feab06557a11ece68cde20d7ff56f5ae9"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "325356188f0c39e00e859b7338c050b4d1a29416"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "36c59db351490e0e337a077ceede86cc6679b220"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "371892163b7ef42b66f8fc63b55c91c7fbe23148"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "4f9883f985e2310a5eb1e9c857ac8ad40511b813"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "5c752bf83f2cf92e01b4f2553d9197e8d5a2b909"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "5fc3bcff060179a0cb9a93131736e3b61c276fc3"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "931dbca4193a35f2aceac32b5f78d867e80e81f6"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "afab2d5f0ad1d2c2bdd76920181388117c21ce8c"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "ba64fb2f71909e9b6a3e8acfa3a62e6c42758232"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "da8619d8c1aafe429b69979a57a82129fc9f1909"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "e192f9a6fffd25125c82bca4dd979c9a706e3995"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "e24ea82b75d0bf880e77c3fadca6b0e51a53dce9"
+    }
+  ],
+  "repair_qualification": {
+    "component_equivalence_ref": "git:931dbca4193a35f2aceac32b5f78d867e80e81f6:specs/040-private-connectivity/evidence/review-repair-equivalence.json",
+    "actual_review_repairs_ref": "git:ba64fb2f71909e9b6a3e8acfa3a62e6c42758232:tests/qualification/evidence/review-repairs.json",
+    "managed_selection_ref": "git:e192f9a6fffd25125c82bca4dd979c9a706e3995:tests/private_connectivity/evidence/managed-repair.json",
+    "original_measurements_preserved": true,
+    "fresh_full_cohort_rerun_claimed": false,
+    "audited_component_equivalence_ref": "git:e24ea82b75d0bf880e77c3fadca6b0e51a53dce9:specs/040-private-connectivity/evidence/audited-repair-equivalence.json",
+    "actual_retained_retry_ref": "git:5c752bf83f2cf92e01b4f2553d9197e8d5a2b909:tests/private_connectivity/evidence/rollback-retry.json",
+    "actual_cached_readiness_ref": "git:0d06bc3feab06557a11ece68cde20d7ff56f5ae9:tests/qualification/evidence/cached-recovery.json"
+  },
+  "post_upgrade_credential_qualification": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/upgraded-credentials.json",
+  "five_finding_requalification": {
+    "source_composition_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-composition.json",
+    "closure_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-closures.json",
+    "local_review_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/local-codex-fix-review.json",
+    "actual_current_thread_proof": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json",
+    "actual_current_shadow_proof": "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json",
+    "historical_observations_and_measurements_preserved": true,
+    "full_cohort_or_upgrade_rerun_claimed": false,
+    "human_g4_acceptance_inferred": false
+  },
+  "retained_qualification_scope": "Fresh real G1 enrollment, route and scoped revocation plus elapsed-approval and failed-expiry cleanup qualification. Original credential replay/expiry, subscription and termination measurements are retained against byte-identical lifecycle/service methods; current owner checks pass 47 tests. The upgraded .29.7 controller also physically rejected the exact consumed key before expiry and an actually expired key; a normal 300-second single-use enrollment matched its approved node lease and was explicitly retired. Audited current-source composition: 47 installer and 50 hosted tests; actual retained-restoration crash/retry and uncertain-enrollment endpoint failure preserve cleanup; managed/unbound cached retries restore only their own persisted readiness. Unchanged methods and bytes are explicitly compared; historical measurements retain their capture-time scope. Current five-finding repair qualification: changed local shared-policy, late publication authority, cancellation fault/retry/event identity, cached readiness and shadow activation paths are separately executed and linked. Original per-case direct/relay, installation, credential, cutover and binary restore observations retain their original source, driver and capture-time authority; source composition identifies unchanged methods and bytes. Current owner suites: Installer52, Hosted57, Ops24. This record composes retained observations and fresh affected-path evidence; it does not assert a fresh full-cohort or binary-upgrade run."
+}

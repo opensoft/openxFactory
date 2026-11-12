@@ -74,6 +74,8 @@ OpsxFactory
 
 Core domain-neutral docs:
 
+- [Private connectivity binding candidate](contracts/private-connectivity/README.md)
+- [Private connectivity: Speckit feature 040](specs/040-private-connectivity/spec.md). [Implementation plan](specs/040-private-connectivity/plan.md) · [Pilot rollout](specs/040-private-connectivity/quickstart.md)
 - [Factory MCP Family — Brainstorm](ideation/brainstorm/factory-mcp-overview.md)
   (shared conformance, domain ownership and a proposed DNS evaluation boundary)
 - [Factory MCP Conformance — Promoted Specification](openspec/specs/factory-mcp-conformance/spec.md)
@@ -551,6 +553,8 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [register-private-connectivity-evidence-pins](openspec/changes/register-private-connectivity-evidence-pins/proposal.md)
+  — ratified 2026-11-10, narrowly extending feature 040 evidence-tooling authority. [PR #1303](https://github.com/opensoft/openxFactory/pull/1303)
 - [implement-private-connectivity-binding](openspec/changes/implement-private-connectivity-binding/proposal.md)
   — ratified 2026-11-10, successor to add-private-connectivity for the neutral binding and xFactory-Installer. [PR #1301](https://github.com/opensoft/openxFactory/pull/1301)
 - [establish-headscale-install-ownership](openspec/changes/establish-headscale-install-ownership/proposal.md)

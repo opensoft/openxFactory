@@ -1,0 +1,70 @@
+{
+  "qualification": "Current G4 five-role acceptance and T021 completion validation",
+  "status": "pass",
+  "approval_ref": "git:f1b15812dd2693b161c585080dc7d20f5c44eb57:specs/040-private-connectivity/evidence/G4-reviewed-repairs-approval.json",
+  "approved_packet_ref": "git:bf1833f2c91eddc5f0be014df657b88ab403be06:specs/040-private-connectivity/evidence/G4-repair-review.json",
+  "accepted_task_ref": "git:164658d7e7baf63a4fa11f703f07bdba770a648e:specs/040-private-connectivity/evidence/T021.json",
+  "accepted_projection_ref": "git:164658d7e7baf63a4fa11f703f07bdba770a648e:specs/040-private-connectivity/evidence/G4-repair-review.json",
+  "prior_source_validation_ref": "git:bc3f75ce72d3f03c2aea414306cf578a22b462b9:specs/040-private-connectivity/evidence/local-review-regression-validation.json",
+  "approved_packet_digest_verified": true,
+  "approved_candidate_pins_unchanged": true,
+  "task_evidence_records_verified": 20,
+  "completed_tasks": 21,
+  "commands": [
+    {
+      "command": "python3 -m pytest specs/040-private-connectivity/tests tests/doc-health/test_pin_reachability.py tests/doc-health/test_sentinel_vocabulary.py -q",
+      "status": "pass",
+      "exit_status": 0,
+      "passed_tests": 152,
+      "passed_subtests": 52,
+      "elapsed_seconds": 128.73
+    },
+    {
+      "command": "python3 scripts/validate-sequenced-after.py --ledger-diff",
+      "status": "pass",
+      "exit_status": 0
+    },
+    {
+      "command": "python3 scripts/validate-sequenced-after.py",
+      "status": "pass",
+      "exit_status": 0
+    }
+  ],
+  "human_signoffs_recorded_for_all_five_roles": true,
+  "all_six_implementation_prs_remain_draft": true,
+  "runtime_or_pilot_reexecution_claimed": false,
+  "github_ci_is_separate": true,
+  "commercial_release_authorized": false,
+  "production_deployment_authorized": false,
+  "rollout_expansion_authorized": false,
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "164658d7e7baf63a4fa11f703f07bdba770a648e"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "bc3f75ce72d3f03c2aea414306cf578a22b462b9"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "bf1833f2c91eddc5f0be014df657b88ab403be06"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "f1b15812dd2693b161c585080dc7d20f5c44eb57"
+    }
+  ],
+  "standing_pin_census": {
+    "sites": 701,
+    "members": 31,
+    "measured_on_committed_evidence": true
+  },
+  "immutable_file_references_verified": 310,
+  "corpus_ledger_rows": 244,
+  "tested_file_sha256": {
+    "tests/doc-health/test_sentinel_vocabulary.py": "c02640dd9b420a3ced1106bae8e01d84c74a8b85e715d1eced3e96d962b99d51",
+    "specs/040-private-connectivity/verify-evidence.py": "08b370ce059cfec110f8a3a0d058f07cf5ddddb67b9c4675864d5427ed8b33c9",
+    "specs/040-private-connectivity/register-evidence-pins.py": "b94c623f1f8cf02872f47823f3e43b27957c6b149e16cd37be5c957c72c70119"
+  }
+}

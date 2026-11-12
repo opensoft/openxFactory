@@ -1,0 +1,76 @@
+{
+  "task": "T007",
+  "verdict": "pass",
+  "scope": "headscale_install",
+  "owner": "Headscale-Install",
+  "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-headscale-install-ownership/review/ratification-2026-11-10.md",
+  "revision_ref": "git:a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941:release/runtime-inventory.json",
+  "owner_check": {
+    "command": "make validate && make test",
+    "exit_status": 0,
+    "output_ref": "git:a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941:tests/qualification/evidence/candidate.txt"
+  },
+  "dependencies": {
+    "T004": "78b2d7dd32403ee8b7b082ec7541855f9f8abb4014cc777244a5e2586499cf7e"
+  },
+  "cases": {
+    "local-package": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json"
+        }
+      }
+    },
+    "local-endpoint": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json"
+        }
+      }
+    },
+    "local-ops": {
+      "expected": "verified",
+      "observed": "verified",
+      "evidence_ref": "git:6c9f50475394b52e7fe2d7b5fc1235ce9117f039:tests/qualification/evidence/local-snapshot.json",
+      "checks": {
+        "result": {
+          "passed": true,
+          "evidence_ref": "git:6c9f50475394b52e7fe2d7b5fc1235ce9117f039:tests/qualification/evidence/local-quarantine.json"
+        }
+      }
+    }
+  },
+  "qualification_scope": "Local synthetic Docker package: separate control and probes, pinned images, verified TLS, deny baseline, fenced protected snapshot, and no-network candidate config rehearsal. Actual database upgrade and live restore remain T019.",
+  "supersedes_ref": "git:6a23ffcc9575098db85f18135e5e2a47d8e70f66:specs/040-private-connectivity/evidence/T007.json",
+  "candidate_update": "Boundary-aware workload names and validated reuse; initial packaging, HTTPS configuration and pre-enrollment baseline unchanged. Fifteen current owner tests pass.",
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "6a23ffcc9575098db85f18135e5e2a47d8e70f66"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "6c9f50475394b52e7fe2d7b5fc1235ce9117f039"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "88b8e9309ce0c1db2dd476a228cec91cbe64eaa2"
+    },
+    {
+      "repository": "opensoft/Headscale-Install",
+      "foreign_commit": "a9db82fc4ee7c3b2e3e020a2c72f049b6ef59941"
+    }
+  ]
+}

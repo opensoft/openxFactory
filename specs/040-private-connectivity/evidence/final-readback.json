@@ -1,0 +1,63 @@
+{
+  "qualification": "Final independent actual runtime readback after T020; synthetic Eagle lab only",
+  "observed_at": 1794348738.8036501,
+  "checks": {
+    "local-managed": {
+      "installation": "t020-cutover-215604",
+      "allowed": {
+        "http_status": 200,
+        "curl_exit": 0,
+        "tls_verified": true,
+        "application_authorized": true
+      },
+      "target_version": "headscale version v0.29.7\ncommit: c9cf210b8bc84d13177e18b91f555788a44b47b6\nbuild time: 2026-10-30T09:33:17Z\nbuilt with: go1.27.3 linux/amd64"
+    },
+    "standalone": {
+      "allowed": {
+        "http_status": 200,
+        "curl_exit": 0,
+        "tls_verified": true,
+        "application_authorized": true
+      },
+      "factory_subscription_required": false
+    },
+    "neighbor-b": {
+      "allowed": {
+        "http_status": 200,
+        "curl_exit": 0,
+        "tls_verified": true,
+        "application_authorized": true
+      }
+    },
+    "local-headscale": {
+      "allowed": {
+        "http_status": 200,
+        "curl_exit": 0,
+        "tls_verified": true,
+        "application_authorized": true
+      },
+      "hosted_credentials_used": false
+    },
+    "hosted-factory": {
+      "status": 200,
+      "private_service_status": 200,
+      "exact_profile_ref": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml"
+    },
+    "hosted-unbound": {
+      "health": 200,
+      "private_access": 403,
+      "namespace": "none"
+    }
+  },
+  "credential_material_recorded": false,
+  "pin_inventory": [
+    {
+      "repository": "codeXfactory/codexFactory",
+      "foreign_commit": "48ca168dee528c09217f123a89589a721f015055"
+    },
+    {
+      "repository": "juanfont/headscale",
+      "foreign_commit": "c9cf210b8bc84d13177e18b91f555788a44b47b6"
+    }
+  ]
+}
