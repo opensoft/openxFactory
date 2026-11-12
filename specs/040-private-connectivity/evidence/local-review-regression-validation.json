@@ -1,0 +1,34 @@
+{
+  "qualification": "Affected feature, pin-register, corpus and technical gate validation for reviewed current cohort",
+  "source_cohort_ref": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T006.json",
+  "review_packet_ref": "git:bf1833f2c91eddc5f0be014df657b88ab403be06:specs/040-private-connectivity/evidence/G4-repair-review.json",
+  "status": "pending-final-checks",
+  "commands": [
+    {
+      "command": "python3 -m pytest specs/040-private-connectivity/tests tests/doc-health/test_pin_reachability.py tests/doc-health/test_sentinel_vocabulary.py -q",
+      "status": "pending"
+    },
+    {
+      "command": "python3 scripts/validate-sequenced-after.py --ledger-diff",
+      "status": "pending"
+    },
+    {
+      "command": "python3 scripts/validate-sequenced-after.py",
+      "status": "pending"
+    }
+  ],
+  "t001_through_t020_structurally_verified": true,
+  "t021_expected_blocked_for_current_owner_acceptance": true,
+  "github_ci_is_separate": true,
+  "all_six_prs_remain_draft": true,
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "bf1833f2c91eddc5f0be014df657b88ab403be06"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60"
+    }
+  ]
+}
