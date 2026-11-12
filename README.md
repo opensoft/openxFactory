@@ -2085,6 +2085,8 @@ Active changes:
   two archive. Evidence, with both BEFORE/AFTER totals verbatim:
   `openspec/changes/prepare-openspec-1-12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md`.
 
+- [prepare-protected-runtime-qualification](openspec/changes/prepare-protected-runtime-qualification/proposal.md) — draft machine-only runtime composition for owner review; implementation planning belongs to openXwallet feature 017; no live acceptance or operation.
+
 - [preserve-openspec-repository-casing](openspec/changes/preserve-openspec-repository-casing/proposal.md) — authorized naming-maintenance candidate, selected-baseline backport; [feature 042](specs/042-openspec-repository-casing/plan.md).
 
 - [admit-deliberation-clearing-operation](openspec/changes/admit-deliberation-clearing-operation/proposal.md)

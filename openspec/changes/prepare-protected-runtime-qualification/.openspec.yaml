@@ -1,0 +1,10 @@
+schema: spec-driven
+created: 2026-11-12
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-11-12-prepare-protected-runtime-qualification
+  reason: Prepare the next machine-only runtime qualification after accepted source binding and codeXfactory qualification
+    preparation landings.
+  approved_by: 'Brett Heap current instruction to verify #581 post-merge CI and prepare the next runtime qualification
+    step; preparation only, not new profile ratification, implementation or operational authorization.'
+  approved_on: '2026-11-12'
