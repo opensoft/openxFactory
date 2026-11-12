@@ -905,13 +905,16 @@ def repository_scope(repo: Path) -> tuple[str, bool]:
     if "://" in url:
         try:
             remote = urlsplit(url)
-            github = (remote.scheme in {"http", "https", "ssh", "git"}
-                      and remote.hostname == "github.com")
+            github = ((remote.scheme in {"http", "https", "ssh", "git"}
+                       and remote.hostname == "github.com")
+                      or (remote.scheme == "ssh"
+                          and remote.hostname == "ssh.github.com"
+                          and remote.port == 443))
         except ValueError:
             github = False
     else:
         github = re.match(r"^(?:[^@/:]+@)?github\.com:", url,
-                          re.IGNORECASE) is not None
+                          re.IGNORECASE | re.ASCII) is not None
     return name, github
 
 
