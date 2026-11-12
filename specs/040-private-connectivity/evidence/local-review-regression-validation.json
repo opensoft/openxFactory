@@ -30,5 +30,20 @@
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60"
     }
-  ]
+  ],
+  "attempts": [
+    {
+      "exit_status": 1,
+      "passed_tests": 151,
+      "passed_subtests": 52,
+      "failed_test": "test_the_pin_counts_did_not_move_and_no_site_is_classified_twice",
+      "reason": "The first witness was measured before the new records were committed. The committed-tree reader measured 688 sites and31 members, versus the premature witness660.",
+      "used_for_acceptance": false
+    }
+  ],
+  "standing_pin_census": {
+    "sites": 688,
+    "members": 31,
+    "measured_on_committed_evidence": true
+  }
 }
