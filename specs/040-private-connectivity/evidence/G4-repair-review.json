@@ -1,9 +1,9 @@
 {
   "kind": "pc040-g4-repair-review-packet",
-  "status": "lab-accepted",
+  "status": "awaiting-current-owner-signoffs",
   "scope": "Isolated synthetic Eagle Docker lab only. All six implementation PRs remain draft. No commercial release, production deployment or rollout expansion is authorized by this packet.",
   "original_human_approval_ref": "git:fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923:specs/040-private-connectivity/evidence/G4-approval.json",
-  "technical_tasks": "T001-T021 complete for the isolated Eagle Docker pilot; all implementation PRs remain draft.",
+  "technical_tasks": "T001-T020 technically verified; T021 is blocked pending current five-role human disposition",
   "required_roles": [
     "rollout_lead",
     "installer",
@@ -19,33 +19,33 @@
     "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
     "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
     "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
-    "hosted_runtime": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:release/runtime-inventory.json",
-    "installer_runtime": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/runtime-inventory.json",
+    "hosted_runtime": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:release/runtime-inventory.json",
+    "installer_runtime": "git:734e5eac9b1211fa69318246b888f973e79b027d:src/private_connectivity/runtime-inventory.json",
     "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
     "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
     "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
-    "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
+    "ops_runtime": "git:e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "gate_refs": {
-    "G0": "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/T006.json",
-    "G1": "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/T012.json",
-    "G2": "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/T014.json",
-    "G3": "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/T017.json"
+    "G0": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T006.json",
+    "G1": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T012.json",
+    "G2": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T014.json",
+    "G3": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T017.json"
   },
   "drill_refs": {
-    "T018": "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/T018.json",
-    "T019": "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/T019.json",
-    "T020": "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/T020.json"
+    "T018": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T018.json",
+    "T019": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T019.json",
+    "T020": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T020.json"
   },
   "offering_paths": {
-    "local-headscale": "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/T008.json",
-    "local-factory-with-managed-headscale": "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/T013.json",
-    "standalone-hosted-headscale": "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/T012.json",
-    "hosted-domain-factory": "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/T017.json"
+    "local-headscale": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T008.json",
+    "local-factory-with-managed-headscale": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T013.json",
+    "standalone-hosted-headscale": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T012.json",
+    "hosted-domain-factory": "git:fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60:specs/040-private-connectivity/evidence/T017.json"
   },
   "repaired_cases": {
     "retained-rollback-crash-retry": "git:5c752bf83f2cf92e01b4f2553d9197e8d5a2b909:tests/private_connectivity/evidence/rollback-retry.json",
@@ -55,9 +55,9 @@
   },
   "local_owner_tests": {
     "headscale_install": 26,
-    "installer": 47,
-    "hosted_product": 50,
-    "ops": 17,
+    "installer": 53,
+    "hosted_product": 62,
+    "ops": 25,
     "domain_connectivity": 18,
     "domain_governance_regression": 374
   },
@@ -70,11 +70,13 @@
     "current_retained_retry_recovery_seconds": 101.34361756998987,
     "composition_refs": [
       "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/audited-repair-equivalence.json",
-      "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/recovery-repair-equivalence.json"
+      "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/recovery-repair-equivalence.json",
+      "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-composition.json"
     ],
-    "capture_time_authority": "Positive observations were made while their explicitly bounded synthetic approvals were valid. Later natural lease expiry does not renew authority. Fresh expired/withdrawn denial checks use actual elapsed time and recorded withdrawal."
+    "capture_time_authority": "Positive observations were made while their explicitly bounded synthetic approvals were valid. Later natural lease expiry does not renew authority. Fresh expired/withdrawn denial checks use actual elapsed time and recorded withdrawal.",
+    "current_thread_crash_cleanup_seconds": 15.058787876001588
   },
-  "closed_review_and_probe_records_ref": "git:b9d699ce7f46ff4f7ce7e062743d71e200ed56a4:specs/040-private-connectivity/evidence/review-repair-closures.json",
+  "closed_review_and_probe_records_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-closures.json",
   "authority_journals": {
     "managed": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:tests/qualification/evidence/repair-authority-journal.json",
     "local_and_rollback": "git:003fc412b5538cf80b399f4a052f814acec45f1a:tests/private_connectivity/evidence/audited-authority-supplement.json"
@@ -99,12 +101,16 @@
       "foreign_commit": "0d06bc3feab06557a11ece68cde20d7ff56f5ae9"
     },
     {
-      "repository": "opensoft/openxFactory",
-      "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "325356188f0c39e00e859b7338c050b4d1a29416"
     },
     {
-      "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "488e314addd79efa728d0c4e9b556a783aba0dc8"
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "36c59db351490e0e337a077ceede86cc6679b220"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "41b0dabf1594d72995f7634e42603f4d900ec349"
     },
     {
       "repository": "codeXfactory/codexFactory",
@@ -127,6 +133,14 @@
       "foreign_commit": "5c752bf83f2cf92e01b4f2553d9197e8d5a2b909"
     },
     {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "5fc3bcff060179a0cb9a93131736e3b61c276fc3"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "734e5eac9b1211fa69318246b888f973e79b027d"
+    },
+    {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "828c86b6913ab9fc2358ab4343eabdc9b992e0f3"
     },
@@ -143,6 +157,10 @@
       "openxfactory_commit": "998b8fd49398ea0d45e44c19b23f6973eb7810d4"
     },
     {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "afab2d5f0ad1d2c2bdd76920181388117c21ce8c"
+    },
+    {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "b9d699ce7f46ff4f7ce7e062743d71e200ed56a4"
     },
@@ -151,18 +169,22 @@
       "openxfactory_commit": "cab7be179d7355dee4bf04de0cc3cfd339adf3a5"
     },
     {
-      "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
-    },
-    {
       "repository": "opensoft/opsXfactory",
-      "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
+      "foreign_commit": "e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55"
     },
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "fa561f4dd9dbf3fbc8b46ca0d727b0e1eab3d923"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "fae8f4bd3bd1bb7fcf1867fac48d086a8d00cb60"
     }
   ],
-  "acceptance_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
-  "acceptance_date": "2026-11-11"
+  "current_repair_scope": "All five original findings and related findings discovered during local and current GitHub review. All affected failures have current regression and actual qualification closure.",
+  "local_codex_fix_review_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/local-codex-fix-review.json",
+  "current_actual_thread_proof_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json",
+  "current_actual_shadow_proof_ref": "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json",
+  "prior_repair_approval_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
+  "human_acceptance_of_current_sources_inferred": false
 }
