@@ -1,11 +1,12 @@
 {
-  "qualification": "Measured source composition for five original local review repairs and the additional durable cancellation-event repair",
+  "qualification": "Measured source composition for all original five findings and additional current Codex review findings",
   "comparisons": [
     {
       "original_ref": "git:003fc412b5538cf80b399f4a052f814acec45f1a:src/private_connectivity/selection.py",
-      "current_ref": "git:450455a5aaa3a0eff13cc36a209c58d61ae8b8e5:src/private_connectivity/selection.py",
+      "current_ref": "git:734e5eac9b1211fa69318246b888f973e79b027d:src/private_connectivity/selection.py",
       "comparison": "AST comparison per method",
       "changed_methods": [
+        "Installer._detach",
         "Installer._migrate",
         "Installer._rollback"
       ],
@@ -31,14 +32,13 @@
         "Installer.publish",
         "Installer.fence",
         "Installer.detach",
-        "Installer._detach",
         "Installer.migrate",
         "Installer.rollback"
       ]
     },
     {
       "original_ref": "git:003fc412b5538cf80b399f4a052f814acec45f1a:src/private_connectivity/pilot_provider.py",
-      "current_ref": "git:450455a5aaa3a0eff13cc36a209c58d61ae8b8e5:src/private_connectivity/pilot_provider.py",
+      "current_ref": "git:734e5eac9b1211fa69318246b888f973e79b027d:src/private_connectivity/pilot_provider.py",
       "comparison": "AST comparison per method",
       "changed_methods": [
         "LocalPilotProvider.policy",
@@ -64,17 +64,18 @@
     },
     {
       "original_ref": "git:003fc412b5538cf80b399f4a052f814acec45f1a:src/private_connectivity/managed_provider.py",
-      "current_ref": "git:450455a5aaa3a0eff13cc36a209c58d61ae8b8e5:src/private_connectivity/managed_provider.py",
+      "current_ref": "git:734e5eac9b1211fa69318246b888f973e79b027d:src/private_connectivity/managed_provider.py",
       "comparison": "byte-identical",
       "sha256": "c9093c3281778e2d4e1e33e7aef7f2d17f219c701cbe4f98a017746ab79c7568"
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/network-provisioning/attachments.py",
-      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/network-provisioning/attachments.py",
+      "current_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:services/network-provisioning/attachments.py",
       "comparison": "AST comparison per method",
       "changed_methods": [
         "ConnectivityService.__init__",
-        "ConnectivityService.end_factory_subscription"
+        "ConnectivityService.end_factory_subscription",
+        "ConnectivityService.expire_approvals"
       ],
       "added_methods": [],
       "removed_methods": [],
@@ -88,55 +89,70 @@
         "ConnectivityService.binding_evidence",
         "ConnectivityService.attach",
         "ConnectivityService.detach",
-        "ConnectivityService.terminate",
-        "ConnectivityService.expire_approvals"
+        "ConnectivityService.terminate"
       ]
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/network-provisioning/service.py",
-      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/network-provisioning/service.py",
+      "current_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:services/network-provisioning/service.py",
       "comparison": "byte-identical",
       "sha256": "aea37ff840f448fc8c0f141976d0885c6f9a98adbb29f35e69992b426e7c0023"
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/network-provisioning/operations.py",
-      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/network-provisioning/operations.py",
+      "current_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:services/network-provisioning/operations.py",
       "comparison": "byte-identical",
       "sha256": "d031bd164a806590982e962c8b20d917fecdc804571c09c4f245dade39b594e3"
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/network-provisioning/docker_nodes.py",
-      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/network-provisioning/docker_nodes.py",
+      "current_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:services/network-provisioning/docker_nodes.py",
       "comparison": "byte-identical",
       "sha256": "3de3234076aae87076f23ab876163805d57cf0ed410a61644ba034730292918c"
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/network-provisioning/supervisor.py",
-      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/network-provisioning/supervisor.py",
+      "current_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:services/network-provisioning/supervisor.py",
       "comparison": "byte-identical",
       "sha256": "687bf2b36e4d53b688d8569bad14ba3ae4c691ef7c17da11917c0bccb9a97847"
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/factory-onboarding/onboarding.py",
-      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/factory-onboarding/onboarding.py",
-      "comparison": "byte-identical",
-      "sha256": "696e404653ce4e361bc35fba05ae3d5361c6a10f475b6197daf6d39026c82ab1"
+      "current_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:services/factory-onboarding/onboarding.py",
+      "comparison": "AST comparison per method",
+      "changed_methods": [
+        "Onboarding._run"
+      ],
+      "added_methods": [
+        "Onboarding.revalidate_failed_replacement"
+      ],
+      "removed_methods": [],
+      "unchanged_methods": [
+        "OnboardingError.__init__",
+        "Onboarding.__init__",
+        "Onboarding.lifecycle",
+        "Onboarding.unready",
+        "Onboarding.ready",
+        "Onboarding.factory_authorized",
+        "Onboarding.run",
+        "Onboarding.verify_current"
+      ]
     },
     {
       "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/factory-onboarding/pilot_binder.py",
-      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/factory-onboarding/pilot_binder.py",
+      "current_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:services/factory-onboarding/pilot_binder.py",
       "comparison": "byte-identical",
       "sha256": "ba9c4fee8e44003041fde8c1a2c42662f7a13dbc58e091ddbc58bcb672ddbfbf"
     },
     {
       "original_ref": "git:493f4db039a70f6e7871e257591c3984d3f0d5a2:workflows/private-connectivity/recovery.py",
-      "current_ref": "git:e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55:workflows/private-connectivity/recovery.py",
+      "current_ref": "git:a121c0dd4a55d93e7046fc3c10c343ddae066ec3:workflows/private-connectivity/recovery.py",
       "comparison": "byte-identical",
       "sha256": "b0a47b5b15346ef1e80fdf36047f86662803c7e392151e1a25ead9f2b42e68ef"
     },
     {
       "original_ref": "git:493f4db039a70f6e7871e257591c3984d3f0d5a2:workflows/private-connectivity/docker_recovery.py",
-      "current_ref": "git:e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55:workflows/private-connectivity/docker_recovery.py",
+      "current_ref": "git:a121c0dd4a55d93e7046fc3c10c343ddae066ec3:workflows/private-connectivity/docker_recovery.py",
       "comparison": "AST comparison per method",
       "changed_methods": [
         "DockerRecovery.activate"
@@ -162,11 +178,12 @@
     },
     {
       "original_ref": "git:cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0:services/network-provisioning/attachments.py",
-      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:services/network-provisioning/attachments.py",
+      "current_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:services/network-provisioning/attachments.py",
       "comparison": "AST comparison per method",
       "changed_methods": [
         "ConnectivityService.__init__",
-        "ConnectivityService.end_factory_subscription"
+        "ConnectivityService.end_factory_subscription",
+        "ConnectivityService.expire_approvals"
       ],
       "added_methods": [],
       "removed_methods": [],
@@ -180,13 +197,12 @@
         "ConnectivityService.binding_evidence",
         "ConnectivityService.attach",
         "ConnectivityService.detach",
-        "ConnectivityService.terminate",
-        "ConnectivityService.expire_approvals"
+        "ConnectivityService.terminate"
       ]
     },
     {
       "original_ref": "git:afb38d72d82c1385ecbdca9fb14b6f7d1a131c08:tests/qualification/qualify_local_review_fixes.py",
-      "current_ref": "git:26d1da814ac51737f4edab2cc86cd9778dc44c66:tests/qualification/qualify_local_review_fixes.py",
+      "current_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:tests/qualification/qualify_local_review_fixes.py",
       "comparison": "AST comparison per method",
       "changed_methods": [
         "Qualification.run_checks"
@@ -206,24 +222,57 @@
         "Qualification.cancellations",
         "Qualification.authority"
       ]
+    },
+    {
+      "original_ref": "git:828c86b6913ab9fc2358ab4343eabdc9b992e0f3:services/factory-onboarding/onboarding.py",
+      "current_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:services/factory-onboarding/onboarding.py",
+      "comparison": "AST comparison per method",
+      "changed_methods": [
+        "Onboarding._run"
+      ],
+      "added_methods": [
+        "Onboarding.revalidate_failed_replacement"
+      ],
+      "removed_methods": [],
+      "unchanged_methods": [
+        "OnboardingError.__init__",
+        "Onboarding.__init__",
+        "Onboarding.lifecycle",
+        "Onboarding.unready",
+        "Onboarding.ready",
+        "Onboarding.factory_authorized",
+        "Onboarding.run",
+        "Onboarding.verify_current"
+      ]
+    },
+    {
+      "original_ref": "git:2317ca3b48943de527f4d6fb7aca3da872c48dc1:tests/private_connectivity/qualify_recovery_repairs.py",
+      "current_ref": "git:a121c0dd4a55d93e7046fc3c10c343ddae066ec3:tests/private_connectivity/qualify_recovery_repairs.py",
+      "comparison": "AST comparison per method",
+      "changed_methods": [
+        "qualify"
+      ],
+      "added_methods": [
+        "shadow_authority"
+      ],
+      "removed_methods": [],
+      "unchanged_methods": []
     }
   ],
   "scope": "Original actual direct/relay revocation and binary upgrade/restore measurements remain immutable historical evidence. Fresh targeted application, retry, authority and shadow activation checks qualify changed paths; no repeated full binary upgrade or full-cohort rerun is claimed.",
   "original_acceptance_ref": "git:50cafafa73351e6141cde07e39e41e427b75e6f8:specs/040-private-connectivity/evidence/G4-repair-approval.json",
   "current_human_acceptance": "Not inferred from the earlier approval; reviewed repair packet will carry a separate G4 disposition.",
   "hosted_event_delta": "ConnectivityService.__init__ adds only the durable cancellation subject table. end_factory_subscription records a scoped event snapshot and reuses it across interruptions. Other runtime methods remain byte-identical; old live reports retain their capture-time driver and source inventories.",
+  "additional_thread_delta": "Installer._detach fences the actual cleanup subject. ConnectivityService.expire_approvals includes independently tombstoned subjects. Onboarding failed replacements revalidate current prior readiness before conditional invalidation. Ops recovery runtime remains unchanged from the initial authority repair; its older shadow driver now clones a separate recovering authority.",
+  "final_readiness_delta": "The failed-replacement helper reuses full verify_current, current factory authority and the exact stored managed approval. The weaker deployment-only intermediate helper is superseded.",
   "pin_inventory": [
     {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "003fc412b5538cf80b399f4a052f814acec45f1a"
     },
     {
-      "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "26d1da814ac51737f4edab2cc86cd9778dc44c66"
-    },
-    {
-      "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "450455a5aaa3a0eff13cc36a209c58d61ae8b8e5"
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "2317ca3b48943de527f4d6fb7aca3da872c48dc1"
     },
     {
       "repository": "opensoft/opsXfactory",
@@ -234,8 +283,20 @@
       "openxfactory_commit": "50cafafa73351e6141cde07e39e41e427b75e6f8"
     },
     {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "734e5eac9b1211fa69318246b888f973e79b027d"
+    },
+    {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "828c86b6913ab9fc2358ab4343eabdc9b992e0f3"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "a121c0dd4a55d93e7046fc3c10c343ddae066ec3"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "afab2d5f0ad1d2c2bdd76920181388117c21ce8c"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
@@ -244,10 +305,6 @@
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "cee9bc5ac7b5cff6fb3a8c8f7406bb909f814ca0"
-    },
-    {
-      "repository": "opensoft/opsXfactory",
-      "foreign_commit": "e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55"
     }
   ]
 }

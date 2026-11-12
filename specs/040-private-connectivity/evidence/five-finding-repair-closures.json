@@ -1,5 +1,5 @@
 {
-  "qualification": "Five original local Codex review repairs plus additional cancellation-event fix and targeted current-source qualification",
+  "qualification": "All five requested findings and six related findings discovered by local and current GitHub reviews are closed with affected regression and qualification evidence",
   "findings": [
     {
       "id": "recovery-current-authority",
@@ -39,6 +39,36 @@
       "regression_ref": "git:da8619d8c1aafe429b69979a57a82129fc9f1909:tests/qualification/evidence/local-review-fix-checks.json",
       "actual_qualification_ref": "git:da8619d8c1aafe429b69979a57a82129fc9f1909:tests/qualification/evidence/local-review-cancellation-events.json",
       "closure": "Completed and interrupted cancellation retries preserve their durable original subjects. Actual later explicitly approved attachment remains HTTP200; original revoked attachment returns no response. New explicit cleanup revokes the later attachment."
+    },
+    {
+      "id": "detach-retry-subject-fence",
+      "fixed_source_ref": "git:734e5eac9b1211fa69318246b888f973e79b027d:src/private_connectivity/selection.py",
+      "regression_ref": "git:854edf16d28d4e0d72b94abceed2bf01d4c7d91c:tests/private_connectivity/evidence/local-review-fix-checks.json",
+      "actual_qualification_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json"
+    },
+    {
+      "id": "tombstone-before-pending-crash",
+      "fixed_source_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:services/network-provisioning/attachments.py",
+      "regression_ref": "git:072c444811123ea3235dab23fea3c2f011457cd4:tests/qualification/evidence/local-review-fix-checks.json",
+      "actual_qualification_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json"
+    },
+    {
+      "id": "destructive-replacement-readiness",
+      "fixed_source_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:services/factory-onboarding/onboarding.py",
+      "regression_ref": "git:072c444811123ea3235dab23fea3c2f011457cd4:tests/qualification/evidence/local-review-fix-checks.json",
+      "actual_qualification_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json"
+    },
+    {
+      "id": "shadow-qualification-authority",
+      "fixed_source_ref": "git:a121c0dd4a55d93e7046fc3c10c343ddae066ec3:tests/private_connectivity/qualify_recovery_repairs.py",
+      "regression_ref": "git:1b34f702d6b179980fbb644b2c41604844abbe0a:tests/private_connectivity/evidence/local-review-fix-checks.json",
+      "actual_qualification_ref": "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json"
+    },
+    {
+      "id": "prior-readiness-current-authority",
+      "fixed_source_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:services/factory-onboarding/onboarding.py",
+      "regression_ref": "git:072c444811123ea3235dab23fea3c2f011457cd4:tests/qualification/evidence/local-review-fix-checks.json",
+      "actual_qualification_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json"
     }
   ],
   "hosted_readiness_ref": "git:0a437b7335d2d1129c1dde322b0639ac7f8477f2:tests/qualification/evidence/local-review-hosted-requalification.json",
@@ -47,10 +77,21 @@
   "new_human_acceptance_inferred": false,
   "full_cohort_or_upgrade_rerun_claimed": false,
   "implementation_pull_requests_remain_draft": true,
+  "current_review_thread_qualification_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json",
+  "current_shadow_qualification_ref": "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json",
+  "failed_qualification_attempt_ref": "git:acd11132734249e06c153b02a17a25716a9407f2:tests/qualification/evidence/local-review-thread-repairs-failed-1794440774.json",
   "pin_inventory": [
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "072c444811123ea3235dab23fea3c2f011457cd4"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "0a437b7335d2d1129c1dde322b0639ac7f8477f2"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "1b34f702d6b179980fbb644b2c41604844abbe0a"
     },
     {
       "repository": "opensoft/opsXfactory",
@@ -59,6 +100,14 @@
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "26d1da814ac51737f4edab2cc86cd9778dc44c66"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "325356188f0c39e00e859b7338c050b4d1a29416"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "36c59db351490e0e337a077ceede86cc6679b220"
     },
     {
       "repository": "opensoft/xFactory-Installer",
@@ -75,6 +124,26 @@
     {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "70a2a9122ef8c6def16ce2ca7cdf0cf4ce17bed2"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "734e5eac9b1211fa69318246b888f973e79b027d"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "854edf16d28d4e0d72b94abceed2bf01d4c7d91c"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "a121c0dd4a55d93e7046fc3c10c343ddae066ec3"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "acd11132734249e06c153b02a17a25716a9407f2"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "afab2d5f0ad1d2c2bdd76920181388117c21ce8c"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
