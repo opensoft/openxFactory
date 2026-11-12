@@ -245,6 +245,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 PIN_PATH = ROOT / "contracts" / "openspec-cli-pin.yaml"
@@ -864,8 +865,8 @@ def pinned_dispositions(pin: dict) -> list[dict]:
     return entries
 
 
-def repository_identity(repo: Path) -> str:
-    """The validated tree's repository name, or `pin-repo-unidentified`.
+def repository_scope(repo: Path) -> tuple[str, bool]:
+    """Return the repository name and whether its GitHub scope ignores casing.
 
     READ FROM `git config --get remote.origin.url` AND NOT FROM THE DIRECTORY
     NAME, because the directory name is wrong in exactly the situation this
@@ -900,7 +901,22 @@ def repository_identity(repo: Path) -> str:
             "pin-repo-unidentified",
             f"{repo}: `remote.origin.url` is {url!r}, from which no repository "
             "name can be read")
-    return name
+    if "://" in url:
+        try:
+            remote = urlsplit(url)
+            github = (remote.scheme in {"http", "https", "ssh", "git"}
+                      and remote.hostname == "github.com")
+        except ValueError:
+            github = False
+    else:
+        github = re.match(r"^(?:[^@/:]+@)?github\.com:", url,
+                          re.IGNORECASE) is not None
+    return name, github
+
+
+def repository_identity(repo: Path) -> str:
+    """Preserve the remote's display spelling for callers and diagnostics."""
+    return repository_scope(repo)[0]
 
 
 # --------------------------------------------------------------------------
@@ -1716,8 +1732,8 @@ def render_findings(findings: list[dict]) -> None:
 # --------------------------------------------------------------------------
 
 def reconcile(findings: list[dict], dispositions: list[dict], identity: str,
-              corpus_wide: bool) -> tuple[list[tuple[dict, dict]], list[dict],
-                                          list[dict]]:
+              corpus_wide: bool, *, github_repository: bool = False
+              ) -> tuple[list[tuple[dict, dict]], list[dict], list[dict]]:
     """Match blocking findings to in-scope dispositions, BOTH WAYS.
 
     Returns `(applied, undispositioned, stale)`:
@@ -1752,7 +1768,16 @@ def reconcile(findings: list[dict], dispositions: list[dict], identity: str,
     output, so a green narrowed run is never mistaken for having audited the
     list.
     """
-    in_scope = [entry for entry in dispositions if entry.get("repo") == identity]
+    # GitHub repository names are ASCII and case-insensitive. Other remotes
+    # keep exact matching; item, path and finding keys are never case-folded.
+    in_scope = []
+    for entry in dispositions:
+        name = entry.get("repo")
+        if name == identity or (
+                github_repository and isinstance(name, str)
+                and name.isascii() and identity.isascii()
+                and name.lower() == identity.lower()):
+            in_scope.append(entry)
     keyed: dict[tuple[str, str, str], dict] = {}
     for entry in in_scope:
         key = (str(entry["item"]), str(entry["path"]),
@@ -1977,7 +2002,8 @@ def main(argv: list[str] | None = None) -> int:
         # are: a pin whose exceptions cannot be scoped is unusable, and learning
         # that only after a registry round trip and a full corpus validation
         # tells a reviewer nothing the question had already told them.
-        identity = repository_identity(repo) if dispositions else ""
+        identity, github_repository = (repository_scope(repo)
+                                       if dispositions else ("", False))
         # CHECK 3, LOCAL HALF, AND IT COMES BEFORE THE FETCH. The committed
         # lockfile is this repository's own file: a disagreement between it and
         # the pin is a defect a reviewer fixes HERE, and spending a registry
@@ -2044,7 +2070,8 @@ def main(argv: list[str] | None = None) -> int:
                       f"({totals.get('items', 0)} items)", flush=True)
                 corpus_wide = any("--all" in target for target in targets)
                 applied, undispositioned, stale = reconcile(          # check 6
-                    findings, dispositions, identity, corpus_wide)
+                    findings, dispositions, identity, corpus_wide,
+                    github_repository=github_repository)
                 report_dispositions(identity, applied, stale, corpus_wide)
                 if stale:
                     raise PinRefusal(

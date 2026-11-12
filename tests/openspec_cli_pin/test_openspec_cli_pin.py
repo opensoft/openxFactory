@@ -2708,6 +2708,87 @@ def test_a_disposition_for_another_repository_is_neither_applied_nor_stale(
     assert "validated --strict clean" in printed
 
 
+@pytest.mark.parametrize("origin, expected", [
+    ("git@github.com:opensoft/openXfactory.git", 0),
+    ("https://GitHub.COM/opensoft/OPENXFACTORY.git", 0),
+    ("ssh://git@github.com/opensoft/OpenXFactory.git", 0),
+    ("git://github.com/opensoft/openXfactory.git", 0),
+    ("git@gitlab.com:opensoft/openXfactory.git", 1),
+    ("https://git.example.test/opensoft/openXfactory.git", 1),
+    ("https://github.com.example.test/opensoft/openXfactory.git", 1),
+    ("/repositories/openXfactory.git", 1),
+])
+def test_repository_case_variants_match_only_for_github_remotes(
+        mod, tmp_path, fake_npm, capsys, origin, expected):
+    _, served = fake_npm
+    served.update(origin=origin, verdict=1,
+                  report=report((FINDING_ITEM, FINDING_PATH, FINDING_TEXT)))
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path, dispositions_block=disposition_block(
+        a_disposition()))
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == expected
+    captured = capsys.readouterr()
+    if expected == 0:
+        assert "1 applied" in captured.out
+        assert 'Brett Heap, 2026-09-05, "take exit 2"' in captured.out
+    else:
+        assert "DISPOSITIONED FINDINGS" not in captured.out
+        assert "does not disposition" in captured.err
+
+
+def test_non_github_repository_retains_exact_spelling_matches(
+        mod, tmp_path, fake_npm):
+    _, served = fake_npm
+    served.update(origin="https://git.example.test/opensoft/openxFactory.git",
+                  verdict=1,
+                  report=report((FINDING_ITEM, FINDING_PATH, FINDING_TEXT)))
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path, dispositions_block=disposition_block(
+        a_disposition()))
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 0
+
+
+def test_github_casing_does_not_match_a_different_repository(
+        mod, tmp_path, fake_npm, capsys):
+    _, served = fake_npm
+    served.update(origin="git@github.com:opensoft/OPSXFACTORY.git", verdict=1,
+                  report=report((FINDING_ITEM, FINDING_PATH, FINDING_TEXT)))
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path, dispositions_block=disposition_block(
+        a_disposition()))
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 1
+    assert "DISPOSITIONED FINDINGS" not in capsys.readouterr().out
+
+
+def test_github_case_variant_still_refuses_a_stale_disposition(
+        mod, tmp_path, fake_npm, capsys):
+    _, served = fake_npm
+    served.update(origin="git@github.com:opensoft/openXfactory.git",
+                  report=report())
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path, dispositions_block=disposition_block(
+        a_disposition()))
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 2
+    assert "pin-disposition-stale" in capsys.readouterr().err
+
+
+def test_github_case_aliases_cannot_duplicate_a_disposition(
+        mod, tmp_path, fake_npm, capsys):
+    _, served = fake_npm
+    served.update(origin="git@github.com:opensoft/openXfactory.git", verdict=1,
+                  report=report((FINDING_ITEM, FINDING_PATH, FINDING_TEXT)))
+    (tmp_path / "openspec").mkdir()
+    path = write_pin(tmp_path, dispositions_block=disposition_block(
+        a_disposition(), a_disposition(repo="OPENXFACTORY")))
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 2
+    assert "pin-disposition-malformed" in capsys.readouterr().err
+
+
 # --------------------------------------------------------- the four verdicts
 
 def test_two_dispositions_cover_two_findings_and_the_run_passes_saying_so(
