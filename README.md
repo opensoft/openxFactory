@@ -6140,7 +6140,9 @@ Archived changes:
   carried a dated NOT-OWED line before this act: 3.2, 3.3 and 3.5 (other
   repositories' or another packet's) and 5.2 and 5.3 (the landing lane's).
   **ONE ROW MOVES AND NONE IS ADDED**, counted inside the two blocks' real
-  bounds — the archived block ends at the `## Install Repo Pins` heading, and a
+  bounds — the archived block ends at the `- [preserve-openspec-repository-casing](openspec/changes/preserve-openspec-repository-casing/proposal.md) — authorized naming-maintenance candidate, selected-baseline backport; [feature 042](specs/042-openspec-repository-casing/plan.md).
+
+## Install Repo Pins` heading, and a
   count run to end-of-file overstates the archived block by one. At base
   `46059b77` *Active changes* carries **44** rows and *Archived changes* **149**,
   and THIS CHANGE moves exactly one id, `govern-archived-record-edits`, out of

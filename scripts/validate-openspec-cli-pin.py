@@ -1715,6 +1715,12 @@ def render_findings(findings: list[dict]) -> None:
 # check 6 — findings against declared dispositions, in both directions
 # --------------------------------------------------------------------------
 
+def _repository_scope_key(identity: str) -> str:
+    """Match only the approved casing aliases; preserve recorded identities."""
+    return {"codeXfactory": "codexFactory",
+            "openXfactory": "openxFactory"}.get(identity, identity)
+
+
 def reconcile(findings: list[dict], dispositions: list[dict], identity: str,
               corpus_wide: bool) -> tuple[list[tuple[dict, dict]], list[dict],
                                           list[dict]]:
@@ -1752,7 +1758,9 @@ def reconcile(findings: list[dict], dispositions: list[dict], identity: str,
     output, so a green narrowed run is never mistaken for having audited the
     list.
     """
-    in_scope = [entry for entry in dispositions if entry.get("repo") == identity]
+    in_scope = [entry for entry in dispositions
+                if _repository_scope_key(entry.get("repo")) ==
+                _repository_scope_key(identity)]
     keyed: dict[tuple[str, str, str], dict] = {}
     for entry in in_scope:
         key = (str(entry["item"]), str(entry["path"]),

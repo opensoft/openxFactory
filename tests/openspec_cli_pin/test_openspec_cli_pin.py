@@ -2946,3 +2946,49 @@ def test_a_whole_corpus_run_still_decides_staleness(mod, tmp_path, fake_npm,
     assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
                      "--pin", str(path)]) == 2
     assert "pin-disposition-stale" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("declared,observed", [
+    ("codexFactory", "codeXfactory"), ("codeXfactory", "codexFactory"),
+    ("openxFactory", "openXfactory"), ("openXfactory", "openxFactory"),
+])
+def test_approved_repository_casing_uses_original_disposition(mod, declared, observed):
+    entry = {"repo": declared, "item": "change/example", "path": "scope/spec.md",
+             "finding": "A bounded existing finding"}
+    row = {"blocking": True, "item": entry["item"], "path": entry["path"],
+           "normalized": mod.normalized_finding(entry["finding"])}
+    original = dict(entry)
+    applied, unknown, stale = mod.reconcile([row], [entry], observed, True)
+    assert applied == [(entry, row)]
+    assert unknown == stale == []
+    assert entry == original
+
+
+@pytest.mark.parametrize("observed", [
+    "codexfactory", "CodexFactory", "codeXFactory", "codeXfactory-extra",
+    "another-repository", "codeXfactor" + chr(0x443),
+])
+def test_unapproved_repository_spelling_does_not_gain_scope(mod, observed):
+    entry = {"repo": "codexFactory", "item": "change/example", "path": "scope/spec.md",
+             "finding": "A bounded existing finding"}
+    row = {"blocking": True, "item": entry["item"], "path": entry["path"],
+           "normalized": mod.normalized_finding(entry["finding"])}
+    applied, unknown, stale = mod.reconcile([row], [entry], observed, True)
+    assert applied == stale == []
+    assert unknown == [row]
+
+
+def test_repository_casing_alias_cannot_hide_duplicate_dispositions(mod):
+    entry = {"repo": "codexFactory", "item": "change/example", "path": "scope/spec.md",
+             "finding": "A bounded existing finding"}
+    with pytest.raises(mod.PinRefusal, match="two dispositions"):
+        mod.reconcile([], [entry, dict(entry, repo="codeXfactory")], "codeXfactory", True)
+
+
+@pytest.mark.parametrize("corpus_wide", [True, False])
+def test_repository_casing_alias_preserves_stale_detection(mod, corpus_wide):
+    entry = {"repo": "codexFactory", "item": "change/example", "path": "scope/spec.md",
+             "finding": "A bounded existing finding"}
+    applied, unknown, stale = mod.reconcile([], [entry], "codeXfactory", corpus_wide)
+    assert applied == unknown == []
+    assert stale == ([entry] if corpus_wide else [])
