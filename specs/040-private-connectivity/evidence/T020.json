@@ -4,14 +4,14 @@
   "scope": "installer",
   "owner": "xFactory-Installer",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
-  "revision_ref": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/runtime-inventory.json",
+  "revision_ref": "git:734e5eac9b1211fa69318246b888f973e79b027d:src/private_connectivity/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:10aca828a3044d88b2880329530a51881c927df9:tests/private_connectivity/evidence/review-repair-checks.json"
+    "output_ref": "git:854edf16d28d4e0d72b94abceed2bf01d4c7d91c:tests/private_connectivity/evidence/local-review-fix-checks.json"
   },
   "dependencies": {
-    "T019": "c300976ba45ad13a98993a89eedae4896ea55b3ae6a145cc8b0eddcd2c0e69e3"
+    "T019": "dc9b54cef823ca76da543be23f5137a8b59d4969defb82a89aa80dd2331e3702"
   },
   "run_ref": "git:88b8e9309ce0c1db2dd476a228cec91cbe64eaa2:tests/qualification/evidence/preflight.json",
   "candidate_pins": {
@@ -22,14 +22,14 @@
     "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
     "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
     "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
-    "hosted_runtime": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:release/runtime-inventory.json",
-    "installer_runtime": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/runtime-inventory.json",
+    "hosted_runtime": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:release/runtime-inventory.json",
+    "installer_runtime": "git:734e5eac9b1211fa69318246b888f973e79b027d:src/private_connectivity/runtime-inventory.json",
     "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
     "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
     "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
     "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
     "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
-    "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
+    "ops_runtime": "git:e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55:workflows/private-connectivity/runtime-inventory.json",
     "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
   },
   "policy_baseline": {
@@ -41,19 +41,19 @@
   "positive_controls": {
     "tenant-a": {
       "reachable": true,
-      "evidence_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/after-restore-repair.json"
+      "evidence_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json"
     },
     "tenant-b": {
       "reachable": true,
-      "evidence_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/after-restore-repair.json"
+      "evidence_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json"
     },
     "customer-local": {
       "reachable": true,
-      "evidence_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/after-restore-repair.json"
+      "evidence_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json"
     },
     "tenant-hosted-new": {
       "reachable": true,
-      "evidence_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/after-restore-repair.json"
+      "evidence_ref": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json"
     }
   },
   "cases": {
@@ -116,7 +116,7 @@
   },
   "authority_evidence_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/repair-authority-supplement.json",
   "managed_authority_evidence_ref": "git:4f9883f985e2310a5eb1e9c857ac8ad40511b813:tests/qualification/evidence/repair-authority-journal.json",
-  "qualification_scope": "Fresh actual post-restore cutover and rollback on the final pinned source. Retirement uncertainty retains original and target cleanup authority, creates no replacement, and explicit detach denies both paths. Forced rollback took 165.955 seconds; fresh delegated approval retained the original expiry. Actual withdrawal and a real 180-second expiry wait both denied restoration. All four control TLS probes passed. Audited current-source composition: 47 installer and 50 hosted tests; actual retained-restoration crash/retry and uncertain-enrollment endpoint failure preserve cleanup; managed/unbound cached retries restore only their own persisted readiness. Unchanged methods and bytes are explicitly compared; historical measurements retain their capture-time scope.",
+  "qualification_scope": "Composite current-source qualification: original per-case observations and numeric drill measurements retain their immutable source, driver and capture-time authority. Measured method/byte comparisons and fresh affected-path proofs qualify changed behavior. Current owner checks: Installer53, Hosted62, Ops25. Actual targeted qualification covers shared policies, final authority, cancellation retries/events, split tombstone cleanup, same-key detach after restart, destructive replacement recovery and isolated shadow activation. No new full-cohort revocation or binary-upgrade measurement is claimed.",
   "pin_inventory": [
     {
       "repository": "opensoft/xFactory-Installer",
@@ -131,12 +131,16 @@
       "foreign_commit": "0d06bc3feab06557a11ece68cde20d7ff56f5ae9"
     },
     {
-      "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "10aca828a3044d88b2880329530a51881c927df9"
-    },
-    {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "325356188f0c39e00e859b7338c050b4d1a29416"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "36c59db351490e0e337a077ceede86cc6679b220"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -159,12 +163,28 @@
       "foreign_commit": "5c752bf83f2cf92e01b4f2553d9197e8d5a2b909"
     },
     {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "5fc3bcff060179a0cb9a93131736e3b61c276fc3"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "734e5eac9b1211fa69318246b888f973e79b027d"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "854edf16d28d4e0d72b94abceed2bf01d4c7d91c"
+    },
+    {
       "repository": "opensoft/opsXfactory",
       "foreign_commit": "88a671f462e46a0d0d347ebfc809a22e501c1c90"
     },
     {
       "repository": "opensoft/Headscale-Install",
       "foreign_commit": "88b8e9309ce0c1db2dd476a228cec91cbe64eaa2"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "afab2d5f0ad1d2c2bdd76920181388117c21ce8c"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -180,6 +200,10 @@
     },
     {
       "repository": "opensoft/opsXfactory",
+      "foreign_commit": "e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
       "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
     }
   ],
@@ -192,5 +216,34 @@
     "original_measurements_preserved": true
   },
   "retained_retry_qualification_ref": "git:5c752bf83f2cf92e01b4f2553d9197e8d5a2b909:tests/private_connectivity/evidence/rollback-retry.json",
-  "retained_retry_rollback_seconds": 101.34361756998987
+  "retained_retry_rollback_seconds": 101.34361756998987,
+  "five_finding_requalification": {
+    "source_composition_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-composition.json",
+    "closure_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-closures.json",
+    "local_review_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/local-codex-fix-review.json",
+    "actual_current_thread_proof": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json",
+    "actual_current_shadow_proof": "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json",
+    "historical_observations_and_measurements_preserved": true,
+    "full_cohort_or_upgrade_rerun_claimed": false,
+    "human_g4_acceptance_inferred": false
+  },
+  "retained_prior_candidate_pins": {
+    "headscale_upgrade_target": "sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970",
+    "headscale_upgrade_source": "sha256:cabe84f0699913dbca9320f0883dca7565dd08df3c5be29edfabbebeff763966",
+    "tailscale": "sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c",
+    "helper": "sha256:746688eed84ee40507a26bfd5d38a8325c686a9bb651962598235860eecc7bf5",
+    "binding_schema": "git:41b0dabf1594d72995f7634e42603f4d900ec349:specs/040-private-connectivity/contracts/private-connectivity/binding.schema.json",
+    "binding_validator": "git:41b0dabf1594d72995f7634e42603f4d900ec349:scripts/validate-private-connectivity.py",
+    "install_runtime": "git:07aad58f58c9c08a212215225b7167c983e391b1:release/runtime-inventory.json",
+    "hosted_runtime": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:release/runtime-inventory.json",
+    "installer_runtime": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/runtime-inventory.json",
+    "ops_recovery": "git:88a671f462e46a0d0d347ebfc809a22e501c1c90:workflows/private-connectivity/recovery.py",
+    "domain_profile": "git:48ca168dee528c09217f123a89589a721f015055:profiles/hosted/private-connectivity.yaml",
+    "domain_schema": "git:48ca168dee528c09217f123a89589a721f015055:schemas/hosted-connectivity-profile.schema.json",
+    "domain_floor": "git:48ca168dee528c09217f123a89589a721f015055:scripts/merge_master/council_clearance.py",
+    "evidence_checker": "git:cab7be179d7355dee4bf04de0cc3cfd339adf3a5:specs/040-private-connectivity/verify-evidence.py",
+    "ops_runtime": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
+    "domain_runtime": "git:48ca168dee528c09217f123a89589a721f015055:tests/private_connectivity/pilot-runtime-inventory.json"
+  },
+  "retained_qualification_scope": "Fresh actual post-restore cutover and rollback on the final pinned source. Retirement uncertainty retains original and target cleanup authority, creates no replacement, and explicit detach denies both paths. Forced rollback took 165.955 seconds; fresh delegated approval retained the original expiry. Actual withdrawal and a real 180-second expiry wait both denied restoration. All four control TLS probes passed. Audited current-source composition: 47 installer and 50 hosted tests; actual retained-restoration crash/retry and uncertain-enrollment endpoint failure preserve cleanup; managed/unbound cached retries restore only their own persisted readiness. Unchanged methods and bytes are explicitly compared; historical measurements retain their capture-time scope. Current five-finding repair qualification: changed local shared-policy, late publication authority, cancellation fault/retry/event identity, cached readiness and shadow activation paths are separately executed and linked. Original per-case direct/relay, installation, credential, cutover and binary restore observations retain their original source, driver and capture-time authority; source composition identifies unchanged methods and bytes. Current owner suites: Installer52, Hosted57, Ops24. This record composes retained observations and fresh affected-path evidence; it does not assert a fresh full-cohort or binary-upgrade run."
 }

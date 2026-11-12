@@ -4,15 +4,15 @@
   "scope": "installer",
   "owner": "xFactory-Installer",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/implement-private-connectivity-binding/review/ratification-2026-11-10.md",
-  "revision_ref": "git:488e314addd79efa728d0c4e9b556a783aba0dc8:src/private_connectivity/runtime-inventory.json",
+  "revision_ref": "git:734e5eac9b1211fa69318246b888f973e79b027d:src/private_connectivity/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:10aca828a3044d88b2880329530a51881c927df9:tests/private_connectivity/evidence/review-repair-checks.json"
+    "output_ref": "git:854edf16d28d4e0d72b94abceed2bf01d4c7d91c:tests/private_connectivity/evidence/local-review-fix-checks.json"
   },
   "dependencies": {
-    "T008": "6c864fbe485a75ddf212df3865bd47084a319ac21ae9ba607cf4fcc6ad4f7452",
-    "T010": "cad532acbf3567fa080ec4addcbb12576ca64667107407ffe084f5c12b015391"
+    "T008": "ecd408f694c8215aabed997ccbf61789a13b215b6a919bcbf0347f4219a2813f",
+    "T010": "87409d2dfb7b0bcc9b304fde8dbda715549fb387d525c8248c7b8ffb4c2cdbeb"
   },
   "cases": {
     "local-managed": {
@@ -60,7 +60,7 @@
       }
     }
   },
-  "qualification_scope": "Fresh v7 actual managed selection, uncertain enrollment retry, scope isolation, detach, subscription cancellation, endpoint migration and forced rollback on the durable-restoration candidate; the final scope preflight is separately verified by 47 tests. The additional post-restore source-retirement drill follows T019. Audited current-source composition: 47 installer and 50 hosted tests; actual retained-restoration crash/retry and uncertain-enrollment endpoint failure preserve cleanup; managed/unbound cached retries restore only their own persisted readiness. Unchanged methods and bytes are explicitly compared; historical measurements retain their capture-time scope.",
+  "qualification_scope": "Composite current-source qualification: original per-case observations and numeric drill measurements retain their immutable source, driver and capture-time authority. Measured method/byte comparisons and fresh affected-path proofs qualify changed behavior. Current owner checks: Installer53, Hosted62, Ops25. Actual targeted qualification covers shared policies, final authority, cancellation retries/events, split tombstone cleanup, same-key detach after restart, destructive replacement recovery and isolated shadow activation. No new full-cohort revocation or binary-upgrade measurement is claimed.",
   "pin_inventory": [
     {
       "repository": "opensoft/xFactory-Installer",
@@ -71,20 +71,32 @@
       "foreign_commit": "0d06bc3feab06557a11ece68cde20d7ff56f5ae9"
     },
     {
-      "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "10aca828a3044d88b2880329530a51881c927df9"
-    },
-    {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
     },
     {
-      "repository": "opensoft/xFactory-Installer",
-      "foreign_commit": "488e314addd79efa728d0c4e9b556a783aba0dc8"
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "325356188f0c39e00e859b7338c050b4d1a29416"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "36c59db351490e0e337a077ceede86cc6679b220"
     },
     {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "5c752bf83f2cf92e01b4f2553d9197e8d5a2b909"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "5fc3bcff060179a0cb9a93131736e3b61c276fc3"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "734e5eac9b1211fa69318246b888f973e79b027d"
+    },
+    {
+      "repository": "opensoft/xFactory-Installer",
+      "foreign_commit": "854edf16d28d4e0d72b94abceed2bf01d4c7d91c"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -113,6 +125,17 @@
     "actual_retained_retry_ref": "git:5c752bf83f2cf92e01b4f2553d9197e8d5a2b909:tests/private_connectivity/evidence/rollback-retry.json",
     "actual_cached_readiness_ref": "git:0d06bc3feab06557a11ece68cde20d7ff56f5ae9:tests/qualification/evidence/cached-recovery.json"
   },
-  "final_preflight_equivalence": "The final authorization preflight is qualified by 44 regression tests and the actual current-source post-restore drill.",
-  "current_post_restore_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/after-restore-repair.json"
+  "final_preflight_equivalence": "Current-source final provider authority after external effects qualified by Installer52 tests and actual migration/restoration withdrawal probes; source-ready and cleanup outcomes linked in five_finding_requalification.",
+  "current_post_restore_ref": "git:06d70ff72136a456f2bb6a3fb4bb81eef344fe11:tests/private_connectivity/evidence/after-restore-repair.json",
+  "five_finding_requalification": {
+    "source_composition_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-composition.json",
+    "closure_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-closures.json",
+    "local_review_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/local-codex-fix-review.json",
+    "actual_current_thread_proof": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json",
+    "actual_current_shadow_proof": "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json",
+    "historical_observations_and_measurements_preserved": true,
+    "full_cohort_or_upgrade_rerun_claimed": false,
+    "human_g4_acceptance_inferred": false
+  },
+  "retained_qualification_scope": "Fresh v7 actual managed selection, uncertain enrollment retry, scope isolation, detach, subscription cancellation, endpoint migration and forced rollback on the durable-restoration candidate; the final scope preflight is separately verified by 47 tests. The additional post-restore source-retirement drill follows T019. Audited current-source composition: 47 installer and 50 hosted tests; actual retained-restoration crash/retry and uncertain-enrollment endpoint failure preserve cleanup; managed/unbound cached retries restore only their own persisted readiness. Unchanged methods and bytes are explicitly compared; historical measurements retain their capture-time scope. Current five-finding repair qualification: changed local shared-policy, late publication authority, cancellation fault/retry/event identity, cached readiness and shadow activation paths are separately executed and linked. Original per-case direct/relay, installation, credential, cutover and binary restore observations retain their original source, driver and capture-time authority; source composition identifies unchanged methods and bytes. Current owner suites: Installer52, Hosted57, Ops24. This record composes retained observations and fresh affected-path evidence; it does not assert a fresh full-cohort or binary-upgrade run."
 }

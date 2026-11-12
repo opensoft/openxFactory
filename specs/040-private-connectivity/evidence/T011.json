@@ -4,14 +4,14 @@
   "scope": "ops",
   "owner": "OpsxFactory",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-headscale-install-ownership/review/ratification-2026-11-10.md",
-  "revision_ref": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
+  "revision_ref": "git:e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55:workflows/private-connectivity/runtime-inventory.json",
   "owner_check": {
     "command": "python3 -m pytest tests/private_connectivity -q",
     "exit_status": 0,
-    "output_ref": "git:dfd74041f9dd1e57547a2db01c5939b4bd322c97:tests/private_connectivity/evidence/review-repair-checks.json"
+    "output_ref": "git:1b34f702d6b179980fbb644b2c41604844abbe0a:tests/private_connectivity/evidence/local-review-fix-checks.json"
   },
   "dependencies": {
-    "T009": "5cf16b14bd691fd2a54f700456b571f561c3ba72478654c1a4140bf56ac07b3e"
+    "T009": "68288a4a535b3a1a66aee8c65d5b8d22697705179418a0050877db46aa9e5d50"
   },
   "cases": {
     "backup": {
@@ -48,7 +48,7 @@
       }
     }
   },
-  "qualification_scope": "Original actual per-instance backup and quarantined restore at unchanged Ops recovery revision and byte-identical install recovery/image components. The repaired enrollment and onboarding paths are separately qualified; no repeat upgrade is claimed. Current recovery adapter separately passed an actual stale-registration refusal and post-connect store/update-failure containment in isolated shadow controllers. Live A/B probes passed; original full upgrade/restore timing remains historical, not rerun.",
+  "qualification_scope": "Composite current-source qualification: original per-case observations and numeric drill measurements retain their immutable source, driver and capture-time authority. Measured method/byte comparisons and fresh affected-path proofs qualify changed behavior. Current owner checks: Installer53, Hosted62, Ops25. Actual targeted qualification covers shared policies, final authority, cancellation retries/events, split tombstone cleanup, same-key detach after restart, destructive replacement recovery and isolated shadow activation. No new full-cohort revocation or binary-upgrade measurement is claimed.",
   "pin_inventory": [
     {
       "repository": "opensoft/opsXfactory",
@@ -60,7 +60,23 @@
     },
     {
       "repository": "opensoft/opsXfactory",
+      "foreign_commit": "1b34f702d6b179980fbb644b2c41604844abbe0a"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "325356188f0c39e00e859b7338c050b4d1a29416"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "36c59db351490e0e337a077ceede86cc6679b220"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
       "foreign_commit": "493f4db039a70f6e7871e257591c3984d3f0d5a2"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "5fc3bcff060179a0cb9a93131736e3b61c276fc3"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -80,6 +96,10 @@
     },
     {
       "repository": "opensoft/opsXfactory",
+      "foreign_commit": "e2c6bf249ccf07f0e81b5a3ed3f50f25cebd5e55"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
       "foreign_commit": "ec5bceece430ae08e281d39249d17c5ba316f954"
     }
   ],
@@ -93,5 +113,16 @@
   "recovery_adapter_qualification_ref": "git:493f4db039a70f6e7871e257591c3984d3f0d5a2:tests/private_connectivity/evidence/recovery-repairs.json",
   "recovery_adapter_runtime_ref": "git:ec5bceece430ae08e281d39249d17c5ba316f954:workflows/private-connectivity/runtime-inventory.json",
   "recovery_adapter_owner_checks_ref": "git:dfd74041f9dd1e57547a2db01c5939b4bd322c97:tests/private_connectivity/evidence/review-repair-checks.json",
-  "provenance_correction": "Align the primary Ops owner-check pointer with the same 17-test operator report already linked under recovery_adapter_owner_checks_ref in the reviewed packet. No source or physical observation changed."
+  "provenance_correction": "Align the primary Ops owner-check pointer with the same 17-test operator report already linked under recovery_adapter_owner_checks_ref in the reviewed packet. No source or physical observation changed.",
+  "five_finding_requalification": {
+    "source_composition_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-composition.json",
+    "closure_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-closures.json",
+    "local_review_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/local-codex-fix-review.json",
+    "actual_current_thread_proof": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json",
+    "actual_current_shadow_proof": "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json",
+    "historical_observations_and_measurements_preserved": true,
+    "full_cohort_or_upgrade_rerun_claimed": false,
+    "human_g4_acceptance_inferred": false
+  },
+  "retained_qualification_scope": "Original actual per-instance backup and quarantined restore at unchanged Ops recovery revision and byte-identical install recovery/image components. The repaired enrollment and onboarding paths are separately qualified; no repeat upgrade is claimed. Current recovery adapter separately passed an actual stale-registration refusal and post-connect store/update-failure containment in isolated shadow controllers. Live A/B probes passed; original full upgrade/restore timing remains historical, not rerun. Current five-finding repair qualification: changed local shared-policy, late publication authority, cancellation fault/retry/event identity, cached readiness and shadow activation paths are separately executed and linked. Original per-case direct/relay, installation, credential, cutover and binary restore observations retain their original source, driver and capture-time authority; source composition identifies unchanged methods and bytes. Current owner suites: Installer52, Hosted57, Ops24. This record composes retained observations and fresh affected-path evidence; it does not assert a fresh full-cohort or binary-upgrade run."
 }

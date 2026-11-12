@@ -4,11 +4,11 @@
   "scope": "hosted_product",
   "owner": "openXsoft.com product",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
-  "revision_ref": "git:cbb11b985dd8020096260c9a8fc04b812f2608f8:release/runtime-inventory.json",
+  "revision_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:release/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:66bfafadcd4d215eb2bebd384c39a5ba5943ad2e:tests/qualification/evidence/review-repair-checks.json"
+    "output_ref": "git:072c444811123ea3235dab23fea3c2f011457cd4:tests/qualification/evidence/local-review-fix-checks.json"
   },
   "dependencies": {
     "T004": "78b2d7dd32403ee8b7b082ec7541855f9f8abb4014cc777244a5e2586499cf7e"
@@ -48,21 +48,33 @@
       }
     }
   },
-  "qualification_scope": "Real pre-enrollment control bootstrap against isolated A/B Headscale containers, distinct endpoints/state/keys and deny policy, stable result after interrupted reconciliation and new retry key. No nodes enrolled; G1 data-plane qualification remains required.",
+  "qualification_scope": "Composite current-source qualification: original per-case observations and numeric drill measurements retain their immutable source, driver and capture-time authority. Measured method/byte comparisons and fresh affected-path proofs qualify changed behavior. Current owner checks: Installer53, Hosted62, Ops25. Actual targeted qualification covers shared policies, final authority, cancellation retries/events, split tombstone cleanup, same-key detach after restart, destructive replacement recovery and isolated shadow activation. No new full-cohort revocation or binary-upgrade measurement is claimed.",
   "supersedes_ref": "git:6a23ffcc9575098db85f18135e5e2a47d8e70f66:specs/040-private-connectivity/evidence/T009.json",
   "candidate_update": "Final pre-entry matrix: isolated A upgrade source 0.29.6, B/local target 0.29.7, supported pinned client 1.104.4; all controls verified before enrollment.",
   "pin_inventory": [
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "072c444811123ea3235dab23fea3c2f011457cd4"
+    },
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "5de2c2708879c2c65fed952023f1c7064c59168b"
+      "foreign_commit": "325356188f0c39e00e859b7338c050b4d1a29416"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "36c59db351490e0e337a077ceede86cc6679b220"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "66bfafadcd4d215eb2bebd384c39a5ba5943ad2e"
+      "foreign_commit": "5de2c2708879c2c65fed952023f1c7064c59168b"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "5fc3bcff060179a0cb9a93131736e3b61c276fc3"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -70,7 +82,18 @@
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
-      "foreign_commit": "cbb11b985dd8020096260c9a8fc04b812f2608f8"
+      "foreign_commit": "afab2d5f0ad1d2c2bdd76920181388117c21ce8c"
     }
-  ]
+  ],
+  "five_finding_requalification": {
+    "source_composition_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-composition.json",
+    "closure_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-closures.json",
+    "local_review_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/local-codex-fix-review.json",
+    "actual_current_thread_proof": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json",
+    "actual_current_shadow_proof": "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json",
+    "historical_observations_and_measurements_preserved": true,
+    "full_cohort_or_upgrade_rerun_claimed": false,
+    "human_g4_acceptance_inferred": false
+  },
+  "retained_qualification_scope": "Real pre-enrollment control bootstrap against isolated A/B Headscale containers, distinct endpoints/state/keys and deny policy, stable result after interrupted reconciliation and new retry key. No nodes enrolled; G1 data-plane qualification remains required. Current five-finding repair qualification: changed local shared-policy, late publication authority, cancellation fault/retry/event identity, cached readiness and shadow activation paths are separately executed and linked. Original per-case direct/relay, installation, credential, cutover and binary restore observations retain their original source, driver and capture-time authority; source composition identifies unchanged methods and bytes. Current owner suites: Installer52, Hosted57, Ops24. This record composes retained observations and fresh affected-path evidence; it does not assert a fresh full-cohort or binary-upgrade run."
 }

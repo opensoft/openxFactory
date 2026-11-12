@@ -4,11 +4,11 @@
   "scope": "hosted_product",
   "owner": "openXsoft.com product",
   "approval_ref": "https://github.com/opensoft/openxFactory/blob/16e7b6cb03b36659394952014ae5360f1c1c2a3b/openspec/changes/establish-openxsoft-hosted-connectivity/review/ratification-2026-11-10.md",
-  "revision_ref": "git:7a88f1ccd5610532a29e15870fc20307ee530e79:release/runtime-inventory.json",
+  "revision_ref": "git:afab2d5f0ad1d2c2bdd76920181388117c21ce8c:release/runtime-inventory.json",
   "owner_check": {
     "command": "make validate && make test",
     "exit_status": 0,
-    "output_ref": "git:7a88f1ccd5610532a29e15870fc20307ee530e79:tests/qualification/evidence/candidate.txt"
+    "output_ref": "git:072c444811123ea3235dab23fea3c2f011457cd4:tests/qualification/evidence/local-review-fix-checks.json"
   },
   "dependencies": {
     "T004": "78b2d7dd32403ee8b7b082ec7541855f9f8abb4014cc777244a5e2586499cf7e"
@@ -82,16 +82,47 @@
       }
     }
   },
-  "qualification_scope": "47 current owner tests, including superseded managed and unbound retries preserving a healthy current result, failed-attempt preservation and per-installation lifecycle serialization.",
+  "qualification_scope": "Composite current-source qualification: original per-case observations and numeric drill measurements retain their immutable source, driver and capture-time authority. Measured method/byte comparisons and fresh affected-path proofs qualify changed behavior. Current owner checks: Installer53, Hosted62, Ops25. Actual targeted qualification covers shared policies, final authority, cancellation retries/events, split tombstone cleanup, same-key detach after restart, destructive replacement recovery and isolated shadow activation. No new full-cohort revocation or binary-upgrade measurement is claimed.",
   "scope_record_update": "Domain scope ratified in codeXfactory/codexFactory#578; observations and original evidence references preserved.",
   "pin_inventory": [
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "072c444811123ea3235dab23fea3c2f011457cd4"
+    },
     {
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "16e7b6cb03b36659394952014ae5360f1c1c2a3b"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "325356188f0c39e00e859b7338c050b4d1a29416"
+    },
+    {
+      "repository": "opensoft/opsXfactory",
+      "foreign_commit": "36c59db351490e0e337a077ceede86cc6679b220"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "5fc3bcff060179a0cb9a93131736e3b61c276fc3"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "7a88f1ccd5610532a29e15870fc20307ee530e79"
+    },
+    {
+      "repository": "opensoft/openXsoft-Hosted-Services",
+      "foreign_commit": "afab2d5f0ad1d2c2bdd76920181388117c21ce8c"
     }
-  ]
+  ],
+  "five_finding_requalification": {
+    "source_composition_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-composition.json",
+    "closure_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/five-finding-repair-closures.json",
+    "local_review_ref": "git:5fc3bcff060179a0cb9a93131736e3b61c276fc3:specs/040-private-connectivity/evidence/local-codex-fix-review.json",
+    "actual_current_thread_proof": "git:325356188f0c39e00e859b7338c050b4d1a29416:tests/qualification/evidence/local-review-thread-repairs.json",
+    "actual_current_shadow_proof": "git:36c59db351490e0e337a077ceede86cc6679b220:tests/private_connectivity/evidence/local-review-shadow-qualification.json",
+    "historical_observations_and_measurements_preserved": true,
+    "full_cohort_or_upgrade_rerun_claimed": false,
+    "human_g4_acceptance_inferred": false
+  },
+  "retained_qualification_scope": "47 current owner tests, including superseded managed and unbound retries preserving a healthy current result, failed-attempt preservation and per-installation lifecycle serialization. Current five-finding repair qualification: changed local shared-policy, late publication authority, cancellation fault/retry/event identity, cached readiness and shadow activation paths are separately executed and linked. Original per-case direct/relay, installation, credential, cutover and binary restore observations retain their original source, driver and capture-time authority; source composition identifies unchanged methods and bytes. Current owner suites: Installer52, Hosted57, Ops24. This record composes retained observations and fresh affected-path evidence; it does not assert a fresh full-cohort or binary-upgrade run."
 }
