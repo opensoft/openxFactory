@@ -1715,10 +1715,13 @@ def render_findings(findings: list[dict]) -> None:
 # check 6 — findings against declared dispositions, in both directions
 # --------------------------------------------------------------------------
 
-def _repository_scope_key(identity: str) -> str:
-    """Match only the approved casing aliases; preserve recorded identities."""
-    return {"codeXfactory": "codexFactory",
-            "openXfactory": "openxFactory"}.get(identity, identity)
+def _repository_scope_key(identity: object) -> object:
+    """Match approved aliases without changing other exact comparisons."""
+    if identity == "codeXfactory":
+        return "codexFactory"
+    if identity == "openXfactory":
+        return "openxFactory"
+    return identity
 
 
 def reconcile(findings: list[dict], dispositions: list[dict], identity: str,

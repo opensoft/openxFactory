@@ -2992,3 +2992,31 @@ def test_repository_casing_alias_preserves_stale_detection(mod, corpus_wide):
     applied, unknown, stale = mod.reconcile([], [entry], "codeXfactory", corpus_wide)
     assert applied == unknown == []
     assert stale == ([entry] if corpus_wide else [])
+
+
+@pytest.mark.parametrize("scope", [["openxFactory"], {"name": "openxFactory"}])
+def test_non_string_repository_scope_retains_exact_comparison(mod, scope):
+    """The in-memory shape guard does not require scalar repository scope."""
+    entries = mod.pinned_dispositions({"dispositions": [a_disposition(repo=scope)]})
+    assert mod.reconcile([], entries, "openXfactory", True) == ([], [], [])
+
+
+@pytest.mark.parametrize("repo_yaml", ["[openxFactory]", "{name: openxFactory}"])
+def test_collection_like_scope_text_does_not_gain_an_alias(
+        mod, tmp_path, fake_npm, capsys, repo_yaml):
+    """The restricted file parser preserves this text; no alias can apply."""
+    calls, served = fake_npm
+    served["verdict"] = 1
+    served["report"] = report((FINDING_ITEM, FINDING_PATH, FINDING_TEXT),
+                              items=90)
+    (tmp_path / "openspec").mkdir()
+    block = disposition_block(a_disposition()).replace(
+        "repo: 'openxFactory'", f"repo: {repo_yaml}", 1)
+    path = write_pin(tmp_path, dispositions_block=block)
+    assert mod.read_pin(path)["dispositions"][0]["repo"] == repo_yaml
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 1
+    printed = capsys.readouterr()
+    assert "Traceback" not in printed.err
+    assert "DISPOSITIONED FINDINGS" not in printed.out
+    assert calls, "the valid pin still reaches corpus validation"

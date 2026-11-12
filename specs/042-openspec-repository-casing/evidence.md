@@ -18,3 +18,14 @@ Hosted integration checks and exact-head Codex review are pending. The main
 integration tree and selected backport source must be recorded separately.
 No release, archive, domain execution pin or runtime acceptance is claimed.
 Feedback remains deferred; neither historically blocked write is replayed.
+
+## Local expert-panel correction
+
+The panel reproduced an unhashable repository scope at the in-memory
+`pinned_dispositions` / `reconcile` boundary. The restricted file parser returns
+collection-like scope text as strings; no file-driven crash was demonstrated.
+Equality comparisons now retain the prior out-of-scope behavior for these values
+without adding pin-shape rules. Two in-memory list/dict regressions failed before
+the correction; two CLI controls preserve refusal of uncovered findings without
+applying an alias. The complete reader suite passes 172 tests after correction.
+This review is local and does not stand in for a GitHub Codex receipt.
