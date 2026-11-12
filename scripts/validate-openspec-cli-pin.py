@@ -245,7 +245,6 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 PIN_PATH = ROOT / "contracts" / "openspec-cli-pin.yaml"
@@ -881,6 +880,8 @@ def repository_scope(repo: Path) -> tuple[str, bool]:
     a tarball, a vendored copy — keeps working exactly as it did before this
     mechanism existed.
     """
+    from urllib.parse import urlsplit
+
     result = _run(["git", "-C", str(repo), "config", "--get",
                    "remote.origin.url"])
     url = (result.stdout or "").strip()
