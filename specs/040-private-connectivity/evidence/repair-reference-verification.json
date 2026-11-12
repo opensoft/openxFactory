@@ -1,6 +1,6 @@
 {
   "qualification": "Actual immutable file-reference resolution after all current repairs; batched explicit owner repositories with implicit fetching disabled",
-  "reference_count": 306,
+  "reference_count": 310,
   "verified_references": [
     {
       "repository": "opensoft/xFactory-Installer",
@@ -150,6 +150,16 @@
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "reference": "git:1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7:release/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:164658d7e7baf63a4fa11f703f07bdba770a648e:specs/040-private-connectivity/evidence/G4-repair-review.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:164658d7e7baf63a4fa11f703f07bdba770a648e:specs/040-private-connectivity/evidence/T021.json",
       "object_type": "blob"
     },
     {
@@ -1199,6 +1209,11 @@
     },
     {
       "repository": "opensoft/openxFactory",
+      "reference": "git:bc3f75ce72d3f03c2aea414306cf578a22b462b9:specs/040-private-connectivity/evidence/local-review-regression-validation.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
       "reference": "git:bf1833f2c91eddc5f0be014df657b88ab403be06:specs/040-private-connectivity/evidence/G4-repair-review.json",
       "object_type": "blob"
     },
@@ -1375,6 +1390,11 @@
     {
       "repository": "opensoft/xFactory-Installer",
       "reference": "git:ef1b15500ee5a3c795ca6542b757494655869eb9:src/private_connectivity/runtime-inventory.json",
+      "object_type": "blob"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "reference": "git:f1b15812dd2693b161c585080dc7d20f5c44eb57:specs/040-private-connectivity/evidence/G4-reviewed-repairs-approval.json",
       "object_type": "blob"
     },
     {
@@ -1588,6 +1608,10 @@
     {
       "repository": "opensoft/openXsoft-Hosted-Services",
       "foreign_commit": "1498cb0e3d2ef2c12377d30ff45efa4d8bffb2a7"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "164658d7e7baf63a4fa11f703f07bdba770a648e"
     },
     {
       "repository": "opensoft/openxFactory",
@@ -1947,6 +1971,10 @@
     },
     {
       "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "bc3f75ce72d3f03c2aea414306cf578a22b462b9"
+    },
+    {
+      "repository": "opensoft/openxFactory",
       "openxfactory_commit": "bf1833f2c91eddc5f0be014df657b88ab403be06"
     },
     {
@@ -2024,6 +2052,10 @@
     {
       "repository": "opensoft/xFactory-Installer",
       "foreign_commit": "ef1b15500ee5a3c795ca6542b757494655869eb9"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "f1b15812dd2693b161c585080dc7d20f5c44eb57"
     },
     {
       "repository": "opensoft/openXsoft-Hosted-Services",

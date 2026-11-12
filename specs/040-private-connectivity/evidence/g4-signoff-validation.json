@@ -1,0 +1,52 @@
+{
+  "qualification": "Current G4 five-role acceptance and T021 completion validation",
+  "status": "pending-final-checks",
+  "approval_ref": "git:f1b15812dd2693b161c585080dc7d20f5c44eb57:specs/040-private-connectivity/evidence/G4-reviewed-repairs-approval.json",
+  "approved_packet_ref": "git:bf1833f2c91eddc5f0be014df657b88ab403be06:specs/040-private-connectivity/evidence/G4-repair-review.json",
+  "accepted_task_ref": "git:164658d7e7baf63a4fa11f703f07bdba770a648e:specs/040-private-connectivity/evidence/T021.json",
+  "accepted_projection_ref": "git:164658d7e7baf63a4fa11f703f07bdba770a648e:specs/040-private-connectivity/evidence/G4-repair-review.json",
+  "prior_source_validation_ref": "git:bc3f75ce72d3f03c2aea414306cf578a22b462b9:specs/040-private-connectivity/evidence/local-review-regression-validation.json",
+  "approved_packet_digest_verified": true,
+  "approved_candidate_pins_unchanged": true,
+  "task_evidence_records_verified": 20,
+  "completed_tasks": 21,
+  "commands": [
+    {
+      "command": "python3 -m pytest specs/040-private-connectivity/tests tests/doc-health/test_pin_reachability.py tests/doc-health/test_sentinel_vocabulary.py -q",
+      "status": "pending"
+    },
+    {
+      "command": "python3 scripts/validate-sequenced-after.py --ledger-diff",
+      "status": "pending"
+    },
+    {
+      "command": "python3 scripts/validate-sequenced-after.py",
+      "status": "pending"
+    }
+  ],
+  "human_signoffs_recorded_for_all_five_roles": true,
+  "all_six_implementation_prs_remain_draft": true,
+  "runtime_or_pilot_reexecution_claimed": false,
+  "github_ci_is_separate": true,
+  "commercial_release_authorized": false,
+  "production_deployment_authorized": false,
+  "rollout_expansion_authorized": false,
+  "pin_inventory": [
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "164658d7e7baf63a4fa11f703f07bdba770a648e"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "bc3f75ce72d3f03c2aea414306cf578a22b462b9"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "bf1833f2c91eddc5f0be014df657b88ab403be06"
+    },
+    {
+      "repository": "opensoft/openxFactory",
+      "openxfactory_commit": "f1b15812dd2693b161c585080dc7d20f5c44eb57"
+    }
+  ]
+}
