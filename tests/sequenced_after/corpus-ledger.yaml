@@ -272,6 +272,7 @@ rows:
   pin-openspec-cli-dependency-closure: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#923", moved_on: "2026-09-10"}
   prefer-triad-project-shape: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#1281", moved_on: "2026-10-09"}
   prepare-openspec-1-12-readiness: {state: active, class: sole, declares: absent, prose: false, moved_by: "#834", moved_on: "2026-09-09"}
+  preserve-openspec-repository-casing: {state: active, class: sole, declares: absent, prose: false, moved_by: "#1306", moved_on: "2026-11-12"}
   promote-credential-contracts: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   promote-workflow-gate-contract: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   publish-openspec-cli-pin-as-contract-member: {state: archived, class: co-modifier, declares: [add-openspec-cli-pin], depth: 1, prose: false, moved_by: "#870", moved_on: "2026-09-09"}
