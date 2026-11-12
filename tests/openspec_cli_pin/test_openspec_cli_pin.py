@@ -2949,3 +2949,97 @@ def test_a_whole_corpus_run_still_decides_staleness(mod, tmp_path, fake_npm,
     assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
                      "--pin", str(path)]) == 2
     assert "pin-disposition-stale" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("declared,observed", [
+    ("codexFactory", "codeXfactory"), ("codeXfactory", "codexFactory"),
+    ("openxFactory", "openXfactory"), ("openXfactory", "openxFactory"),
+])
+def test_approved_repository_casing_uses_original_disposition(mod, declared, observed):
+    entry = {"repo": declared, "item": "change/example", "path": "scope/spec.md",
+             "finding": "A bounded existing finding"}
+    row = {"blocking": True, "item": entry["item"], "path": entry["path"],
+           "normalized": mod.normalized_finding(entry["finding"])}
+    original = dict(entry)
+    applied, unknown, stale = mod.reconcile([row], [entry], observed, True)
+    assert applied == [(entry, row)]
+    assert unknown == stale == []
+    assert entry == original
+
+
+@pytest.mark.parametrize("observed", [
+    "codexfactory", "CodexFactory", "codeXFactory", "codeXfactory-extra",
+    "another-repository", "codeXfactor" + chr(0x443),
+])
+def test_unapproved_repository_spelling_does_not_gain_scope(mod, observed):
+    entry = {"repo": "codexFactory", "item": "change/example", "path": "scope/spec.md",
+             "finding": "A bounded existing finding"}
+    row = {"blocking": True, "item": entry["item"], "path": entry["path"],
+           "normalized": mod.normalized_finding(entry["finding"])}
+    applied, unknown, stale = mod.reconcile([row], [entry], observed, True)
+    assert applied == stale == []
+    assert unknown == [row]
+
+
+def test_repository_casing_alias_cannot_hide_duplicate_dispositions(mod):
+    entry = {"repo": "codexFactory", "item": "change/example", "path": "scope/spec.md",
+             "finding": "A bounded existing finding"}
+    with pytest.raises(mod.PinRefusal, match="two dispositions"):
+        mod.reconcile([], [entry, dict(entry, repo="codeXfactory")], "codeXfactory", True)
+
+
+@pytest.mark.parametrize("corpus_wide", [True, False])
+def test_repository_casing_alias_preserves_stale_detection(mod, corpus_wide):
+    entry = {"repo": "codexFactory", "item": "change/example", "path": "scope/spec.md",
+             "finding": "A bounded existing finding"}
+    applied, unknown, stale = mod.reconcile([], [entry], "codeXfactory", corpus_wide)
+    assert applied == unknown == []
+    assert stale == ([entry] if corpus_wide else [])
+
+
+@pytest.mark.parametrize("scope", [["openxFactory"], {"name": "openxFactory"}])
+def test_non_string_repository_scope_retains_exact_comparison(mod, scope):
+    """The in-memory shape guard does not require scalar repository scope."""
+    entries = mod.pinned_dispositions({"dispositions": [a_disposition(repo=scope)]})
+    assert mod.reconcile([], entries, "openXfactory", True) == ([], [], [])
+
+
+@pytest.mark.parametrize("repo_yaml", ["[openxFactory]", "{name: openxFactory}"])
+def test_collection_like_scope_text_does_not_gain_an_alias(
+        mod, tmp_path, fake_npm, capsys, repo_yaml):
+    """The restricted file parser preserves this text; no alias can apply."""
+    calls, served = fake_npm
+    served["verdict"] = 1
+    served["report"] = report((FINDING_ITEM, FINDING_PATH, FINDING_TEXT),
+                              items=90)
+    (tmp_path / "openspec").mkdir()
+    block = disposition_block(a_disposition()).replace(
+        "repo: 'openxFactory'", f"repo: {repo_yaml}", 1)
+    path = write_pin(tmp_path, dispositions_block=block)
+    assert mod.read_pin(path)["dispositions"][0]["repo"] == repo_yaml
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 1
+    printed = capsys.readouterr()
+    assert "Traceback" not in printed.err
+    assert "DISPOSITIONED FINDINGS" not in printed.out
+    assert calls, "the valid pin still reaches corpus validation"
+
+
+def test_block_valued_repository_scope_does_not_crash_cli(
+        mod, tmp_path, fake_npm, capsys):
+    """Nested block values reach reconciliation through the real file parser."""
+    calls, served = fake_npm
+    served["verdict"] = 1
+    served["report"] = report((FINDING_ITEM, FINDING_PATH, FINDING_TEXT), items=90)
+    (tmp_path / "openspec").mkdir()
+    block = disposition_block(a_disposition()).replace(
+        "  - repo: 'openxFactory'\n", f"  - item: '{FINDING_ITEM}'\n    repo:\n      - openxFactory\n", 1).replace(
+            f"    item: '{FINDING_ITEM}'\n", "", 1)
+    path = write_pin(tmp_path, dispositions_block=block)
+    assert mod.read_pin(path)["dispositions"][0]["repo"] == ["openxFactory"]
+    assert mod.main(["--all", "--no-cache", "--repo", str(tmp_path),
+                     "--pin", str(path)]) == 1
+    printed = capsys.readouterr()
+    assert "Traceback" not in printed.err
+    assert "DISPOSITIONED FINDINGS" not in printed.out
+    assert calls

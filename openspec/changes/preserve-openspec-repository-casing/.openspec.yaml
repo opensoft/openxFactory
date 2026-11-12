@@ -1,0 +1,8 @@
+schema: spec-driven
+created: 2026-11-12
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-11-11-preserve-openspec-repository-casing
+  reason: Correct the literal repository-name mismatch under the authorized casing maintenance while retaining the selected consumer baseline.
+  approved_by: Brett Heap, direct instruction in the current chat to fix the naming mismatch through the governed process and open the qualification preparation PR.
+  approved_on: 2026-11-11
