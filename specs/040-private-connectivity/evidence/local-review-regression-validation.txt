@@ -1,0 +1,12 @@
+.................... [ 13%]
+........................................................................ [ 60%]
+............................................................             [100%]
+=============================== warnings summary ===============================
+tests/doc-health/test_pin_reachability.py::test_a_hand_moved_pin_whose_body_does_not_reproduce_is_refused
+tests/doc-health/test_pin_reachability.py::test_a_hand_moved_pin_whose_body_does_not_reproduce_is_refused
+tests/doc-health/test_pin_reachability.py::test_the_landed_index_reproduces_from_the_corpus_at_its_own_pin
+  /usr/lib/python3.12/tarfile.py:2301: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+152 passed, 3 warnings, 52 subtests passed in 116.36s (0:01:56)
