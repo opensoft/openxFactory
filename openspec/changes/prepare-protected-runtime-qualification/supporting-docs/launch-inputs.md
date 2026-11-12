@@ -7,6 +7,11 @@ input categories for implementation planning; it supplies no executable JSON,
 secret, approved endpoint deployment or domain dependency lock. Field grammar,
 validator and protection binding must be owner-reviewed before runtime use.
 
+The subsequent T002 source realization is specified in
+[internal operational grammar](operational-grammar.md). It is a review candidate,
+not an approved live selection or operational grant. This appendix does not
+rewrite the original preparation's recorded selection state below.
+
 | Group | Required binding / independent evidence | Present selection |
 | --- | --- | --- |
 | Source | Accepted factory profile commit/content hash, adapter source/dependencies, neutral owner source/contracts, supervisor/worker source and configuration measurements | Source baselines recorded below; new runtime sources unimplemented |
