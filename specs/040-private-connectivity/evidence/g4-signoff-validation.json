@@ -48,5 +48,11 @@
       "repository": "opensoft/openxFactory",
       "openxfactory_commit": "f1b15812dd2693b161c585080dc7d20f5c44eb57"
     }
-  ]
+  ],
+  "standing_pin_census": {
+    "sites": 701,
+    "members": 31,
+    "measured_on_committed_evidence": true
+  },
+  "immutable_file_references_verified": 310
 }
