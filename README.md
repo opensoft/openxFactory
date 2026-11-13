@@ -556,6 +556,9 @@ Every DomainxFactory must validate against the canonical contract:
 
 ## OpenSpec Records
 
+- [publish-private-connectivity-production-contract](openspec/changes/publish-private-connectivity-production-contract/proposal.md) — draft in [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); neutral owner acceptance and release realization pending.
+  [Design and exact scope](openspec/changes/publish-private-connectivity-production-contract/design.md) · [Publication requirements](openspec/changes/publish-private-connectivity-production-contract/specs/private-connectivity-contract-publication/spec.md) · [Governance handoff](openspec/changes/publish-private-connectivity-production-contract/tasks.md).
+
 - [commission-private-connectivity-production-evidence](openspec/changes/commission-private-connectivity-production-evidence/proposal.md) — draft in [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); T006 owner acceptance pending.
   [Design and exact scope](openspec/changes/commission-private-connectivity-production-evidence/design.md) · [Evidence requirements](openspec/changes/commission-private-connectivity-production-evidence/specs/private-connectivity-production-evidence/spec.md) · [Governance handoff](openspec/changes/commission-private-connectivity-production-evidence/tasks.md).
 
