@@ -1,0 +1,8 @@
+schema: spec-driven
+created: 2026-11-13
+origin:
+  kind: ad_hoc
+  id: openXfactory:adhoc:2026-11-13-fix-protected-runtime-dispatch-bootstrap
+  reason: Resolve the pre-dispatch full-runtime-digest dependency on the assigned GitHub run identity without weakening runtime authorization.
+  approved_by: 'Brett Heap current instruction: fix the dispatch bootstrap blocker through the governed factory/adapter process and test it in isolation. Implementation commission only; setup and dispatch unauthorized, feedback deferred, neither historical blocked write replayed. Candidate source acceptance remains separate.'
+  approved_on: '2026-11-13'
