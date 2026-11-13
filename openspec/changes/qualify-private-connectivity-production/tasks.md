@@ -19,7 +19,7 @@ or runtime task list is created by this proposal. Feature 040 stays completed.
 
 ## 3. Acceptance and release governance
 
-- [ ] 3.1 Review Q1–Q2 staging acceptance when its implementation evidence is available. Verify approved execution requests, exact candidate/profile pins, actual platform/integration observations, all four offering paths, operating measurements and reviewed closure of failures; fixtures or lab observations cannot replace deployed evidence.
+- [ ] 3.1 Review Q1–Q2 staging acceptance when its implementation evidence is available. Verify target-appropriate execution authority, including accepted requests for managed targets and grants where required, exact candidate/profile pins, actual platform/integration observations, all four offering paths, operating measurements and reviewed closure of failures; fixtures or lab observations cannot replace deployed evidence.
 - [ ] 3.2 Record Q3–Q4 canary decisions separately from staging and policy approval. Verify explicit customer/site/domain/region/data/capacity/spend/time bounds, execution and rollback authority, actual observation and current owner acceptance before a commercial or expansion decision.
 - [ ] 3.3 Record each Q5 offer or expansion wave against accepted canary evidence and exact eligible profiles. Verify bounded scope, current approvals and change-impact requalification; retain the stop/remediate/rerun/resume chain and preserve unrelated authorized access.
 - [ ] 3.4 Close the commissioned realization and handoff before archive. Verify its Speckit work and PRs have landed and any required canonical promotion follows the existing governed process; archiving supplies no missing operational or commercial permission.

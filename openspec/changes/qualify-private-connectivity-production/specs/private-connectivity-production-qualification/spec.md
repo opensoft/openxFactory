@@ -40,17 +40,28 @@ installation, product, domain and operational ownership boundaries.
 
 Staging and production deployments SHALL use the existing managed-subject test.
 A managed target SHALL require an accepted client_infrastructure_request and
-execution by its managing factory. Deployment grants SHALL remain scoped and
-revoked on completion; release builders SHALL hold no standing deployment write
-credentials.
+execution by its managing factory through the governed channel. A channel that
+requires a deployment grant SHALL use a valid request-scoped grant, revoked on
+completion. Pull-only reconciliation SHALL retain the accepted-request and
+reviewed-merge boundary without requiring a push credential. An unmanaged
+customer-operated target SHALL require its customer's current authorized operator.
+Release builders SHALL hold no standing deployment write credentials.
 
 #### Scenario: Staging is a registered managed target
 - **WHEN** a candidate is ready to deploy to a registered staging subject
 - **THEN** deployment SHALL require the same managing-factory handoff boundary as production, with the applicable staging approval depth
 
-#### Scenario: A production canary is approved without an execution grant
-- **WHEN** a canary release decision exists but no accepted deployment request or valid managing-factory grant exists
+#### Scenario: A managed production canary lacks an accepted request
+- **WHEN** a canary release decision exists for a registered managed target but no accepted deployment request exists
 - **THEN** the deployment SHALL remain blocked
+
+#### Scenario: A managed production canary lacks a required execution grant
+- **WHEN** a managed canary has an accepted request but its execution channel requires a deployment grant and no valid request-scoped grant exists
+- **THEN** the deployment SHALL remain blocked
+
+#### Scenario: A managed canary uses governed pull reconciliation
+- **WHEN** a managed canary has an accepted deployment request and the approved change is a reviewed merge into the managing factory's governed configuration tree, applied by its pull-only reconciler
+- **THEN** that channel SHALL NOT require an additional push credential, and all other canary entry conditions SHALL remain required
 
 ### Requirement: Release candidates identify supported immutable artifacts
 
@@ -214,8 +225,20 @@ commitments.
 Canary entry SHALL require accepted staging evidence and a separate decision
 naming candidate artifacts, customers, sites, networks, domains, environments,
 regions, capacity, spend, duration, data use, operators and rollback authority.
-Required customer consent, active managing-factory execution authority and
-working monitoring SHALL exist before activation.
+Required customer consent and working monitoring SHALL exist before activation.
+Active execution authority SHALL follow the managed-subject boundary: an accepted
+request and execution through the managing factory's governed channel for a
+managed target, with valid request-scoped grants where that channel requires them;
+or the customer's current authorized operator for an unmanaged customer-operated
+target.
+
+#### Scenario: A customer-operated local canary is an unmanaged target
+- **WHEN** local Headscale resolves to an unmanaged customer-operated target and has accepted staging evidence, a bounded canary decision, required customer consent, current customer-operator authority and working monitoring
+- **THEN** that canary MAY activate within its approved scope without a managing-factory deployment request or grant
+
+#### Scenario: An unmanaged local canary lacks customer authority
+- **WHEN** an unmanaged customer-operated local canary lacks required customer consent or current customer-operator authority
+- **THEN** activation SHALL remain blocked despite a canary release decision
 
 #### Scenario: A canary exceeds its approved scope
 - **WHEN** onboarding would add an unlisted customer, site, domain, region or exceed the approved node/resource bound

@@ -86,12 +86,16 @@ declarations with each DomainxFactory.
 
 The existing [deployment-handoff boundary](../../specs/deployment-handoff-boundary/spec.md)
 determines who executes by whether the target is a registered managed subject.
-Staging is not an exemption. Its accepted client_infrastructure_request names the
-released artifact and digests; the managing factory governs the configuration
-channel, scoped deployment grant, correlation evidence and grant closure.
-An unmanaged customer-operated target remains under its customer's authorized
-operator. No new deployment-request record kind or standing builder write
-credential is introduced.
+Staging is not an exemption for a registered managed target. Its accepted
+client_infrastructure_request names the released artifact and digests; the managing
+factory governs the configuration channel and correlation evidence. Where that
+channel requires a deployment grant, the grant is request-scoped and closed after
+execution. Governed pull-only reconciliation uses the accepted request and reviewed
+merge without an additional push credential.
+An unmanaged customer-operated target remains under its customer's current
+authorized operator and required consent, including during a bounded canary.
+No new deployment-request record kind or standing builder write credential is
+introduced.
 
 An intended platform is selected before commissioning its concrete implementation.
 Keeping this policy provider-neutral preserves the established ownership boundary;
@@ -107,7 +111,7 @@ Every pass and approval is immutable, scoped and linked to its prerequisites.
 | Q0 commission and scope | Ratified policy; commissioned owners and concrete work surfaces; named intended platform, staging targets, release/support scope, custody, operating objectives and cost/capacity bounds. | Allows only the specifically commissioned implementation and preparation. Live operation still needs its applicable target request. |
 | Q1 staging entry | Supported compatible candidate set, owner conformance/CI passes, required identity/provider/entitlement integrations, accepted staging execution authority, independent probes and evidence custody. | Allows the bounded staging run. |
 | Q2 staging exit | Four offering paths and supported matrix pass on the intended platform; two managed customer boundaries and environment separation; lifecycle, failure, capacity and recovery observations meet approved limits; incidents are closed and reviewed. | Makes the exact candidate eligible for a separate canary decision. |
-| Q3 production canary entry | Q2 plus explicit customer/site/domain/region/resource/data scope, consent, spend and duration bounds, monitors, support and rollback roles; accepted managing-factory execution requests and live grants where required. | Allows only that canary, within its approved limits. It grants no general sale or expansion. |
+| Q3 production canary entry | Q2 plus explicit customer/site/domain/region/resource/data scope, consent, spend and duration bounds, monitors, support and rollback roles; target-appropriate execution authority, with accepted managing-factory requests for managed targets and live grants where the channel requires them. | Allows only that canary, within its approved limits. It grants no general sale or expansion. |
 | Q4 production canary exit | Offered paths meet operating objectives throughout the approved observed window; isolation and app authorization remain effective; incident, operational and cleanup evidence pass; affected owners sign off. | Makes the accepted scope eligible for a commercial-release or expansion decision. |
 | Q5 commercial release and expansion | Named service offer or wave, exact eligible profiles and candidate pins, customer/region/scale bounds, applicable commercial release decision, Q4 evidence and owner approval. | Admits only the named offer and wave. Later waves require their own decisions. |
 

@@ -13,7 +13,7 @@ not runtime qualification or production authority.
 ## Passing checks
 
 - OpenSpec reports proposal, design, specs and tasks artifacts complete.
-- The production capability contains 18 requirements and 35 scenarios.
+- The production capability contains 18 requirements and 39 scenarios.
 - The new change validates --strict with no issues in the installed CLI and in
   the canonical content-addressed OpenSpec 1.12.0 entry point:
   python3 scripts/validate-openspec-cli-pin.py --change qualify-private-connectivity-production --strict.
@@ -53,3 +53,34 @@ The README and draft provenance link the assigned PR. Governance publication
 task 1.2 is complete; ratification and implementation/operational decisions are
 still pending. Publication does not grant staging, canary, commercial-release or
 expansion permission.
+
+## Local Codex skill review
+
+The local review used the Codex pr-review skill against publication head
+11390bb8099a8d507573262427f91a7346cbfe76 and the base recorded above. The
+coordinator and all nine standard experts completed their reviews, with an
+additional OpenSpec/governance and release specialist.
+
+One consolidated P2 finding was corrected: the canary rules unconditionally
+required managing-factory authority or grants, which blocked unmanaged
+customer-operated local targets and unconditionally demanded a grant for governed
+pull-only reconciliation. The spec, design and handoff now apply the existing
+managed-subject and execution-channel boundary. Managed targets retain accepted
+requests and managing-factory execution, with request-scoped grants where their
+channel requires them. Unmanaged targets retain current customer-operator
+authority and required consent. All other staging and canary gates remain.
+
+Four net new scenarios cover unmanaged local admission and missing customer
+authority, managed missing-request and required-grant refusals, and governed
+pull reconciliation. Contract, security, QA and governance follow-up reviews
+confirmed closure with no remaining actionable findings.
+
+After the repair, pinned strict packet/corpus checks, declaration and ledger
+checks, focused doc-health checks, relative links and all 538 affected regression
+tests were rerun with the outcomes and existing findings recorded above.
+The generated ledger needed no change.
+
+This is a local skill review. The GitHub Codex connector reported its review
+usage limit on the publication head, so no successful remote Codex review is
+claimed. The packet remains draft and unratified; this repair supplies no
+implementation commissioning or operational permission.
