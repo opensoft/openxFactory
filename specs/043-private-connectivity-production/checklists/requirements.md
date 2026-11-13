@@ -77,3 +77,10 @@ The [implementation plan](../plan.md) and [single task list](../tasks.md) are dr
 - T049 now depends on the full commissioning and final source/release set before T050/Q1. Local and standalone source work still lack unrelated domain/program prerequisites. The approved child-instance model preserves full Q2 and exact scoped canary/offer/wave dependencies without requiring an unrelated parent aggregate to pass.
 - Local syntax/coverage/DAG/tier/parallel-write/link checks and affected governance validators are rerun against the revised packet. The existing accepted whole-corpus finding remains disclosed. These checks do not run future helpers or owner source/live commands.
 - The optional before/after-analyze commit hooks are disabled by repository configuration. The packet stays staged locally and uncommitted; runtime, workflow, contract/pin, test and historical 040 files remain unchanged.
+
+## T001–T005 bootstrap implementation
+
+- T001: feature resolution selects the existing 043 linked worktree and spec/plan/tasks; the 16-item prerequisite checklist passes. Existing Python/environment/credential and Docker ignore rules cover this documentation-only bootstrap. No new package, container, runtime or ignore-policy change is needed.
+- T001: the pre-existing staged planning packet is preserved. Historical feature 040, runtime files, workflows, published contracts, pins, tests and nonmanaged agent instructions remain unchanged. Before/after-implement automatic commit hooks are disabled; explicit draft publication under T003/T004 is a separate authorized action.
+- T002: the historical baseline records the current T021 content digest and original pass verdict; authorizes_production is false. It preserves the source and approved lab acceptance record without carrying forward lab limits, sign-offs or runtime authority.
+- Bootstrap command outputs are retained locally pending the actual E custody/authentication decision at T006. They are not represented as accepted protected C-08 evidence by creating this record.

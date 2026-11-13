@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "kind": "historical-lab-baseline",
+  "evidence_class": "historical-lab",
+  "source": "specs/040-private-connectivity/evidence/T021.json",
+  "evidence_sha256": "fbe7976b1917d87287f23d4836dc44200d69e0414b48e4e913bc14d71bf3859e",
+  "source_verdict": "pass",
+  "authorizes_production": false,
+  "scope": "Approved feature 040 Eagle synthetic Docker lab only; no current production owner, target, release or rollout authority.",
+  "acceptance_record": "specs/040-private-connectivity/evidence/G4-reviewed-repairs-approval.json"
+}

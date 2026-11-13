@@ -8,7 +8,7 @@ Feature: [043-private-connectivity-production](spec.md)
 
 The read-only Speckit analysis reviewed [specification](spec.md), [plan](plan.md), [tasks](tasks.md), the adopted constitution, the ratified production policy, all three delivery tracks, owner scopes, commissioning, gate/validation registers and the draft evidence contracts. Brett Heap's accompanying instruction explicitly authorized fixes before implementation; remediation followed that initial analysis. This document records the resulting artifact review, not implementation, owner acceptance or a live qualification result.
 
-Six findings were repaired. The final cross-artifact review has zero outstanding critical, high, medium or low findings. There is one coordinating feature and one executable list, with 68 unchecked tasks. Q0 remains unaccepted and Q1–Q5 remain unentered.
+Six findings were repaired. At the analysis checkpoint the final cross-artifact review had zero outstanding critical, high, medium or low findings and all 68 tasks were unchecked. Subsequent bootstrap progress is recorded in the [task list](tasks.md) and [validation checklist](checklists/requirements.md). There is one coordinating feature and one executable list. Q0 remains unaccepted and Q1–Q5 remain unentered.
 
 ## Findings and remediation
 
@@ -180,7 +180,7 @@ No constitution conflict or exception remains. The adopted bootstrap constitutio
 
 - Unmapped tasks: none after FR/SC range expansion.
 - Functional requirements: 30; buildable success criteria: eight; task coverage: 38 of 38 (100%).
-- Tasks: 68, all unchecked; seven user stories plus nine shared preparation/handoff tasks.
+- Tasks at the analysis checkpoint: 68, all unchecked; seven user stories plus nine shared preparation/handoff tasks. Current completion is maintained in tasks.md.
 - Build tiers: 67 O, one S, zero H; 13 conditional parallel candidates with disjoint effective candidate writes.
 - Governing coverage: 18 requirements and 39 scenarios; three tracks with six cases each; 13 validation proof groups.
 - Initial findings: six (five high, one medium); repaired: six; remaining critical/high/medium/low: zero.

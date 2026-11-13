@@ -84,6 +84,7 @@ Core domain-neutral docs:
   [Validation matrix](specs/043-private-connectivity-production/validation-matrix.md) · [Planning quickstart](specs/043-private-connectivity-production/quickstart.md).
   [Single implementation task list](specs/043-private-connectivity-production/tasks.md) · [Task evidence/owner binding](specs/043-private-connectivity-production/contracts/task-evidence.md).
   [Speckit analysis and remediation](specs/043-private-connectivity-production/analysis.md).
+  [Historical lab baseline](specs/043-private-connectivity-production/evidence/baseline.json) — historical only; no production authority.
   Planned interfaces: [Owner handoff](specs/043-private-connectivity-production/contracts/owner-handoff.md) · [Product interfaces](specs/043-private-connectivity-production/contracts/product-interfaces.md) · [Qualification evidence](specs/043-private-connectivity-production/contracts/qualification-evidence.md).
 
 - [Factory MCP Family — Brainstorm](ideation/brainstorm/factory-mcp-overview.md)
@@ -554,6 +555,9 @@ Every DomainxFactory must validate against the canonical contract:
   and [contracts/CHANGELOG.md](contracts/CHANGELOG.md).
 
 ## OpenSpec Records
+
+- [commission-private-connectivity-production-evidence](openspec/changes/commission-private-connectivity-production-evidence/proposal.md) — draft in [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); T006 owner acceptance pending.
+  [Design and exact scope](openspec/changes/commission-private-connectivity-production-evidence/design.md) · [Evidence requirements](openspec/changes/commission-private-connectivity-production-evidence/specs/private-connectivity-production-evidence/spec.md) · [Governance handoff](openspec/changes/commission-private-connectivity-production-evidence/tasks.md).
 
 - [add-workload-factory-binding](openspec/changes/add-workload-factory-binding/proposal.md)
   - source acceptance ratified by Brett Heap on 2026-11-11 at factory
