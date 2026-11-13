@@ -1,0 +1,79 @@
+# Specification Quality Checklist: Private connectivity production qualification
+
+Status: draft
+
+**Purpose**: Validate specification completeness and quality before implementation planning.
+**Created**: 2026-11-13
+**Feature**: [Specification](../spec.md)
+
+## Content Quality
+
+- [x] No implementation stack, source algorithm, API design or deployment recipe is prescribed.
+- [x] Focused on customer value, independent offerings and evidence-based acceptance.
+- [x] Written for rollout, customer, component and domain stakeholders.
+- [x] All mandatory template sections are completed.
+
+## Requirement Completeness
+
+- [x] No NEEDS CLARIFICATION markers remain; unselected operating values are explicitly gated decision inputs, not invented defaults.
+- [x] Requirements are testable and unambiguous.
+- [x] Success criteria are measurable.
+- [x] Success criteria describe outcomes independently of implementation technologies.
+- [x] All acceptance scenarios are defined.
+- [x] Edge cases are identified.
+- [x] Scope is clearly bounded.
+- [x] Dependencies and assumptions are identified.
+
+## Feature Readiness
+
+- [x] All functional requirements have acceptance coverage.
+- [x] User scenarios cover all three tracks and four offering paths.
+- [x] Defined success criteria cover the required outcomes; no live outcome is claimed achieved.
+- [x] Ownership names the existing product boundaries without prescribing unapproved runtime paths.
+
+## Notes
+
+Reviewed against the ratified production policy and its 18 requirements / 39 scenarios. [Policy coverage](../policy-coverage.md) maps the complete governing corpus to this feature's requirements and planned acceptance.
+
+The specification, plan and task list have completed [Speckit analysis and remediation](../analysis.md). This checklist records artifact quality, not Q0 commissioning or Q1–Q5 acceptance. Missing owner/runtime scopes, platform/domain decisions, numeric objectives and target/customer approvals remain explicitly blocked at the gates in [commissioning](../commissioning.md).
+
+The [implementation plan](../plan.md) and [single task list](../tasks.md) are drafted. No runtime edit, staging run, production canary or commercial release is recorded as complete by creating specification/plan/tasks artifacts.
+
+## Local validation
+
+- Feature resolution selects branch 043-private-connectivity-production and its matching specification directory.
+- Content review confirms seven independently testable user stories, 30 functional requirements, eight measurable success criteria and 18 track acceptance cases. The coverage index includes every one of the 18 governing requirements and 39 scenarios.
+- All 126 packet-relative Markdown links resolve, and all 20 feature documents are linked directly from the repository README. No template placeholders or host-specific paths remain in the packet.
+- The pinned OpenSpec 1.12.0 strict check passes for the governing change. Whole-corpus strict validation exits 0 with its one existing accepted add-chain-attestation finding; this is not a clean whole-corpus result or a new waiver.
+- Code-surface, target-release, status-validity and duplicate-packet checks pass. The generated 248-row sequencing ledger remains consistent without an edit.
+- Staged whitespace checks pass. Feature 040, runtime code, published contracts, pins and required-check definitions are unchanged.
+- The optional after-specify commit hook is disabled by repository configuration. Specification changes remain local for review and planning.
+
+## Planning validation
+
+- Planning artifacts resolve under the same 043 feature: plan, research, logical data model, quickstart, three draft interface documents and the validation matrix.
+- Research decisions R-01–R-10 are resolved at the coordinating-design level. Required execution inputs C-01–C-13 remain explicit owner decisions, never lab defaults or passed gates.
+- The validation matrix has 13 proof groups covering all 30 feature requirements and retaining the complete 18-requirement / 39-scenario governing coverage.
+- Constitution checks pass before research and after design for planning scope. Q0 acceptance and Q1–Q5 execution remain unclaimed.
+- The managed SPECKIT agent-context block points to the plan. Other agent instructions, feature 040, runtime code, published contracts, pins, workflows and tests are unchanged.
+- Local governance/strict validation outcomes retain the existing whole-corpus accepted finding; owner commands were inspected rather than run, and no live qualification is claimed.
+- The generated tasks.md is the sole executable list. Speckit analysis precedes implementation, which remains gated by accepted owner scope and consumed decisions.
+
+## Task-generation validation
+
+- The sole [task list](../tasks.md) contains 68 sequential unique tasks, all unchecked: 14 US1, eight US2, eight US3, seven US4, seven US5, seven US6, eight US7 and nine shared setup/foundation/handoff tasks.
+- Every task has an owner, dependencies, gate/evidence class, required cases, relative file scope, one verification command and a build tier. After analysis elevated T005, there are 67 O and one S tasks; no governed task is H. Shell syntax and inline Python verification snippets compile without running future implementation commands.
+- Every dependency refers to an existing lower task ID; the graph is acyclic. Local source readiness does not depend on hosted/domain commissioning or the full Q0 join. Standalone source readiness does not require actual domain selection. Q1 joins the full commissioned/source/release set, and Q2 joins every required offering path and operational proof before Q3–Q5 decisions.
+- The 68-row [acceptance registry](../contracts/task-evidence.md) exactly matches task IDs, owners, dependencies, evidence classes and required-case IDs. The future verifier is available before its consumers, while T001–T006 use existing tools. Actual named-owner acceptance precedes helper implementation; structural metadata cannot supply it.
+- All 30 feature requirements map to tasks; all 13 validation groups, 18 governing requirements / 39 scenarios and six acceptance cases per delivery track remain represented. Per-offering canary observations and named offer/wave decisions remain separate, current and bounded.
+- The 13 P-marked tasks have disjoint candidate write sets. Exact C-01 file-list intersections and consumed decisions still control concurrency; shared proposal/index/ledger writes are serialized. Changed owner layouts require task refinement before editing.
+- Governing handoff task 2.1 is complete as an artifact handoff only. Task 2.2 remains open, Q0 is unaccepted, Q1–Q5 are not entered, and zero implementation tasks are complete. Formal Speckit analysis and its authorized remediation are complete; gated implementation is the next step.
+- Task generation changes feature/handoff documentation only. No owner runtime, workflow, published contract, pin, test or feature 040 file is modified. Repository configuration disables before/after-tasks auto-commit; the packet remains local and uncommitted.
+
+## Analysis and remediation validation
+
+- The [analysis report](../analysis.md) records six repaired findings: per-scope owner commissioning, authenticated bootstrap dependency evidence, independent canary/offer child DAGs, final consumer/harness compatibility closure, T005's contract/design tier and explicit success-criterion/task coverage.
+- The revised packet maps all 30 functional requirements and eight buildable success criteria to tasks; range expansion leaves no unmapped task. The 68-row evidence registry matches the actual task metadata. Zero critical, high, medium or low artifact findings remain.
+- T049 now depends on the full commissioning and final source/release set before T050/Q1. Local and standalone source work still lack unrelated domain/program prerequisites. The approved child-instance model preserves full Q2 and exact scoped canary/offer/wave dependencies without requiring an unrelated parent aggregate to pass.
+- Local syntax/coverage/DAG/tier/parallel-write/link checks and affected governance validators are rerun against the revised packet. The existing accepted whole-corpus finding remains disclosed. These checks do not run future helpers or owner source/live commands.
+- The optional before/after-analyze commit hooks are disabled by repository configuration. The packet stays staged locally and uncommitted; runtime, workflow, contract/pin, test and historical 040 files remain unchanged.

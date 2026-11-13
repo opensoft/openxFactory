@@ -76,6 +76,16 @@ Core domain-neutral docs:
 
 - [Private connectivity binding candidate](contracts/private-connectivity/README.md)
 - [Private connectivity: Speckit feature 040](specs/040-private-connectivity/spec.md). [Implementation plan](specs/040-private-connectivity/plan.md) · [Pilot rollout](specs/040-private-connectivity/quickstart.md)
+- [Private connectivity production qualification: Speckit feature 043](specs/043-private-connectivity-production/spec.md).
+  [Local Headscale](specs/043-private-connectivity-production/local-headscale.md) · [Standalone Hosted Headscale](specs/043-private-connectivity-production/standalone-hosted-headscale.md) · [Hosted DomainxFactories](specs/043-private-connectivity-production/hosted-domainxfactories.md).
+  [Owner scopes](specs/043-private-connectivity-production/owner-scopes.md) · [Q0 commissioning decisions](specs/043-private-connectivity-production/commissioning.md) · [Q0–Q5 gates](specs/043-private-connectivity-production/rollout-gates.md).
+  [Policy coverage](specs/043-private-connectivity-production/policy-coverage.md) · [Specification quality](specs/043-private-connectivity-production/checklists/requirements.md).
+  [Implementation plan](specs/043-private-connectivity-production/plan.md) · [Research](specs/043-private-connectivity-production/research.md) · [Logical data model](specs/043-private-connectivity-production/data-model.md).
+  [Validation matrix](specs/043-private-connectivity-production/validation-matrix.md) · [Planning quickstart](specs/043-private-connectivity-production/quickstart.md).
+  [Single implementation task list](specs/043-private-connectivity-production/tasks.md) · [Task evidence/owner binding](specs/043-private-connectivity-production/contracts/task-evidence.md).
+  [Speckit analysis and remediation](specs/043-private-connectivity-production/analysis.md).
+  Planned interfaces: [Owner handoff](specs/043-private-connectivity-production/contracts/owner-handoff.md) · [Product interfaces](specs/043-private-connectivity-production/contracts/product-interfaces.md) · [Qualification evidence](specs/043-private-connectivity-production/contracts/qualification-evidence.md).
+
 - [Factory MCP Family — Brainstorm](ideation/brainstorm/factory-mcp-overview.md)
   (shared conformance, domain ownership and a proposed DNS evaluation boundary)
 - [Factory MCP Conformance — Promoted Specification](openspec/specs/factory-mcp-conformance/spec.md)
