@@ -6,6 +6,8 @@ Feature: [043-private-connectivity-production](spec.md)
 
 This index maps every requirement and scenario in the [ratified qualification policy](../../openspec/changes/qualify-private-connectivity-production/specs/private-connectivity-production-qualification/spec.md). It describes planned acceptance coverage, not executed tests or passed gates.
 
+T005 reviews and freezes this complete mapping for owner acceptance with the [task evidence contract](contracts/task-evidence.md#t005-review-freeze). All 18 requirements and 39 scenarios remain represented; drafting or publishing successor proposals does not close a production gate.
+
 US identifiers refer to user stories in [spec.md](spec.md); FR identifiers refer to its functional requirements. L/H/D cases are in the [local](local-headscale.md), [Hosted Headscale](standalone-hosted-headscale.md) and [hosted domain](hosted-domainxfactories.md) documents. C identifiers are [commissioning decisions](commissioning.md); Q identifiers are [rollout gates](rollout-gates.md).
 
 ## Requirement coverage

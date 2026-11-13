@@ -6,6 +6,8 @@ Feature: [043-private-connectivity-production](../spec.md)
 
 This supplements [qualification evidence](qualification-evidence.md) and [owner handoff](owner-handoff.md). It is a draft implementation design, not a published schema, deployment request kind, executable verifier or approval. The only executable task list is [tasks.md](../tasks.md); the registry below is an acceptance contract with no actions or completion checkboxes.
 
+The T005 review packet includes the draft [E evidence scope](../../../openspec/changes/commission-private-connectivity-production-evidence/proposal.md) for T006 and the separately accepted [neutral publication scope](../../../openspec/changes/publish-private-connectivity-production-contract/proposal.md) for T016, both published in draft PR #1310. Neither proposal is ratified. The review freeze below supplies no owner acceptance.
+
 ## Bootstrap and verifier availability
 
 T001–T006 use their listed existing tools/inline checks. T002 stores only a historical-lab content digest and production-authority=false, not a supported release pin or new runtime grant. T003/T004 draft specific governance packets; strict validation cannot ratify them. T006 requires a real named-owner acceptance, approved origin metadata, a cited ratification record under the evidence proposal and the C-08 custody/authentication choices consumed by E. Neither generated text nor a structural command invents human consent.
@@ -138,3 +140,32 @@ Numeric limits come from current accepted decisions and must be finite and valid
 Q0 per-owner acceptance permits only its exact preparation/implementation; T017 is the program join. T050 separately needs current staging preparation/spend authority. Q1 then bounds the run; Q2 accepts all four paths; Q3 separately admits each canary; Q4 accepts actually observed scope; Q5 separately admits the named offer/wave. Current managed request/channel-required grant or unmanaged customer authority is always enforced before effects.
 
 Task/registry changes after approval require reviewed scope/contract updates and affected re-verification. New shared pin classes, census, workflow or protected surfaces need their owning authority. Preserve 040, existing validation floors and current revocations; no silently widened prefix, skip, waiver or customer eligibility flag is allowed.
+
+## T005 review freeze
+
+Frozen for owner review on 2026-11-13 in draft PR #1310. This is a proposed-contract freeze, not ratification or Q0 acceptance. T006 remains unchecked.
+
+Review packet SHA-256: f7cc70686d3a78511b7544bc84c3b9af2f63752f0cb2e5aa4767c19548cddf42
+
+The digest covers a canonical UTF-8 JSON object with keys inputs, registry and tasks, serialized with sorted keys, compact comma/colon separators, ensure_ascii=false and no terminal newline. Tasks are all 68 task lines in order with only each checkbox normalized to unchecked; registry is the ordered 68 literal table rows. Inputs maps the following feature-relative paths to their file SHA-256 values. For this file only, input bytes are the complete body before the newline introducing this freeze heading. Completion checkboxes and later status notes outside task lines do not change the task portion.
+
+| Input | SHA-256 |
+| --- | --- |
+| spec.md | 901ed9fff1c99c088522db9d66786a3550fd5a55c228bc9eb625e150fb470cae |
+| plan.md | 5fc1550dd8988e2d32288176c9f4b62c22592e4c583c8106b506fbe9fd22bdee |
+| research.md | 295751853b252eafabbcaf64933a577df88370f7c457f01fe69a479c9df7f9d2 |
+| data-model.md | a2201bc094da3a05567194cbbff5622950f3f8aa17b8a9d978d3eb693ea02f05 |
+| owner-scopes.md | 649c5fe4359495e14436b5c8326fe64895a305a2d82a4239351fff04df77e26b |
+| commissioning.md | 9456f36fed488f2808d4fd63cf84474f17b1dfddc6b8f903d5012340343d752e |
+| rollout-gates.md | f667ed2e6f8c5f1b4e75651b1aa5bdb671074fe2dcf74f8f3f722250084d2fc8 |
+| validation-matrix.md | 436efcc69b1efe88d59588d9c89922333786a33cb3d974168b21be96acda9986 |
+| policy-coverage.md | e30154c88b29ce5a21b23d235d0ec863a105a433d7ea23e7fb6937cba928f37b |
+| local-headscale.md | aa764a126e7b1d2c12c257e9d2d1ef2416fb49a47dffeddf93de6a901882c481 |
+| standalone-hosted-headscale.md | b25c3d8ab2642912d1dcbe557b51f9820df8986906c3d1ccb950146efd8ee479 |
+| hosted-domainxfactories.md | c0b94352f89013a28dbc1008d988e7aca94c58b05511a14f52c9cf81cf2b9cc6 |
+| contracts/owner-handoff.md | d8fec9881a390420c41d6bc1dfef8fb44ab35457054611ae3751a8a98ca9fd78 |
+| contracts/product-interfaces.md | 5643be4adba7bb0ac5413a1ddb74bab863af981c945d92c4fde14d97fd0d94e7 |
+| contracts/qualification-evidence.md | 8d7d4ab79a6bb456a2dabef0d6ec4d5ba40da296e5ba19ceab2c7e907df31e92 |
+| contracts/task-evidence.md | 6cbabec26f64f525c148b16e1e1485e067caeacaff5d742c94fbb1b28de9c675 |
+
+Any change to the frozen task/owner/class/case/dependency/file/command contract or its acceptance inputs requires a new review freeze and affected owner review before use. The T006 decision must identify the actual accepted source/scope and consumed custody/authentication choices; this digest does not fill them. Existing bootstrap outputs remain pending accepted custody/authentication, and no verifier, registry helper, shared reader or required workflow is implemented here.

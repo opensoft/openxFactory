@@ -64,3 +64,5 @@ Q5 checks current exact eligibility and the bounded commercial offer/wave. A mat
 ## Current disposition
 
 Local planning validation is separate from the source commands and observed cases above. Q0 is not accepted and Q1–Q5 have not run. No owner source test, required CI, release publication, target execution or live result is claimed by this matrix.
+
+T005 freezes this matrix for owner review together with the task/owner/case/dependency registry in the [review freeze](contracts/task-evidence.md#t005-review-freeze). The draft [evidence scope](../../openspec/changes/commission-private-connectivity-production-evidence/proposal.md) and [neutral publication scope](../../openspec/changes/publish-private-connectivity-production-contract/proposal.md) are published in PR #1310. T006 and T016 acceptances remain absent; source/helper implementation is not entered by this document freeze.
