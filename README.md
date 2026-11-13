@@ -553,6 +553,9 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [qualify-private-connectivity-production](openspec/changes/qualify-private-connectivity-production/proposal.md)
+  — ratified 2026-11-12 by Brett Heap. [PR #1309](https://github.com/opensoft/openXfactory/pull/1309), production qualification successor to the accepted 040 lab; covers local Headscale, standalone Hosted Headscale and hosted DomainxFactories, with staging, a bounded production canary and per-wave expansion. No production or commercial authorization is granted.
+
 - [register-private-connectivity-evidence-pins](openspec/changes/register-private-connectivity-evidence-pins/proposal.md)
   — ratified 2026-11-10, narrowly extending feature 040 evidence-tooling authority. [PR #1303](https://github.com/opensoft/openxFactory/pull/1303)
 - [implement-private-connectivity-binding](openspec/changes/implement-private-connectivity-binding/proposal.md)

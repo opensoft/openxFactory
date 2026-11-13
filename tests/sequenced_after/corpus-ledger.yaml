@@ -286,6 +286,7 @@ rows:
   publish-semantic-kernel: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   qualify-avatar-brokered-call-feasibility: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   qualify-avatar-live-voice: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  qualify-private-connectivity-production: {state: active, class: sole, declares: [add-private-connectivity, implement-private-connectivity-binding, establish-headscale-install-ownership, establish-openxsoft-hosted-connectivity, register-private-connectivity-evidence-pins], depth: 3, prose: false, moved_by: "#1309", moved_on: "2026-11-12"}
   ratify-doxbench-landed-context-surfaces: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   realize-doc-health-direction-arc: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1247", moved_on: "2026-10-06"}
   reconcile-domain-neutral-and-engineering-spec-ownership: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}

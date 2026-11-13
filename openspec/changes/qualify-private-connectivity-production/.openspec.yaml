@@ -1,0 +1,17 @@
+schema: spec-driven
+created: 2026-11-12
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-11-12-qualify-private-connectivity-production
+  reason: Propose production qualification after the accepted feature 040 lab and six-repository source landing.
+  proposed_by: Codex at Brett Heap's explicit request
+  proposed_on: '2026-11-12'
+  approved_by: Brett Heap, in session. See review/ratification-2026-11-12.md.
+  approved_on: '2026-11-12'
+related:
+  - openxFactory:change:add-private-connectivity
+  - openxFactory:change:implement-private-connectivity-binding
+  - openxFactory:change:establish-headscale-install-ownership
+  - openxFactory:change:establish-openxsoft-hosted-connectivity
+  - openxFactory:pr:1303
+  - openxFactory:pr:1309
