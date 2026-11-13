@@ -6,7 +6,8 @@ sequenced_after: [add-private-connectivity, implement-private-connectivity-bindi
 
 # Proposal: Qualify private connectivity for production
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-12 by Brett Heap. [Ratification record](review/ratification-2026-11-12.md)
 Kind: proposal
 Proposed: 2026-11-12
 

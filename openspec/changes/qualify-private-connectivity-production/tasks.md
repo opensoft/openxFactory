@@ -1,6 +1,7 @@
 # Tasks: Governance and Speckit handoff
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-12 by Brett Heap. [Ratification record](review/ratification-2026-11-12.md)
 
 This is the governance and acceptance handoff. The sole executable implementation
 task list belongs to one new coordinating Speckit feature. Allocate its number
@@ -9,7 +10,7 @@ or runtime task list is created by this proposal. Feature 040 stays completed.
 
 ## 1. Review and publication
 
-- [ ] 1.1 Review and ratify the production qualification policy and owner boundaries. Verify an explicit ratification record identifying this packet and distinguishing policy acceptance from implementation, staging, canary, commercial release and expansion authority.
+- [x] 1.1 Review and ratify the production qualification policy and owner boundaries. Verify an explicit ratification record identifying this packet and distinguishing policy acceptance from implementation, staging, canary, commercial release and expansion authority.
 - [x] 1.2 Publish draft PR #1309 in the repository index and regenerate the corpus ledger with the sanctioned seed command using #1309. Verify the strict OpenSpec check, sequencing sweep and ledger diff; the assigned PR and generated row are recorded in review/validation-2026-11-12.md.
 
 ## 2. Implementation handoff

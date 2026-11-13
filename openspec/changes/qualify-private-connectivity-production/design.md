@@ -1,6 +1,7 @@
 # Design: Private connectivity production qualification
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-12 by Brett Heap. [Ratification record](review/ratification-2026-11-12.md)
 
 ## Context
 
