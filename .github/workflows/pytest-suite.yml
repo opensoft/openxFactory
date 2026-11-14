@@ -982,8 +982,8 @@ jobs:
           import xml.etree.ElementTree as ET
 
           expected = {
-              "specs.043-private-connectivity-production.tests.test_evidence": 241,
-              "specs.043-private-connectivity-production.tests.test_evidence_pins": 29,
+              "specs.043-private-connectivity-production.tests.test_evidence": 283,
+              "specs.043-private-connectivity-production.tests.test_evidence_pins": 40,
           }
           report = ET.parse(Path(os.environ["RUNNER_TEMP"]) / "private-connectivity-043-source.xml").getroot()
           cases = list(report.iter("testcase"))
