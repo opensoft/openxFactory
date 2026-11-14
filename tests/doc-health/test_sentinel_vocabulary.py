@@ -1144,6 +1144,9 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # per-record owner-resolved sites and exactly two standing members.
     # Local pins retain reachability obligations; foreign ownership is
     # checked by the feature inventory verifier and required doc-health test.
+    # Feature 043 T009 declares two FUTURE members before its first T010
+    # record exists. That adds no measured site/member to the standing census;
+    # deliberate first-record promotion must measure its actual delta.
     assert (standing_sites, standing_members) == (701, 31)
     # ...and the exclusion is exactly one declared row, not a hole a later
     # member can fall into unnoticed.
@@ -1199,3 +1202,12 @@ def test_no_deterministic_check_family_is_added():
     assert "pin_sentinels" not in source, (
         "the vocabulary must not be reachable from the family registry, or a "
         "later edit registers it as a family without deciding to")
+
+
+def test_production_connectivity_registration_does_not_invent_a_current_population():
+    members = [member for member in pc.PIN_CLASS if member.id.startswith("private-connectivity-production-")]
+    assert len(members) == 2
+    assert {member.presence for member in members} == {pc.FUTURE}
+    assert all(member.population == pc.STANDING and not member.key_expected for member in members)
+    assert all(member.reachability == pc.MUST_RESOLVE for member in members)
+    assert {member.locality for member in members} == {pc.REPO_LOCAL, pc.CROSS_REPOSITORY}

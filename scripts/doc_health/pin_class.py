@@ -436,7 +436,42 @@ class NonMember:
 # THE MEMBERS. Seeded from the realization's own measurement over committed
 # state at `origin/main` — see the module docstring on why the packet's table is
 # not the seed. Ordered by the capability that owns each artifact.
+_PC043_EVIDENCE_PATHS = tuple(
+    "specs/043-private-connectivity-production/evidence/" + task + ".json"
+    for task in ("T010", "T011", "T012", "T013", "T014", "T015", "T016",
+                 "T017", "T018", "T019", "T027", "T042", "T049", "T051",
+                 "T056", "T057", "T061", "T062", "T064", "T065", "T066", "T067", "T068")
+) + tuple("specs/043-private-connectivity-production/evidence/instances/" + task + "/*.json"
+          for task in ("T057", "T061", "T062", "T064"))
+
+
 PIN_CLASS: tuple[PinMember, ...] = (
+    # Feature 043's closed coordinator receipt set. Component-owned tasks keep
+    # their receipts in the owner's tree. No bootstrap receipts or directory
+    # exclusion are introduced. FUTURE is deliberate until T010's first actual
+    # authenticated evidence; its arrival requires deliberate census promotion.
+    PinMember(
+        id="private-connectivity-production-local-evidence",
+        paths=_PC043_EVIDENCE_PATHS,
+        key="openxfactory_commit", key_form="field",
+        generator="feature 043 register-evidence-pins.py",
+        reproduction=MEASURED, locality=REPO_LOCAL, presence=FUTURE,
+        key_expected=False,
+        note="Exact owner-resolved source/authority inventory for closed 043 "
+             "coordinator receipts and scoped children. Local commits still "
+             "owe reachability; future instance files require exact C-01 scope.",
+    ),
+    PinMember(
+        id="private-connectivity-production-foreign-evidence",
+        paths=_PC043_EVIDENCE_PATHS,
+        key="foreign_commit", key_form="field",
+        generator="feature 043 register-evidence-pins.py",
+        reproduction=MEASURED, locality=CROSS_REPOSITORY, presence=FUTURE,
+        key_expected=False,
+        note="Exact 043 foreign-source inventory. Each entry names its canonical "
+             "owner; the feature checker requires that owner's verified checkout "
+             "and reachable commit. Unavailable foreign proof is never a pass.",
+    ),
     # Feature 040 carries mixed-owner gate and source references. Its generated
     # inventory declares every commit token in each record by repository;
     # local derivation pins retain the same MUST_RESOLVE obligation.
