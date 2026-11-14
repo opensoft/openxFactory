@@ -135,3 +135,10 @@ The [implementation plan](../plan.md) and [single task list](../tasks.md) are dr
 - The already approved workflow path now explicitly runs both feature suites at the exact source head in a separate worktree, preserving the root check and all existing floors/skips/named verdicts.
 - The measured per-module JUnit guard requires 213 verifier and 28 inventory cases, zero skips/failures/errors, unique identities and the exact two modules. The actual committed step passes 241 source cases; missing cases, unknown modules, a skipped testcase, duplicate identity and a suite error each fail the guard. The affected workflow/floor/CLI-pin suites pass 185 cases.
 - T010 is still incomplete and unchecked. Required published-head CI and the actual bootstrap scope/format/authentication decisions remain pending. No new evidence record or frozen task/input change is claimed.
+
+## Source-permission and live-phase follow-up
+
+- The measured combined source run passes 270 cases: 241 verifier and 29 inventory tests, with no skips, failures or errors. Source permissions, source policies and source evidence admissions may remain until superseded; revocation still refuses use. Execution channels and live permissions retain finite limits and actual chronology.
+- Source-phase decision overrides are rejected for staging/production C-03 and C-08–C-13 consumption. New regressions first exposed the source-lifetime and live-phase gaps; the repaired source passes them. Real Git-object inventory generation/checking succeeds with current source consent and fails after withdrawal without changing record bytes.
+- Exact T007 and T008 commands pass at their separate clean, unchanged source commits. A repeatable T006 structural rerun also passes at the original ratified source; it does not replace or renew the original human decision. Local provenance observations still await actual custodian authentication.
+- The new count pins belong to a separate T010 workflow-only commit. No new bootstrap format/record, accepted owner scope, frozen-definition change, deployment or live-gate acceptance is created. All three current PRs stay draft.
