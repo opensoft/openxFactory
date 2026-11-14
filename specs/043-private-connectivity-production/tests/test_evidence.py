@@ -855,3 +855,153 @@ def test_historical_admission_keeps_execution_and_content_floors(world, mutation
         binding.pop("admission")
     with pytest.raises(v.EvidenceError):
         world.check(key)
+
+
+def test_source_scope_approval_can_last_until_superseded(world):
+    key = world.add("T007")
+    binding = world.trust["bindings"][key]
+    authority = v.decode(world.store.blob(binding["authority"]))
+    authority["valid_until"] = "until-superseded"
+    binding["authority"] = world.store.put(authority, "decisions/source-lifetime.json")
+    world.records[key]["authority"] = binding["authority"]
+    world.check(key)
+    world.trust["revoked_authorities"].append(authority["id"])
+    with pytest.raises(v.EvidenceError, match="revoked"):
+        world.check(key)
+
+
+def test_source_admission_can_persist_without_reopening_completed_grants(world):
+    key = world.add("T007")
+    binding = completed_run(world, key)
+    admission = admit_run(world, key, valid_until="until-superseded")
+    world.check(key)
+    with pytest.raises(v.EvidenceError):
+        world.verifier().authority(binding["authority"], binding)
+    world.trust["revoked_authorities"].append(admission["id"])
+    with pytest.raises(v.EvidenceError, match="revoked"):
+        world.check(key)
+
+
+def test_source_custody_decision_can_last_until_superseded(world):
+    key = world.add("T007")
+    binding = world.trust["bindings"][key]
+    binding["decisions"] = ["C-08"]
+    authority = v.decode(world.store.blob(binding["authority"]))
+    decision = v.decode(world.store.blob(world.decision("C-08", binding["scope"])))
+    decision["valid_until"] = "until-superseded"
+    authority["decisions"] = {"C-08": world.store.put(decision, "decisions/source-custody.json")}
+    binding["authority"] = world.store.put(authority, "decisions/source-custody-authority.json")
+    world.records[key]["authority"] = binding["authority"]
+    world.check(key)
+    world.trust["revoked_authorities"].append(decision["id"])
+    with pytest.raises(v.EvidenceError, match="revoked"):
+        world.check(key)
+
+
+@pytest.mark.parametrize("field", ["authority", "grant", "request", "decision", "admission"])
+def test_live_authority_and_admission_require_finite_validity(world, field):
+    key = world.child("T058")
+    binding = completed_run(world, key)
+    authority = v.decode(world.store.blob(binding["authority"]))
+    if field == "admission":
+        admit_run(world, key, valid_until="until-superseded")
+    else:
+        if field == "authority":
+            authority["valid_until"] = "until-superseded"
+        else:
+            ref = authority["decisions"]["C-09"] if field == "decision" else authority[field]
+            value = v.decode(world.store.blob(ref))
+            value["valid_until"] = "until-superseded"
+            updated = world.store.put(value, "decisions/live-unbounded.json")
+            if field == "decision": authority["decisions"]["C-09"] = updated
+            else: authority[field] = updated
+        binding["authority"] = world.store.put(authority, "decisions/live-unbounded-authority.json")
+        world.records[key]["authority"] = binding["authority"]
+        admit_run(world, key)
+    with pytest.raises(v.EvidenceError):
+        world.check(key)
+
+
+@pytest.mark.parametrize("mode", ["managed-push", "managed-pull", "customer"])
+def test_source_phase_does_not_make_execution_channels_unbounded(world, mode):
+    key = world.add("T007")
+    binding = completed_run(world, key, mode)
+    authority = v.decode(world.store.blob(binding["authority"]))
+    authority["valid_until"] = "until-superseded"
+    binding["authority"] = world.store.put(authority, "decisions/unbounded-source-channel.json")
+    world.records[key]["authority"] = binding["authority"]
+    admit_run(world, key)
+    with pytest.raises(v.EvidenceError):
+        world.check(key)
+
+
+def test_source_lifetime_cannot_authorize_a_run_before_approval(world):
+    key = world.add("T007")
+    binding = world.trust["bindings"][key]
+    authority = v.decode(world.store.blob(binding["authority"]))
+    authority.update(valid_from=END, valid_until="until-superseded")
+    binding["authority"] = world.store.put(authority, "decisions/late-source-approval.json")
+    world.records[key]["authority"] = binding["authority"]
+    with pytest.raises(v.EvidenceError):
+        world.check(key)
+
+
+@pytest.mark.parametrize("mode", ["managed-push", "managed-pull", "customer"])
+def test_source_policy_lifetime_is_independent_of_finite_execution_channel(world, mode):
+    key = world.add("T007")
+    binding = completed_run(world, key, mode)
+    binding["decisions"] = ["C-08"]
+    authority = v.decode(world.store.blob(binding["authority"]))
+    policy = v.decode(world.store.blob(world.decision("C-08", binding["scope"])))
+    policy["valid_until"] = "until-superseded"
+    authority["decisions"] = {"C-08": world.store.put(policy, "decisions/source-policy.json")}
+    binding["authority"] = world.store.put(authority, "decisions/source-policy-channel.json")
+    world.records[key]["authority"] = binding["authority"]
+    admit_run(world, key, valid_until="until-superseded")
+    world.check(key)
+
+
+@pytest.mark.parametrize("mode,field", [
+    ("managed-push", "request"), ("managed-push", "grant"),
+    ("managed-pull", "request"), ("managed-pull", "reviewed_merge"),
+    ("customer", "consent"),
+])
+def test_source_policy_never_makes_request_grant_or_consent_unbounded(world, mode, field):
+    key = world.add("T007")
+    binding = completed_run(world, key, mode)
+    authority = v.decode(world.store.blob(binding["authority"]))
+    carrier = v.decode(world.store.blob(authority[field]))
+    carrier["valid_until"] = "until-superseded"
+    authority[field] = world.store.put(carrier, "decisions/unbounded-carrier.json")
+    binding["authority"] = world.store.put(authority, "decisions/source-unbounded-carrier.json")
+    world.records[key]["authority"] = binding["authority"]
+    admit_run(world, key, valid_until="until-superseded")
+    with pytest.raises(v.EvidenceError):
+        world.check(key)
+
+
+def test_source_wrapper_cannot_make_a_production_policy_indefinite(world):
+    key = world.add("T007")
+    binding = world.trust["bindings"][key]
+    binding["decisions"] = ["C-08"]
+    live_scope = {**binding["scope"], "phase": "production"}
+    binding["decision_scopes"] = {"C-08": live_scope}
+    authority = v.decode(world.store.blob(binding["authority"]))
+    policy = v.decode(world.store.blob(world.decision("C-08", live_scope)))
+    policy["valid_until"] = "until-superseded"
+    authority["decisions"] = {"C-08": world.store.put(policy, "decisions/production-policy.json")}
+    binding["authority"] = world.store.put(authority, "decisions/wrapped-production-policy.json")
+    world.records[key]["authority"] = binding["authority"]
+    with pytest.raises(v.EvidenceError):
+        world.check(key)
+
+
+@pytest.mark.parametrize("kind", ["C-03", "C-08", "C-09", "C-10", "C-11", "C-12", "C-13"])
+def test_source_decision_scope_override_cannot_satisfy_a_live_gate(world, kind):
+    key = world.child("T058")
+    binding = world.trust["bindings"][key]
+    source_scope = {**binding["scope"], "phase": "source"}
+    binding["decision_scopes"] = {kind: source_scope}
+    ref = world.decision(kind, source_scope)
+    with pytest.raises(v.EvidenceError, match="phase"):
+        world.verifier().decision(ref, binding, kind)

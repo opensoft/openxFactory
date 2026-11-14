@@ -241,14 +241,19 @@ class Verifier:
     def read(self, ref):
         return decode(self.store.blob(reference(ref)))
 
-    def validity(self, decision, expected_scope, start=None, end=None, historical=False):
-        begin, expiry = timestamp(decision["valid_from"]), timestamp(decision["valid_until"])
-        require(begin < expiry, "invalid authority validity period")
+    def validity(self, decision, expected_scope, start=None, end=None, historical=False, source_lifetime=False):
+        """Source permissions may persist; execution channels remain time-bounded."""
+        begin = timestamp(decision["valid_from"])
+        expiry = (None if source_lifetime and expected_scope["phase"] == "source"
+                  and decision["valid_until"] == "until-superseded"
+                  else timestamp(decision["valid_until"]))
+        require(expiry is None or begin < expiry, "invalid authority validity period")
         identity = decision["id"]
         closure = self.trust.get("completed_authorities", {}).get(identity)
         revoked = identity in self.trust["revoked_authorities"]
         if historical:
-            require(start is not None and end is not None and begin <= start <= end < expiry,
+            require(start is not None and end is not None and begin <= start <= end
+                    and (expiry is None or end < expiry),
                     "authority cannot retroactively authorize effects")
             if closure is not None:
                 proof = self.read(closure)
@@ -260,17 +265,22 @@ class Verifier:
             require(not revoked or closure is not None, "revoked authority without completion closure")
         else:
             require(not revoked and closure is None, "revoked or closed authority")
-            require(begin <= self.now < expiry, "authority expired or not current")
+            require(begin <= self.now and (expiry is None or self.now < expiry), "authority expired or not current")
             if start is not None:
-                require(begin <= start <= end < expiry, "later authority cannot authorize an earlier run")
+                require(begin <= start <= end and (expiry is None or end < expiry),
+                        "later authority cannot authorize an earlier run")
+        return begin, expiry
 
-    def decision(self, ref, binding, kind, start=None, end=None, historical=False):
+    def decision(self, ref, binding, kind, start=None, end=None, historical=False, source_lifetime=False):
         decision = self.read(ref)
         require(decision["kind"] == kind and decision["decision"] == "accepted", "required decision is not accepted")
         expected_scope = binding.get("decision_scopes", {}).get(kind, binding["scope"])
         require(scope(decision["scope"]) == expected_scope, "required decision scope mismatch")
+        if (binding["scope"]["phase"] in ("staging", "production")
+                and kind in ("C-03", "C-08", "C-09", "C-10", "C-11", "C-12", "C-13")):
+            require(decision["scope"]["phase"] == binding["scope"]["phase"], "live decision phase mismatch")
         text(decision["owner"], "actual approving owner")
-        self.validity(decision, expected_scope, start, end, historical)
+        self.validity(decision, expected_scope, start, end, historical, source_lifetime)
         return decision
 
     def authority(self, ref, binding, start=None, end=None, resume=False, historical=False):
@@ -278,11 +288,12 @@ class Verifier:
         require(decision["decision"] == "accepted" and decision["scope"] == binding["scope"], "authority scope/status mismatch")
         text(decision["owner"], "actual decision owner")
         require(decision["roles"] == binding["roles"] and bool(decision["roles"]), "required named roles missing")
-        self.validity(decision, binding["scope"], start, end, historical)
         mode = decision["mode"]
         require(mode in ("source", "managed-pull", "managed-push", "customer"), "unknown authority channel")
         if binding["scope"]["phase"] in ("staging", "production"):
             require(mode != "source", "source authority cannot authorize live evidence")
+        source_lifetime = mode == "source" and binding["scope"]["phase"] == "source"
+        self.validity(decision, binding["scope"], start, end, historical, source_lifetime)
         if mode.startswith("managed-"):
             self.decision(decision["request"], binding, "request", start, end, historical)
             field = "grant" if mode == "managed-push" else "reviewed_merge"
@@ -294,7 +305,8 @@ class Verifier:
         if resume:
             require("C-13" in required, "fresh resume decision missing")
         for item in required:
-            self.decision(decision["decisions"][item], binding, item, start, end, historical)
+            self.decision(decision["decisions"][item], binding, item, start, end, historical,
+                          source_lifetime=binding["scope"]["phase"] == "source")
         return decision
 
     def evidence_authority(self, binding, record):
@@ -313,10 +325,11 @@ class Verifier:
             require(isinstance(roles, list) and roles and all(isinstance(role, str) and role.strip() for role in roles)
                     and len(roles) == len(set(roles)) and admission["roles"] == roles, "required admission roles missing")
             text(admission["owner"], "actual admitting owner")
-            self.validity(admission, binding["scope"])
+            begin, expiry = self.validity(admission, binding["scope"],
+                                          source_lifetime=binding["scope"]["phase"] == "source")
             reviewed = timestamp(admission["reviewed_at"])
-            require(end <= reviewed <= self.now and timestamp(admission["valid_from"]) <= reviewed
-                    < timestamp(admission["valid_until"]), "invalid evidence review time")
+            require(end <= reviewed <= self.now and begin <= reviewed and (expiry is None or reviewed < expiry),
+                    "invalid evidence review time")
             require(admission["authority"] == binding["authority"]
                     and admission["reviewed_output_sha256"] == reference(record["output"])["sha256"],
                     "admission is not for original authority/output")
