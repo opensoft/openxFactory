@@ -683,3 +683,16 @@ def test_manifest_cannot_substitute_fixed_component_owner(world):
     world.trust["repositories"]["L"] = "other/headscale"
     with pytest.raises(v.EvidenceError, match="canonical component owner"):
         world.verifier()
+
+
+def test_aggregate_permits_only_reviewed_inventory_metadata(world):
+    world.child("T057")
+    record = v.decode(world.aggregate("T057"))
+    record["pin_inventory"] = []
+    original = world.trust["aggregates"]["T057"]
+    world.trust["aggregates"]["T057"] = world.store.put(record, original["path"], original["repository"])
+    world.verifier().aggregate("T057", world.store.blob(world.trust["aggregates"]["T057"]))
+    record["caller_waiver"] = True
+    world.trust["aggregates"]["T057"] = world.store.put(record, original["path"], original["repository"])
+    with pytest.raises(v.EvidenceError, match="aggregate child"):
+        world.verifier().aggregate("T057", world.store.blob(world.trust["aggregates"]["T057"]))

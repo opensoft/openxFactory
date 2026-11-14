@@ -566,7 +566,8 @@ class Verifier:
         require(ref["path"] == prefix + task + ".json" and ref["repository"].lower() == self.trust["repositories"][owner].lower(), "aggregate outside accepted owner scope")
         require(data == self.store.blob(ref), "aggregate differs from reviewed immutable reference")
         expected = {instance: self.trust["bindings"][task + "@" + instance]["record"] for instance in instances}
-        require(record == {"schema": "043-instance-aggregate-v1", "task": task, "children": expected}, "missing/foreign/duplicate aggregate child")
+        body = {key: value for key, value in record.items() if key != "pin_inventory"}
+        require(body == {"schema": "043-instance-aggregate-v1", "task": task, "children": expected}, "missing/foreign/duplicate aggregate child")
         for instance in instances:
             self.verify(task + "@" + instance)
 
