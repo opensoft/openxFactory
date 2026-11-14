@@ -14,3 +14,5 @@ This is the governance/acceptance handoff. The sole executable implementation li
 
 - [ ] 2.1 Accept realization only through feature 043 T007–T010 after T006. Verify exact accepted source/test/CI scope, authenticated bootstrap import, required case/instance behavior, exact pin coverage and actual required-CI collection.
 - [ ] 2.2 Verify merged, green realization and current evidence before promotion/archive. Distinguish E source readiness from other owner commissioning, supported neutral publication, target effects and Q1–Q5 acceptance.
+
+T007 source checkpoint: the commissioned read-only verifier and 183 synthetic regressions are implemented. T008–T010 remain pending, so realization acceptance above stays open. No real bootstrap import, production manifest, pin registration, required feature CI collection or live-gate acceptance is claimed. PR #1310 remains draft.

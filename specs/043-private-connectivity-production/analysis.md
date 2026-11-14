@@ -193,3 +193,28 @@ The local structural/coverage/DAG/tier/link audit, strict governing-change and w
 No future verifier, owner runtime command, source suite, staging run, production canary, commercial admission or gate approval is claimed by this analysis. All runtime files, workflows, published contracts/pins and feature 040 evidence remain unchanged.
 
 The revised packet is ready for gated /speckit.implement. Begin with T001–T005 preparation and governance drafts; T006 requires actual named-owner E acceptance and consumed custody choices before helper implementation. Later work requires its own accepted scopes and decisions. No runtime deployment, paid resource, selected provider/domain, customer enrollment or automatic approval follows from this result.
+
+## T007 source implementation checkpoint
+
+T001–T007 are complete; T008–T068 remain pending. The read-only verifier binds the 68 task/case/dependency/file/verification definitions and all 16 reviewed inputs to the unchanged T006 acceptance-state freeze. Its operator supplies an independently reviewed immutable commissioning-manifest commit/path and SHA-256 through the custody channel. No default manifest or actual bootstrap import is created by T007, and a caller-written receipt cannot select commands, expected outcomes, dependencies or approval limits.
+
+The manifest freezes actual owner commands and subchecks, exact file scope, source/base revisions, original authenticated output, required CI collection, authorities, failed attempts and incidents. The verifier checks local immutable Git blobs and digests, owner origins/reachability, original bootstrap artifacts, current approvals and channel carriers, finite measurements and observation coverage. Source/CI and live classes stay distinct. Child/aggregate checks retain full Q2, scoped predecessors, independently eligible managed services and offer-before-wave admission. Reviewed exact scope transitions permit expansion; missing unrelated aggregates do not block a passed child. No owner command, provider, deployment or probe is executed.
+
+Five initial case/subcheck regressions failed because the scaffold did not reject omitted, duplicate or unknown observations. The completed source passes 183 regressions, including every frozen task/case, rejected classes/scopes/commands/outputs, actual Git-object and CLI read-only checks, authority/managed carriers, metric/gap limits, failed-attempt resume, incidents and instance/aggregate behavior. The source commit contains only T007's two accepted implementation/test paths; coordination updates follow separately so later bootstrap import can verify its exact source diff without a self-referential receipt commit.
+
+This is source validation only. T008 inventory, T009 shared registration and T010 explicit required feature CI remain pending. Custodian authentication of actual bootstrap outputs is still required at consumption. Partial Q0-E is accepted; full Q0 and Q1–Q5 have not passed. No production activation, customer enrollment, commercial admission or new resource spend occurs.
+
+### Production approval preparation preferences
+
+Brett requested the broader project be completed and deployed, with remaining approvals prepared for review. He selected these investigation/proposal inputs in this session:
+
+| Topic | Selected preparation direction |
+| --- | --- |
+| Provider/targets | Inspect the existing Opensoft Azure QA/production estate; verify exact subscription, regions, residency and available resources |
+| Domain | Inspect codeXfactory for a suitable real hosted workload; the historical lab profile alone is insufficient |
+| Local support | Propose a Linux Docker server with Windows, macOS and Linux clients; exact versions and distribution still require review |
+| Integrations | Reuse suitable existing Opensoft identity/entitlement, DNS/TLS/relay and evidence services; propose missing pieces and accountable owners |
+| Staging envelope | Existing QA capacity only; propose no new resource spend; retain two isolated synthetic boundaries and synthetic data |
+| Rollout | Internal Opensoft canary first, then one named customer per offering; concrete Q3/Q4/Q5 decisions remain separate |
+
+These preferences authorize investigation and preparation, not accepted C-01 runtime scopes, exact C-02 targets, C-03 execution, protected C-08 custody or Q1–Q5 admission. Prepare concrete owner proposals and numeric/candidate/target packets before requesting approval. Q2/Q4 result acceptance and failure-dependent C-13 decisions require actual evidence and cannot be supplied in advance.
