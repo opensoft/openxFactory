@@ -1,0 +1,8 @@
+schema: spec-driven
+created: 2026-11-14
+origin:
+  kind: ad_hoc
+  id: openXfactory:adhoc:2026-11-14-add-portable-bootstrap-authority
+  reason: Realize the accepted bootstrap boundary as a durable authenticated portable reference authority and isolated wallet flow.
+  approved_by: 'Brett Heap: Go ahead with the eight-hour goal: build the portable bootstrap authority and isolated wallet flow, test it, and open the candidate PRs. Keep setup and dispatch unauthorized, feedback deferred, and do not replay either blocked write. Candidate implementation commission only; source acceptance and live operation remain separate.'
+  approved_on: '2026-11-14'
