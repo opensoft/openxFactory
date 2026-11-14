@@ -230,6 +230,11 @@ rows:
   bump-openspec-cli-pin-to-1.12: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#847", moved_on: "2026-09-09"}
   clarify-avatar-revocation-client-enforced: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   clean-doc-health-floor: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  commission-connectivity-installer-production: {state: active, class: sole, declares: [qualify-private-connectivity-production, implement-private-connectivity-binding], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-14"}
+  commission-connectivity-operations-production: {state: active, class: sole, declares: [qualify-private-connectivity-production, establish-headscale-install-ownership], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-14"}
+  commission-headscale-production: {state: active, class: sole, declares: [qualify-private-connectivity-production, establish-headscale-install-ownership], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-14"}
+  commission-hosted-domain-production: {state: active, class: sole, declares: [qualify-private-connectivity-production, establish-openxsoft-hosted-connectivity], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-14"}
+  commission-hosted-headscale-production: {state: active, class: sole, declares: [qualify-private-connectivity-production, establish-openxsoft-hosted-connectivity], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-14"}
   commission-private-connectivity-production-evidence: {state: active, class: sole, declares: [qualify-private-connectivity-production, register-private-connectivity-evidence-pins], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-13"}
   concretize-prose-tagging-syntax: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   correct-naming-families-count: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#1275", moved_on: "2026-10-08"}

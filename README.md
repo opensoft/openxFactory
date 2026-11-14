@@ -556,6 +556,16 @@ Every DomainxFactory must validate against the canonical contract:
 
 ## OpenSpec Records
 
+- [commission-connectivity-operations-production](openspec/changes/commission-connectivity-operations-production/proposal.md) — draft in [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); [exact owner scope and source custody](openspec/changes/commission-connectivity-operations-production/design.md) await acceptance. No runtime or target authority is granted.
+
+- [commission-hosted-domain-production](openspec/changes/commission-hosted-domain-production/proposal.md) — draft in [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); [exact owner scope and source custody](openspec/changes/commission-hosted-domain-production/design.md) await acceptance. No runtime or target authority is granted.
+
+- [commission-hosted-headscale-production](openspec/changes/commission-hosted-headscale-production/proposal.md) — draft in [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); [exact owner scope and source custody](openspec/changes/commission-hosted-headscale-production/design.md) await acceptance. No runtime or target authority is granted.
+
+- [commission-connectivity-installer-production](openspec/changes/commission-connectivity-installer-production/proposal.md) — draft in [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); [exact owner scope and source custody](openspec/changes/commission-connectivity-installer-production/design.md) await acceptance. No runtime or target authority is granted.
+
+- [commission-headscale-production](openspec/changes/commission-headscale-production/proposal.md) — draft in [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); [exact owner scope and source custody](openspec/changes/commission-headscale-production/design.md) await acceptance. No runtime or target authority is granted.
+
 - [amend-private-connectivity-evidence-bootstrap](openspec/changes/amend-private-connectivity-evidence-bootstrap/proposal.md) — draft in [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); exact source-only commissioning records and T010 first-pin refinement await owner review.
   [Design and exact scope](openspec/changes/amend-private-connectivity-evidence-bootstrap/design.md) · [Bootstrap custody requirements](openspec/changes/amend-private-connectivity-evidence-bootstrap/specs/private-connectivity-evidence-bootstrap-custody/spec.md) · [Governance handoff](openspec/changes/amend-private-connectivity-evidence-bootstrap/tasks.md).
 
