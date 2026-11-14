@@ -220,6 +220,7 @@ rows:
   amend-neutral-product-pin-lockfile-first-line: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#933", moved_on: "2026-09-10"}
   amend-neutral-product-pin-source-tree-digest: {state: active, class: co-modifier, declares: [split-opendox-two-layer-product], depth: 1, prose: false, moved_by: "#1140", moved_on: "2026-09-22"}
   amend-owner-layer-severity: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  amend-private-connectivity-evidence-bootstrap: {state: active, class: sole, declares: [commission-private-connectivity-production-evidence], depth: 5, prose: false, moved_by: "#1310", moved_on: "2026-11-14"}
   amend-published-tip-unreadable-scenario: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#685", moved_on: "2026-09-05"}
   amend-register-act-5b-projection-proof: {state: active, class: sole, declares: [add-wallet-carried-review-authority, register-gate-rules-council-seats], depth: 2, prose: false, moved_by: "#960", moved_on: "2026-09-11"}
   amend-repo-boundary-governance-scope-first-line: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#958", moved_on: "2026-09-11"}
@@ -230,6 +231,12 @@ rows:
   bump-openspec-cli-pin-to-1.12: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#847", moved_on: "2026-09-09"}
   clarify-avatar-revocation-client-enforced: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   clean-doc-health-floor: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  commission-connectivity-installer-production: {state: active, class: sole, declares: [qualify-private-connectivity-production, implement-private-connectivity-binding], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-14"}
+  commission-connectivity-operations-production: {state: active, class: sole, declares: [qualify-private-connectivity-production, establish-headscale-install-ownership], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-14"}
+  commission-headscale-production: {state: active, class: sole, declares: [qualify-private-connectivity-production, establish-headscale-install-ownership], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-14"}
+  commission-hosted-domain-production: {state: active, class: sole, declares: [qualify-private-connectivity-production, establish-openxsoft-hosted-connectivity], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-14"}
+  commission-hosted-headscale-production: {state: active, class: sole, declares: [qualify-private-connectivity-production, establish-openxsoft-hosted-connectivity], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-14"}
+  commission-private-connectivity-production-evidence: {state: active, class: sole, declares: [qualify-private-connectivity-production, register-private-connectivity-evidence-pins], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-13"}
   concretize-prose-tagging-syntax: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   correct-naming-families-count: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#1275", moved_on: "2026-10-08"}
   create-ledgerxwallet-overlay-boundary: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -285,6 +292,7 @@ rows:
   promote-credential-contracts: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   promote-workflow-gate-contract: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   publish-openspec-cli-pin-as-contract-member: {state: archived, class: co-modifier, declares: [add-openspec-cli-pin], depth: 1, prose: false, moved_by: "#870", moved_on: "2026-09-09"}
+  publish-private-connectivity-production-contract: {state: active, class: sole, declares: [qualify-private-connectivity-production, implement-private-connectivity-binding], depth: 4, prose: false, moved_by: "#1310", moved_on: "2026-11-13"}
   publish-semantic-kernel: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   qualify-avatar-brokered-call-feasibility: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   qualify-avatar-live-voice: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}

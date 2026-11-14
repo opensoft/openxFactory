@@ -953,3 +953,54 @@ jobs:
           [ "$FRESHNESS" = "passed" ] || { echo "::error::snapshot freshness verifier did not run — pinned core checkout unavailable or test removed ($FRESHNESS_CLASSNAME::$FRESHNESS_TESTNAME is '$FRESHNESS' in pytest-report.xml, wanted 'passed'). contracts/review-lane-floor-snapshot.yaml was NOT compared byte for byte against the pinned decision core on this run, so a stale copy could assert coverage the real floor does not give. Fix the cross-repository checkout (see the 'Check out the pinned decision core' step's warning above for its outcome); if the test was deliberately renamed or moved, move FRESHNESS_CLASSNAME/FRESHNESS_TESTNAME with it in the same diff. Do not delete this assertion — the skipped-count pin CANNOT cover for it, which is the Codex P2 finding on PR #569"; rc=1; }
           [ "$VECTOR_REPLAY" = "passed" ] || { echo "::error::vector replay did not run — pinned core checkout unavailable or test removed ($VECTOR_REPLAY_CLASSNAME::$VECTOR_REPLAY_TESTNAME is '$VECTOR_REPLAY' in pytest-report.xml, wanted 'passed'). The required lane's mirrored completeness rule (mirror-floor-addition-grace) was NOT falsified against the pinned core's own vectors on this run, so a divergence between the two floor lanes could go undetected. Fix the cross-repository checkout (see the 'Check out the pinned decision core' step's warning above for its outcome); if the test was deliberately renamed or moved, move VECTOR_REPLAY_CLASSNAME/VECTOR_REPLAY_TESTNAME with it in the same diff. Do not delete this assertion — the skipped-count pin CANNOT cover for it, the same Codex P2 finding on PR #569 applied a second time"; rc=1; }
           exit $rc
+
+
+      # T010's source suites are outside tests/. Keep the existing root gate
+      # and its pins intact, then run these two suites at the actual PR head.
+      # The sibling worktree keeps the merge checkout and its HEAD unchanged.
+      - name: Run private-connectivity production source suites (043)
+        shell: bash
+        env:
+          PC043_EXPECTED_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          original_tree="$(pwd)"
+          feature_tree="$GITHUB_WORKSPACE/private-connectivity-043-source"
+          git -c core.hooksPath=/dev/null worktree add --detach "$feature_tree" "$PC043_EXPECTED_REVISION"
+          cd "$feature_tree"
+          [ "$(git rev-parse HEAD)" = "$PC043_EXPECTED_REVISION" ]
+          echo "043 tested source: $(git rev-parse HEAD)"
+          python3 -m pytest -q \
+            specs/043-private-connectivity-production/tests/test_evidence.py \
+            specs/043-private-connectivity-production/tests/test_evidence_pins.py \
+            --junitxml="$RUNNER_TEMP/private-connectivity-043-source.xml"
+          [ "$(git rev-parse HEAD)" = "$PC043_EXPECTED_REVISION" ]
+          python3 - <<'PY'
+          from collections import Counter
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          expected = {
+              "specs.043-private-connectivity-production.tests.test_evidence": 283,
+              "specs.043-private-connectivity-production.tests.test_evidence_pins": 40,
+          }
+          report = ET.parse(Path(os.environ["RUNNER_TEMP"]) / "private-connectivity-043-source.xml").getroot()
+          cases = list(report.iter("testcase"))
+          actual = Counter(case.get("classname") for case in cases)
+          if dict(actual) != expected:
+              raise SystemExit(f"043 source suite collection mismatch: {dict(actual)!r}; expected {expected!r}")
+          identities = [(case.get("classname"), case.get("name")) for case in cases]
+          if len(identities) != len(set(identities)):
+              raise SystemExit("043 source report contains duplicate test identities")
+          for suite in report.iter("testsuite"):
+              if any(int(suite.get(field, 0)) != 0 for field in ("failures", "errors", "skipped")):
+                  raise SystemExit("043 source suites must pass without failures, errors or skips")
+          if any(child.tag in ("failure", "error", "skipped") for case in cases for child in case):
+              raise SystemExit("043 source testcase did not run and pass")
+          for name, count in sorted(actual.items()):
+              print(f"043 source suite {name}: collected={count} passed={count} skipped=0 failures=0 errors=0")
+          PY
+          [ -z "$(git status --porcelain)" ]
+          cd "$original_tree"
+          git worktree remove "$feature_tree"

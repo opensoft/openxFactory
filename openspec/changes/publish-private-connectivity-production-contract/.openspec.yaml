@@ -1,0 +1,14 @@
+schema: spec-driven
+created: 2026-11-13
+origin:
+  kind: ad_hoc
+  id: openXfactory:adhoc:2026-11-13-publish-private-connectivity-production-contract
+  reason: Draft the neutral supported publication scope required by feature 043 T004, with separate acceptance at T016.
+  proposed_by: Codex at Brett Heap's explicit request
+  proposed_on: '2026-11-13'
+  approved_by: Brett Heap in session; see review/ratification.md
+  approved_on: '2026-11-14'
+related:
+  - openXfactory:change:qualify-private-connectivity-production
+  - openXfactory:change:implement-private-connectivity-binding
+  - openXfactory:pr:1310

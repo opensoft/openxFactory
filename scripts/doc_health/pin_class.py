@@ -436,7 +436,58 @@ class NonMember:
 # THE MEMBERS. Seeded from the realization's own measurement over committed
 # state at `origin/main` — see the module docstring on why the packet's table is
 # not the seed. Ordered by the capability that owns each artifact.
+_PC043_EVIDENCE_PATHS = tuple(
+    "specs/043-private-connectivity-production/evidence/" + task + ".json"
+    for task in ("T010", "T011", "T012", "T013", "T014", "T015", "T016",
+                 "T017", "T018", "T019", "T027", "T042", "T049", "T051",
+                 "T056", "T057", "T061", "T062", "T064", "T065", "T066", "T067", "T068")
+) + tuple("specs/043-private-connectivity-production/evidence/instances/" + task + "/*.json"
+          for task in ("T057", "T061", "T062", "T064"))
+_PC043_EVIDENCE_PATHS += ("specs/043-private-connectivity-production/evidence/commissioning.json",)
+
+
 PIN_CLASS: tuple[PinMember, ...] = (
+    # Original Git references remain verbatim in the source container and
+    # receipts. The inventory does not exempt their commit/revision fields
+    # from the vocabulary sweep. Per-reference repository ownership decides
+    # locality; missing ownership falls back to repo-local MUST_RESOLVE.
+    *(PinMember(
+        id="private-connectivity-production-original-" + key,
+        paths=_PC043_EVIDENCE_PATHS, key=key, key_form="field",
+        generator="feature 043 authenticated original source/CI exports",
+        reproduction=MEASURED, locality=REPO_LOCAL, presence=CURRENT,
+        locality_from=("repository",), key_expected=False,
+        note="Original immutable 043 source/output/control references. Local "
+             "pins owe resolution; explicit foreign proof remains separately "
+             "verified against its actual owner by the feature inventory.",
+    ) for key in ("commit", "revision", "source_revision")),
+    # Feature 043's closed coordinator receipt set. Component-owned tasks keep
+    # their receipts in the owner's tree. No bootstrap receipts or directory
+    # exclusion are introduced. T010's first actual source export populates
+    # local references; CURRENT measures presence, independently of the pending
+    # custodian authentication. The empty foreign member remains FUTURE.
+    PinMember(
+        id="private-connectivity-production-local-evidence",
+        paths=_PC043_EVIDENCE_PATHS,
+        key="openxfactory_commit", key_form="field",
+        generator="feature 043 register-evidence-pins.py",
+        reproduction=MEASURED, locality=REPO_LOCAL, presence=CURRENT,
+        key_expected=False,
+        note="Exact owner-resolved source/authority inventory for closed 043 "
+             "coordinator receipts and scoped children. Local commits still "
+             "owe reachability; future instance files require exact C-01 scope.",
+    ),
+    PinMember(
+        id="private-connectivity-production-foreign-evidence",
+        paths=_PC043_EVIDENCE_PATHS,
+        key="foreign_commit", key_form="field",
+        generator="feature 043 register-evidence-pins.py",
+        reproduction=MEASURED, locality=CROSS_REPOSITORY, presence=FUTURE,
+        key_expected=False,
+        note="Exact 043 foreign-source inventory. Each entry names its canonical "
+             "owner; the feature checker requires that owner's verified checkout "
+             "and reachable commit. Unavailable foreign proof is never a pass.",
+    ),
     # Feature 040 carries mixed-owner gate and source references. Its generated
     # inventory declares every commit token in each record by repository;
     # local derivation pins retain the same MUST_RESOLVE obligation.

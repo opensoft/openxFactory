@@ -76,6 +76,17 @@ Core domain-neutral docs:
 
 - [Private connectivity binding candidate](contracts/private-connectivity/README.md)
 - [Private connectivity: Speckit feature 040](specs/040-private-connectivity/spec.md). [Implementation plan](specs/040-private-connectivity/plan.md) · [Pilot rollout](specs/040-private-connectivity/quickstart.md)
+- [Private connectivity production qualification: Speckit feature 043](specs/043-private-connectivity-production/spec.md).
+  [Local Headscale](specs/043-private-connectivity-production/local-headscale.md) · [Standalone Hosted Headscale](specs/043-private-connectivity-production/standalone-hosted-headscale.md) · [Hosted DomainxFactories](specs/043-private-connectivity-production/hosted-domainxfactories.md).
+  [Owner scopes](specs/043-private-connectivity-production/owner-scopes.md) · [Q0 commissioning decisions](specs/043-private-connectivity-production/commissioning.md) · [Q0–Q5 gates](specs/043-private-connectivity-production/rollout-gates.md).
+  [Policy coverage](specs/043-private-connectivity-production/policy-coverage.md) · [Specification quality](specs/043-private-connectivity-production/checklists/requirements.md).
+  [Implementation plan](specs/043-private-connectivity-production/plan.md) · [Research](specs/043-private-connectivity-production/research.md) · [Logical data model](specs/043-private-connectivity-production/data-model.md).
+  [Validation matrix](specs/043-private-connectivity-production/validation-matrix.md) · [Planning quickstart](specs/043-private-connectivity-production/quickstart.md).
+  [Single implementation task list](specs/043-private-connectivity-production/tasks.md) · [Task evidence/owner binding](specs/043-private-connectivity-production/contracts/task-evidence.md).
+  [Speckit analysis and remediation](specs/043-private-connectivity-production/analysis.md).
+  [Historical lab baseline](specs/043-private-connectivity-production/evidence/baseline.json) — historical only; no production authority.
+  Planned interfaces: [Owner handoff](specs/043-private-connectivity-production/contracts/owner-handoff.md) · [Product interfaces](specs/043-private-connectivity-production/contracts/product-interfaces.md) · [Qualification evidence](specs/043-private-connectivity-production/contracts/qualification-evidence.md).
+
 - [Factory MCP Family — Brainstorm](ideation/brainstorm/factory-mcp-overview.md)
   (shared conformance, domain ownership and a proposed DNS evaluation boundary)
 - [Factory MCP Conformance — Promoted Specification](openspec/specs/factory-mcp-conformance/spec.md)
@@ -544,6 +555,26 @@ Every DomainxFactory must validate against the canonical contract:
   and [contracts/CHANGELOG.md](contracts/CHANGELOG.md).
 
 ## OpenSpec Records
+
+- [commission-connectivity-operations-production](openspec/changes/commission-connectivity-operations-production/proposal.md) — ratified 2026-11-14 by Brett Heap in draft [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); [accepted source scope and custody](openspec/changes/commission-connectivity-operations-production/review/ratification.md). Implementation awaits dependencies, consumed choices and reviewed freeze; Q0-Q5 remain pending.
+
+- [commission-hosted-domain-production](openspec/changes/commission-hosted-domain-production/proposal.md) — ratified 2026-11-14 by Brett Heap in draft [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); [accepted source scope and custody](openspec/changes/commission-hosted-domain-production/review/ratification.md). Implementation awaits dependencies, consumed choices and reviewed freeze; Q0-Q5 remain pending.
+
+- [commission-hosted-headscale-production](openspec/changes/commission-hosted-headscale-production/proposal.md) — ratified 2026-11-14 by Brett Heap in draft [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); [accepted source scope and custody](openspec/changes/commission-hosted-headscale-production/review/ratification.md). Implementation awaits dependencies, consumed choices and reviewed freeze; Q0-Q5 remain pending.
+
+- [commission-connectivity-installer-production](openspec/changes/commission-connectivity-installer-production/proposal.md) — ratified 2026-11-14 by Brett Heap in draft [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); [accepted source scope and custody](openspec/changes/commission-connectivity-installer-production/review/ratification.md). Implementation awaits dependencies, consumed choices and reviewed freeze; Q0-Q5 remain pending.
+
+- [commission-headscale-production](openspec/changes/commission-headscale-production/proposal.md) — ratified 2026-11-14 by Brett Heap in draft [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); [accepted source scope and custody](openspec/changes/commission-headscale-production/review/ratification.md). Implementation awaits dependencies, consumed choices and reviewed freeze; Q0-Q5 remain pending.
+
+- [amend-private-connectivity-evidence-bootstrap](openspec/changes/amend-private-connectivity-evidence-bootstrap/proposal.md) — ratified 2026-11-14 by Brett Heap in draft [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); [accepted exact source scope](openspec/changes/amend-private-connectivity-evidence-bootstrap/review/ratification.md). Implementation/evidence and Q0-Q5 gates remain.
+  [Design and exact scope](openspec/changes/amend-private-connectivity-evidence-bootstrap/design.md) · [Bootstrap custody requirements](openspec/changes/amend-private-connectivity-evidence-bootstrap/specs/private-connectivity-evidence-bootstrap-custody/spec.md) · [Governance handoff](openspec/changes/amend-private-connectivity-evidence-bootstrap/tasks.md).
+
+- [publish-private-connectivity-production-contract](openspec/changes/publish-private-connectivity-production-contract/proposal.md) — ratified 2026-11-14 by Brett Heap in draft [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); [accepted exact source scope](openspec/changes/publish-private-connectivity-production-contract/review/ratification.md). Implementation/evidence and Q0-Q5 gates remain.
+  [Design and exact scope](openspec/changes/publish-private-connectivity-production-contract/design.md) · [Publication requirements](openspec/changes/publish-private-connectivity-production-contract/specs/private-connectivity-contract-publication/spec.md) · [Governance handoff](openspec/changes/publish-private-connectivity-production-contract/tasks.md).
+
+- [commission-private-connectivity-production-evidence](openspec/changes/commission-private-connectivity-production-evidence/proposal.md) — ratified 2026-11-13 in draft [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); T006 complete for exact E scope and source-only C-08 custody.
+  [Design and exact scope](openspec/changes/commission-private-connectivity-production-evidence/design.md) · [Evidence requirements](openspec/changes/commission-private-connectivity-production-evidence/specs/private-connectivity-production-evidence/spec.md) · [Governance handoff](openspec/changes/commission-private-connectivity-production-evidence/tasks.md).
+  [Owner scope approval and accepted custody settings](openspec/changes/commission-private-connectivity-production-evidence/review/owner-scope-approval-and-custody.md) · [Ratification record](openspec/changes/commission-private-connectivity-production-evidence/review/ratification.md).
 
 - [add-workload-factory-binding](openspec/changes/add-workload-factory-binding/proposal.md)
   - source acceptance ratified by Brett Heap on 2026-11-11 at factory

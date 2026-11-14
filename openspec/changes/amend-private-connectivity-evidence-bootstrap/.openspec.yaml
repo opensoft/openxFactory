@@ -1,0 +1,15 @@
+schema: spec-driven
+created: 2026-11-14
+origin:
+  kind: ad_hoc
+  id: openXfactory:adhoc:2026-11-14-amend-private-connectivity-evidence-bootstrap
+  reason: Prepare the exact source-only commissioning and first-record scope repair
+    needed to complete feature 043 T010 under the requested production project goal.
+  proposed_by: Codex at Brett Heap's request
+  proposed_on: '2026-11-14'
+  approved_by: Brett Heap in session; see review/ratification.md
+  approved_on: '2026-11-14'
+related:
+- openXfactory:change:commission-private-connectivity-production-evidence
+- openXfactory:change:qualify-private-connectivity-production
+- openXfactory:pr:1310

@@ -1,0 +1,15 @@
+schema: spec-driven
+created: 2026-11-14
+origin:
+  kind: ad_hoc
+  id: openXfactory:adhoc:2026-11-14-commission-connectivity-operations-production
+  reason: Prepare the exact owner scope and consumed production choices for feature
+    043 under Brett Heap's request to complete and deploy the project and request
+    needed approvals now.
+  proposed_by: Codex at Brett Heap's request
+  proposed_on: '2026-11-14'
+  approved_by: Brett Heap in session; see review/ratification.md
+  approved_on: '2026-11-14'
+related:
+- openXfactory:change:qualify-private-connectivity-production
+- openXfactory:pr:1310

@@ -1,0 +1,14 @@
+schema: spec-driven
+created: 2026-11-13
+origin:
+  kind: ad_hoc
+  id: openXfactory:adhoc:2026-11-13-commission-private-connectivity-production-evidence
+  reason: Draft the coordinator evidence scope required by feature 043 T003 before owner acceptance at T006.
+  proposed_by: Codex at Brett Heap's explicit request
+  proposed_on: '2026-11-13'
+  approved_by: Brett Heap in session; see review/ratification.md
+  approved_on: '2026-11-13'
+related:
+  - openXfactory:change:qualify-private-connectivity-production
+  - openXfactory:change:register-private-connectivity-evidence-pins
+  - openXfactory:pr:1310
