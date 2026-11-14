@@ -214,7 +214,13 @@ def source_container_world():
             authority["decisions"][kind] = contain(task + "-" + kind, task, v.decode(world.store.blob(ref)))
         binding["authority"] = contain(task + "-authority", task, authority)
         record["authority"] = binding["authority"]
-        record["output"] = contain(task + "-output", task, world.outputs[task])
+        output = deepcopy(world.outputs[task])
+        raw = "SYNTHETIC original command output\n"
+        output["original"] = dict(command=binding["command"], repository=binding["source"]["repository"],
+            source_revision=binding["source"]["revision"], started_at=output["started_at"], ended_at=output["ended_at"],
+            exit_code=output["exit_code"], stdout=raw, original_sha256=v.digest(raw.encode()),
+            export_sha256=v.digest(raw.encode()), redaction_method="none")
+        record["output"] = contain(task + "-output", task, output)
         record["dependencies"] = {dep: world.ref(selected) for dep, selected in binding["dependencies"].items()}
         if int(task[1:]) < 10:
             binding["record"] = contain(task + "-import", task, record)
@@ -320,6 +326,30 @@ def test_contained_object_cannot_be_borrowed_by_different_task_or_live_scope():
             reader.read({"object": "T007-output"}, altered)
     with pytest.raises(v.EvidenceError, match="outside E source"):
         reader.read({"object": "T007-output"})
+
+
+@pytest.mark.parametrize("mutation", ["missing", "command", "source", "time", "exit", "export", "raw-digest", "redaction"])
+def test_container_import_requires_original_provenance(mutation):
+    world = source_container_world()
+    output = world.trust["source_container"]["objects"]["T007-output"]["value"]
+    original = output["original"]
+    if mutation == "missing": del output["original"]
+    if mutation == "command": original["command"] = "echo pass"
+    if mutation == "source": original["source_revision"] = "f" * 40
+    if mutation == "time": original["started_at"] = "2029-01-01T00:00:00Z"
+    if mutation == "exit": original["exit_code"] = False
+    if mutation == "export": original["stdout"] = "substituted"
+    if mutation == "raw-digest": original["original_sha256"] = "0" * 64
+    if mutation == "redaction": original["redaction_method"] = ""
+    with pytest.raises((v.EvidenceError, KeyError)):
+        v.Verifier(TASKS, world.store, source_anchor(world), now=NOW).verify("T007")
+
+
+def test_redacted_original_retains_raw_digest_and_actual_method():
+    world = source_container_world()
+    original = world.trust["source_container"]["objects"]["T007-output"]["value"]["original"]
+    original.update(original_sha256="0" * 64, redaction_method="SYNTHETIC fixture: replaced machine path with placeholder")
+    v.Verifier(TASKS, world.store, source_anchor(world), now=NOW).verify("T007")
 
 
 @pytest.mark.parametrize("field,value", [

@@ -410,6 +410,22 @@ class Verifier:
         require(start <= end <= self.now, "invalid/future actual run")
         if self.objects and binding["task"] in {f"T{i:03}" for i in range(1, 11)}:
             require(self.authenticated and end <= self.authenticated_at, "output not authenticated after actual run")
+            original = output["original"]
+            require(isinstance(original, dict) and set(original) == {
+                "command", "repository", "source_revision", "started_at", "ended_at", "exit_code",
+                "stdout", "original_sha256", "export_sha256", "redaction_method"}, "original command/output provenance required")
+            require(original["command"] == binding["command"] and original["repository"].lower() == binding["source"]["repository"].lower()
+                    and original["source_revision"] == binding["source"]["revision"], "original command/source identity mismatch")
+            require(original["started_at"] == output["started_at"] and original["ended_at"] == output["ended_at"]
+                    and type(original["exit_code"]) is int and original["exit_code"] == output["exit_code"],
+                    "original timing/exit identity mismatch")
+            require(isinstance(original["stdout"], str) and original["export_sha256"] == digest(original["stdout"].encode()),
+                    "original output export digest mismatch")
+            require(isinstance(original["original_sha256"], str) and re.fullmatch(r"[0-9a-f]{64}", original["original_sha256"]),
+                    "original raw output digest required")
+            text(original["redaction_method"], "actual redaction method")
+            if original["redaction_method"] == "none":
+                require(original["original_sha256"] == original["export_sha256"], "unredacted original output digest mismatch")
         historical = binding.get("admission") is not None
         if historical:
             admission = self.read(binding["admission"], binding)
