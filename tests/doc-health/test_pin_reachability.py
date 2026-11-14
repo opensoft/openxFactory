@@ -2653,6 +2653,7 @@ def test_production_commissioning_original_nested_refs_keep_coverage_and_localit
         "source_container": {"objects": {
             "original": {"tasks": ["T007"], "evidence_class": "source", "value": {
                 "source": {"repository": "opensoft/openXfactory", "revision": old, "base": old},
+                "original": {"repository": "opensoft/openXfactory", "source_revision": old},
                 "artifact": {"repository": "opensoft/openXfactory", "commit": orphan},
                 "foreign": {"repository": "opensoft/Headscale-Install", "commit": "f" * 40},
             }},
@@ -2666,7 +2667,7 @@ def test_production_commissioning_original_nested_refs_keep_coverage_and_localit
     _write(repo, path, json.dumps(value, indent=2))
     _commit(repo, "synthetic original source container")
     sites = pc.member_sites(repo, "HEAD", paths=[path])
-    assert len(sites) == 6
+    assert len(sites) == 7
     assert not pc.uncovered_sites(repo, "HEAD", paths=[path])
     assert sum(site.locality == pc.CROSS_REPOSITORY for site in sites) == 2
     report = _verify(repo)

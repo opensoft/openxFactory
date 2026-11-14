@@ -1209,6 +1209,7 @@ def test_production_connectivity_registration_does_not_invent_a_current_populati
     assert {member.id for member in members} == {
         "private-connectivity-production-original-commit",
         "private-connectivity-production-original-revision",
+        "private-connectivity-production-original-source_revision",
         "private-connectivity-production-local-evidence",
         "private-connectivity-production-foreign-evidence",
     }

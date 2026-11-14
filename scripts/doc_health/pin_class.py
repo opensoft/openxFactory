@@ -460,7 +460,7 @@ PIN_CLASS: tuple[PinMember, ...] = (
         note="Original immutable 043 source/output/control references. Local "
              "pins owe resolution; explicit foreign proof remains separately "
              "verified against its actual owner by the feature inventory.",
-    ) for key in ("commit", "revision")),
+    ) for key in ("commit", "revision", "source_revision")),
     # Feature 043's closed coordinator receipt set. Component-owned tasks keep
     # their receipts in the owner's tree. No bootstrap receipts or directory
     # exclusion are introduced. FUTURE is deliberate until T010's first actual
