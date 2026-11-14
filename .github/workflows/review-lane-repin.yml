@@ -162,7 +162,7 @@ jobs:
       pull-requests: write
 
     env:
-      SOURCE_REPOSITORY: codeXfactory/codexFactory
+      SOURCE_REPOSITORY: codeXfactory/codeXfactory
       # THE DECLARED CANDIDATE LIST — ONE ENTRY AGAIN, FIRST-OBTAINED-WINS.
       # M-1 STEP (3) of `relocate-review-authority-floor-mirror` (ratified
       # 2026-09-08, PR #817): THE MIGRATION WINDOW IS CLOSED. Step (1) opened it
@@ -280,7 +280,7 @@ jobs:
           app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
           private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
           owner: codeXfactory
-          repositories: codexFactory
+          repositories: codeXfactory
           permission-contents: read
 
       # `permission-workflows: write` IS REQUIRED, and run 34033398015
@@ -305,7 +305,7 @@ jobs:
           app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
           private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
-          repositories: openxFactory
+          repositories: openXfactory
           permission-contents: write
           permission-pull-requests: write
           permission-workflows: write
@@ -636,7 +636,7 @@ jobs:
         if: steps.repin.outputs.action == 'advance'
         uses: actions/checkout@v4
         with:
-          repository: codeXfactory/codexFactory
+          repository: codeXfactory/codeXfactory
           ref: ${{ steps.source.outputs.sha }}
           path: .merge-master-core
           persist-credentials: false

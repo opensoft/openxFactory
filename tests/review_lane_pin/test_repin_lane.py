@@ -2029,7 +2029,7 @@ class TheBotIsJudgedWithNoExemption(unittest.TestCase):
 
         core = next(step for step in steps
                     if "candidate core" in step.get("name", ""))
-        self.assertEqual("codeXfactory/codexFactory", core["with"]["repository"])
+        self.assertEqual("codeXfactory/codeXfactory", core["with"]["repository"])
         self.assertEqual("${{ steps.source.outputs.sha }}", core["with"]["ref"])
         self.assertFalse(core["with"]["persist-credentials"])
 
@@ -2387,9 +2387,9 @@ class TheLaneRunsUnderADeclaredBinding(unittest.TestCase):
             scoped = [line.strip() for line in str(mint["with"]["repositories"]).split()
                       if line.strip()]
             self.assertEqual(1, len(scoped), mint.get("name"))
-            minted.extend(scoped)
+            minted.extend(name.casefold() for name in scoped)
         declared = {
-            self.binding["privileges"][key]["repository"].split("/", 1)[1]
+            self.binding["privileges"][key]["repository"].split("/", 1)[1].casefold()
             for key in ("source_repository", "floored_repository")}
         self.assertEqual(declared, set(minted))
         self.assertEqual(len(minted), len(set(minted)))
@@ -2404,11 +2404,11 @@ class TheLaneRunsUnderADeclaredBinding(unittest.TestCase):
         realization had), so an empty request set is a failure here too.
         """
         by_repo = {
-            self.binding["privileges"][key]["repository"].split("/", 1)[1]:
+            self.binding["privileges"][key]["repository"].split("/", 1)[1].casefold():
                 sorted(self.binding["privileges"][key]["grants"])
             for key in ("source_repository", "floored_repository")}
         for mint in self._mints():
-            repo = str(mint["with"]["repositories"]).strip()
+            repo = str(mint["with"]["repositories"]).strip().casefold()
             requested = self._requested_grants(mint)
             self.assertTrue(requested, f"{mint.get('name')} requests no permission")
             self.assertEqual(by_repo[repo], requested, mint.get("name"))
@@ -2432,7 +2432,7 @@ class TheLaneRunsUnderADeclaredBinding(unittest.TestCase):
         self.assertTrue(set(job_grants) <= set(floored), (job_grants, floored))
 
         authoring = next(m for m in self._mints()
-                         if str(m["with"]["repositories"]).strip() == "openxFactory")
+                         if str(m["with"]["repositories"]).strip() == "openXfactory")
         self.assertEqual(floored, self._requested_grants(authoring))
 
     @staticmethod
@@ -2456,7 +2456,7 @@ class TheLaneRunsUnderADeclaredBinding(unittest.TestCase):
 
     def _authoring_mint(self) -> dict:
         return next(m for m in self._mints()
-                    if str(m["with"]["repositories"]).strip() == "openxFactory")
+                    if str(m["with"]["repositories"]).strip() == "openXfactory")
 
     def test_workflow_file_sites_require_the_workflows_grant(self) -> None:
         """MEASURED from the site list, not asserted — see

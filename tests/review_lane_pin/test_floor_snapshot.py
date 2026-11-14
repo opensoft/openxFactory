@@ -359,7 +359,7 @@ def pinned_core_checkout_step(document: dict) -> dict:
     for job in (document.get("jobs") or {}).values():
         for step in (job or {}).get("steps") or []:
             with_block = (step or {}).get("with") or {}
-            if with_block.get("repository") == PINNED_REPOSITORY:
+            if str(with_block.get("repository", "")).casefold() == PINNED_REPOSITORY.casefold():
                 found.append(step)
     if len(found) != 1:
         raise AssertionError(

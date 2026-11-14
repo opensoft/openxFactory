@@ -1237,6 +1237,31 @@ def former_address_rows(inventory: Inventory,
 _PIN_REPOSITORY_FIELDS = ("repository", "source_repository")
 
 
+# Verified same-owner repository-name casing changes from the authorized
+# factory maintenance. These are structural EVIDENCE spellings only.
+# Inventory resolution and the transfer map remain case-sensitive and exact;
+# no owner-case spelling, arbitrary case fold or provider redirect is admitted.
+_EVIDENCE_RENAME_LOCATORS = {
+    "opensoft/openxFactory": "opensoft/openXfactory",
+    "codeXfactory/codexFactory": "codeXfactory/codeXfactory",
+    "MedxSoft/MedxFactory": "MedxSoft/medXfactory",
+    "ledgerXfactory/LedgerxFactory": "ledgerXfactory/ledgerXfactory",
+    "opensoft/AdxFactory": "opensoft/adXfactory",
+    "opensoft/OpsxFactory": "opensoft/opsXfactory",
+    "opensoft/OpsxFactory-Gateway-Install": "opensoft/opsXfactory-Gateway-Install",
+    "opensoft/xFactory-CodexFactory-MCP-Install":
+        "opensoft/xFactory-codeXfactory-MCP-Install",
+}
+
+
+def same_evidence_repository(left: object, right: object) -> bool:
+    """Only the approved locator pairs prove the same recorded repository."""
+    if not isinstance(left, str) or not isinstance(right, str):
+        return False
+    return (_EVIDENCE_RENAME_LOCATORS.get(left, left)
+            == _EVIDENCE_RENAME_LOCATORS.get(right, right))
+
+
 def _pin_names_repository(document: object, repository: str) -> bool:
     """Whether a PARSED pin document's own structural field names `repository`.
 
@@ -1310,7 +1335,7 @@ def _workflow_names_repository(document: object, repository: str) -> bool:
         if not isinstance(job, dict):
             continue
         job_uses = job.get("uses")
-        if isinstance(job_uses, str) and _uses_repository(job_uses) == repository:
+        if isinstance(job_uses, str) and same_evidence_repository(_uses_repository(job_uses), repository):
             return True
         steps = job.get("steps")
         if not isinstance(steps, list):
@@ -1319,11 +1344,11 @@ def _workflow_names_repository(document: object, repository: str) -> bool:
             if not isinstance(step, dict):
                 continue
             uses = step.get("uses")
-            if isinstance(uses, str) and _uses_repository(uses) == repository:
+            if isinstance(uses, str) and same_evidence_repository(_uses_repository(uses), repository):
                 return True
             with_block = step.get("with")
             if isinstance(with_block, dict) \
-                    and with_block.get("repository") == repository:
+                    and same_evidence_repository(with_block.get("repository"), repository):
                 return True
     return False
 
@@ -1731,7 +1756,7 @@ def carrier_identity(tree: Path, carrier: str,
                    "and a subdirectory of a checkout are both refused here), "
                    "has no `origin` remote, or spells its remote in a form "
                    "this estate does not write")
-    if observed == carrier:
+    if same_evidence_repository(observed, carrier):
         return CarrierCheck(
             verified=True, carrier=carrier, observed=observed,
             detail=f"`{tree}` is a checkout of {carrier} by its own origin URL")
