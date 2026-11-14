@@ -143,7 +143,7 @@ Task/registry changes after approval require reviewed scope/contract updates and
 
 ## T005 review freeze
 
-The reviewed definitions were approved at T006 on 2026-11-13 in draft PR #1310. This acceptance-state freeze records the supplied E/source-only C-08 decisions while preserving all 68 task and registry definitions. The ratification record retains the prior reviewed definition digest and source identity. T006 and T007 are complete; T008 onward and full program Q0 remain pending.
+The reviewed definitions were approved at T006 on 2026-11-13 in draft PR #1310. This acceptance-state freeze records the supplied E/source-only C-08 decisions while preserving all 68 task and registry definitions. The ratification record retains the prior reviewed definition digest and source identity. T001–T009 are complete; T010 onward and full program Q0 remain pending. The proposed T010 bootstrap refinement remains draft and has not changed this freeze.
 
 Review packet SHA-256: 547e398b615d08186719674774f379038740292e2472488010151a5f03bbba6d
 
@@ -168,4 +168,4 @@ The digest covers a canonical UTF-8 JSON object with keys inputs, registry and t
 | contracts/qualification-evidence.md | 8d7d4ab79a6bb456a2dabef0d6ec4d5ba40da296e5ba19ceab2c7e907df31e92 |
 | contracts/task-evidence.md | b246d8a096821c3817316152b260466c7910400a0eda1a3eb1409dc283dd51d5 |
 
-Any change to the frozen task/owner/class/case/dependency/file/command contract or its acceptance inputs requires a new review freeze and affected owner review before use. The T006 decision must identify the actual accepted source/scope and consumed custody/authentication choices; this digest does not fill them. T007 implements the verifier and regressions against this unchanged freeze. Existing bootstrap outputs still require authenticated import; no registry helper, shared reader or required workflow is implemented by T007. The verifier's independently supplied reviewed manifest anchor and synthetic regression fixtures supply no real owner, target or rollout acceptance.
+Any change to the frozen task/owner/class/case/dependency/file/command contract or its acceptance inputs requires a new review freeze and affected owner review before use. The T006 decision must identify the actual accepted source/scope and consumed custody/authentication choices; this digest does not fill them. T007–T009 implement the verifier, inventory helper and narrow initial shared registration against this unchanged freeze. Existing bootstrap outputs still require authenticated import and T010's required CI remains pending. The verifier's independently supplied reviewed manifest anchor and synthetic regression fixtures supply no real owner, target or rollout acceptance. The draft bootstrap-custody amendment records the concrete T010 storage/first-record gap; its proposed paths/format/refinement are not implemented or accepted by this footer.
