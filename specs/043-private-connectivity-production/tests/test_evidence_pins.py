@@ -234,3 +234,55 @@ def test_child_inventory_requires_exact_commissioned_instance_file(commissioned)
     pins.process(c.verifier, "T057", "first", write=True)
     pins.process(c.verifier, "T057", "first", write=False)
     with pytest.raises(ValueError): pins.process(c.verifier, "T057", "unaccepted", write=True)
+
+
+def test_inventory_check_admits_completed_execution_but_write_needs_current_authority(commissioned):
+    from datetime import datetime, timezone
+
+    c = commissioned
+    verifier = object.__new__(v.Verifier)
+    verifier.__dict__.update(c.verifier.__dict__)
+    del verifier.authority
+    verifier.now = datetime(2030, 1, 2, tzinfo=timezone.utc)
+    verifier.trust["revoked_authorities"] = []
+    scope = {field: "not-applicable" for field in v.SCOPE_FIELDS}
+    scope.update(phase="source", environment="source")
+    c.binding.update(scope=scope, roles=["synthetic-source-owner"], decisions=[],
+                     admission_roles=["synthetic-evidence-owner"])
+
+    def save(name, value):
+        path = c.root / name
+        path.write_text(json.dumps(value, sort_keys=True))
+        git(c.root, "add", name)
+        git(c.root, "commit", "-qm", "synthetic immutable object")
+        return dict(repository=LOCAL, commit=git(c.root, "rev-parse", "HEAD"), path=name,
+                    sha256=v.digest(path.read_bytes()))
+
+    authority = dict(id="completed-source", decision="accepted", owner="Synthetic Source Owner", mode="source",
+                     roles=c.binding["roles"], scope=scope, decisions={},
+                     valid_from="2029-01-01T00:00:00Z", valid_until="2030-01-01T00:02:00Z")
+    c.binding["authority"] = save("authority.json", authority)
+    output = save("output.json", dict(started_at="2030-01-01T00:00:00Z", ended_at="2030-01-01T00:01:00Z"))
+    admission = dict(kind="evidence-admission", id="current-admission", decision="accepted", scope=scope,
+                     owner="Synthetic Evidence Owner", roles=c.binding["admission_roles"],
+                     authority=c.binding["authority"], reviewed_output_sha256=output["sha256"],
+                     reviewed_at="2030-01-01T00:03:00Z", valid_from="2030-01-01T00:02:00Z",
+                     valid_until="2031-01-01T00:00:00Z")
+    c.binding["admission"] = save("admission.json", admission)
+    record = {**c.record, "authority": c.binding["authority"], "admission": c.binding["admission"], "output": output}
+    commits = pins.owner_commits(record, verifier)
+    record["pin_inventory"] = pins.inventory(record, commits)
+    c.path.write_text(json.dumps(record, sort_keys=True))
+    git(c.root, "add", c.relative)
+    git(c.root, "commit", "-qm", "synthetic accepted historical record")
+    c.binding["record"] = dict(repository=LOCAL, commit=git(c.root, "rev-parse", "HEAD"),
+                              path=c.relative, sha256=v.digest(c.path.read_bytes()))
+    original = c.path.read_bytes()
+    pins.process(verifier, "T010", write=False)
+    assert c.path.read_bytes() == original
+    with pytest.raises(ValueError):
+        pins.process(verifier, "T010", write=True)
+    verifier.trust["revoked_authorities"].append(admission["id"])
+    with pytest.raises(ValueError, match="revoked"):
+        pins.process(verifier, "T010", write=False)
+    assert c.path.read_bytes() == original

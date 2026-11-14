@@ -165,7 +165,12 @@ def process(verifier, task, instance=None, *, write=False):
         path = prefix + "instances/" + task + "/" + instance + ".json"
     for binding in bindings:
         require(binding["owner"] == owner and path in binding["files"], "record outside exact accepted task scope")
-        verifier.authority(binding["authority"], binding)
+        if write or "record" not in binding:
+            verifier.authority(binding["authority"], binding)
+        else:
+            # Reading accepted evidence does not require leaving an execution grant open.
+            record = verifier.read(binding["record"])
+            verifier.evidence_authority(binding, record)
     repository = canonical(verifier.trust["repositories"][owner])
     root = verifier.store.root(repository)
     relative = Path(path)
