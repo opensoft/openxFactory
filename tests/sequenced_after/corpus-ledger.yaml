@@ -110,6 +110,7 @@ rows:
   add-factory-mcp-conformance: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#1274", moved_on: "2026-10-08"}
   add-family-enumeration-check: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-github-app-identity-tiers: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-github-bootstrap-authentication: {state: active, class: sole, declares: absent, prose: false, moved_by: "#1314", moved_on: "2026-11-14"}
   add-governed-derived-model: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-hermes-customer-subject-runtime-contract: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-hermes-domain-content-manifest: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
