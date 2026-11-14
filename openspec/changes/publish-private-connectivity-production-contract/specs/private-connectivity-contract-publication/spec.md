@@ -1,6 +1,7 @@
 # Supported private connectivity contract publication
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap, through [publish-private-connectivity-production-contract](../../proposal.md).
 
 ## Purpose
 

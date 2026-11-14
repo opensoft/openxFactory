@@ -1,13 +1,14 @@
 # Tasks: Neutral publication authority and Speckit handoff
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap, through [publish-private-connectivity-production-contract](proposal.md).
 
 This packet records governance and acceptance only. The sole executable list remains [feature 043 tasks](../../../specs/043-private-connectivity-production/tasks.md). No release cut or implementation is performed by drafting it.
 
 ## 1. Publication and owner scope
 
 - [x] 1.1 Publish this draft in PR #1310 and the README index, regenerate its corpus-ledger row with the sanctioned command and verify strict OpenSpec/sequencing validation.
-- [ ] 1.2 Obtain actual neutral/release-owner acceptance of the exact proposed surfaces, commands, compatibility and publication responsibilities at T016. Verify the owning decision and its validity independently of T006 E acceptance.
+- [x] 1.2 Record actual neutral/release-owner acceptance of the exact surfaces, commands, compatibility and publication responsibilities in [ratification](review/ratification.md). T016 remains incomplete until T010 and its actual evidence verification pass; consent is recorded early and independently of T006 E acceptance.
 
 ## 2. Realization and release acceptance
 

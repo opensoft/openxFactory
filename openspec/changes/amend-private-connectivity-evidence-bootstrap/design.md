@@ -1,6 +1,7 @@
 # Design: Source-only evidence bootstrap custody
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap, through [amend-private-connectivity-evidence-bootstrap](proposal.md).
 
 ## Context
 

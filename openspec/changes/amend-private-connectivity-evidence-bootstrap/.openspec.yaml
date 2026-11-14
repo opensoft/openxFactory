@@ -7,6 +7,8 @@ origin:
     needed to complete feature 043 T010 under the requested production project goal.
   proposed_by: Codex at Brett Heap's request
   proposed_on: '2026-11-14'
+  approved_by: Brett Heap in session; see review/ratification.md
+  approved_on: '2026-11-14'
 related:
 - openXfactory:change:commission-private-connectivity-production-evidence
 - openXfactory:change:qualify-private-connectivity-production

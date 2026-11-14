@@ -6,7 +6,8 @@ sequenced_after: [qualify-private-connectivity-production, implement-private-con
 
 # Proposal: Publish the supported private connectivity binding contract
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap. [Ratification record](review/ratification.md)
 Kind: proposal
 Proposed: 2026-11-13
 
@@ -34,7 +35,7 @@ None. Existing private-connectivity semantics, versioning, release realization a
 
 ## Impact
 
-The proposed owner is opensoft/openXfactory's named neutral/release maintainer; Brett Heap is proposed for that role subject to his acceptance. Proposed surfaces are the binding schema/documentation/corpus, current reader and directly affected tests, manifest/changelog, the one generated release inventory selected at the actual cut and T018/T019 publication/readback receipts.
+The accepted owner is Brett Heap as opensoft/openXfactory's neutral publication/release maintainer; see the ratification record. Proposed surfaces are the binding schema/documentation/corpus, current reader and directly affected tests, manifest/changelog, the one generated release inventory selected at the actual cut and T018/T019 publication/readback receipts.
 
 No version is reserved, file is published, tag is created, consumer pin is advanced or release gate is passed by this draft. No provider, identity, installer, product, domain or operational runtime scope is granted. Actual neutral scope/release authority is required at T016 and the cut. Runtime owners retain their own source, release and target approvals; Q0 remains unaccepted and Q1–Q5 unentered.
 

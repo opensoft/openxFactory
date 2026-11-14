@@ -1,13 +1,14 @@
 # Tasks: Bootstrap custody authority and handoff
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap, through [amend-private-connectivity-evidence-bootstrap](proposal.md).
 
 This packet records governance and acceptance only. The single executable implementation list remains [feature 043 tasks](../../../specs/043-private-connectivity-production/tasks.md).
 
 ## 1. Review and exact scope
 
 - [x] 1.1 Publish this draft in PR #1310 and the README index, seed its corpus-ledger row using that PR number, and verify strict OpenSpec, sequencing, code-surface and target-release checks.
-- [ ] 1.2 Obtain actual owner ratification of the exact additional records, source-only contained-reference rules and T010 file refinement. Verify cited approval/origin provenance before modifying the frozen feature contract or creating those records.
+- [x] 1.2 Obtain actual owner ratification of the exact additional records, source-only contained-reference rules and T010 file refinement. Verify cited approval/origin provenance before modifying the frozen feature contract or creating those records.
 
 ## 2. Scoped realization and authentication
 

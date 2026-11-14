@@ -6,7 +6,8 @@ sequenced_after: [commission-private-connectivity-production-evidence]
 
 # Proposal: Bind the private-connectivity evidence bootstrap
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap. [Ratification record](review/ratification.md)
 Kind: proposal
 Proposed: 2026-11-14
 
@@ -36,6 +37,6 @@ None. The existing evidence, rollout, release, reachability and managed-subject 
 
 The exact files, input format and T010 refinement are in [design](design.md). Existing verifier/inventory helpers and their tests remain inside the already accepted E source scope; shared changes stay inside the commissioned pin reader, affected census/regressions and required pytest workflow. No published contract or bundle version is changed.
 
-The proposed accountable owner and source-evidence custodian is Brett Heap. Approval of this proposal would authorize only the bounded source-control repair and subsequent preparation of authentic exports. It would not authenticate unseen outputs: the actual commissioning data and original output/human-decision provenance still need the separate recorded custodian review before T010 can pass.
+The accepted accountable owner and source-evidence custodian is Brett Heap; see the ratification record. This proposal's ratification authorizes only the bounded source-control repair and subsequent preparation of authentic exports. It does not authenticate unseen outputs: the actual commissioning data and original output/human-decision provenance still need the separate recorded custodian review before T010 can pass.
 
 Full program Q0 and Q1–Q5 remain unaccepted/unentered. No provider operation, resource spend, customer enrollment, commercial admission, merge or archive is authorized. [PR #1310](https://github.com/opensoft/openXfactory/pull/1310) remains draft.
