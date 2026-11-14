@@ -24,3 +24,7 @@ Brett remains the E source-evidence custodian under the accepted reviewed/redact
 T010 and T016 remain incomplete until their dependencies and actual authenticated receipts pass. Publication allocates no version or inventory filename until the actual authorized cut, and creates no tag or consumer pin now. All implementation stays in the sole feature 043 task list. Full Q0 and Q1-Q5 remain pending.
 
 All three PRs remain draft. This decision grants no ready, merge, archive, deployment, resource provisioning, enrollment or commercial admission. The separately approved storage financial envelope and one-time Mac billing guard retain their own recorded scope; they supply no target execution authority.
+
+## Scope reconciliation
+
+The accepted refinement is reconciled into the feature's 16-input review freeze before implementation. Current definition SHA-256: 66db63ec98e366f141230d22e6e4e159916bb997f159916159dcc7b6ae3f32d0. Previous definition SHA-256: 547e398b615d08186719674774f379038740292e2472488010151a5f03bbba6d. Fourteen task file fields change to their accepted exact scopes; all 68 literal task prefixes and verification commands and every registry row remain unchanged. Source authentication, T010 completion and full Q0 remain pending. No published contract/version or target changes.

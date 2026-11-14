@@ -6,7 +6,7 @@ Feature: [043-private-connectivity-production](../spec.md)
 
 This supplements [qualification evidence](qualification-evidence.md) and [owner handoff](owner-handoff.md). It is a draft implementation design, not a published schema, deployment request kind, executable verifier or approval. The only executable task list is [tasks.md](../tasks.md); the registry below is an acceptance contract with no actions or completion checkboxes.
 
-The reviewed T005 packet identified the [E evidence scope](../../../openspec/changes/commission-private-connectivity-production-evidence/proposal.md) for T006 and the separately proposed [neutral publication scope](../../../openspec/changes/publish-private-connectivity-production-contract/proposal.md) for T016, both published in draft PR #1310. E scope and source-only C-08 choices are now accepted in the [T006 ratification record](../../../openspec/changes/commission-private-connectivity-production-evidence/review/ratification.md); the neutral proposal remains draft. The review freeze identifies the task contract, while the actual owner decision supplies authority.
+The reviewed T005 packet identified the [E evidence scope](../../../openspec/changes/commission-private-connectivity-production-evidence/proposal.md) for T006 and the separately proposed [neutral publication scope](../../../openspec/changes/publish-private-connectivity-production-contract/proposal.md) for T016, both published in draft PR #1310. E scope and source-only C-08 choices are now accepted in the [T006 ratification record](../../../openspec/changes/commission-private-connectivity-production-evidence/review/ratification.md); the [bootstrap amendment](../../../openspec/changes/amend-private-connectivity-evidence-bootstrap/review/ratification.md), five component source scopes/native packets and [neutral publication owner/scope](../../../openspec/changes/publish-private-connectivity-production-contract/review/ratification.md) are now ratified. Exact source-file refinements are reconciled in the current freeze; actual task evidence and consumed choices remain separate. The review freeze identifies the task contract, while the actual owner decision supplies authority.
 
 ## Bootstrap and verifier availability
 
@@ -26,13 +26,21 @@ T001–T009 do not require new TNNN.json receipts: their listed file scopes cont
 
 T007 implements a closed adapter for these nine specific tasks. It checks the original task-specific command, required cases and expected outcomes against actual source/governance artifacts, authenticated output and current owner ratification. T007/T008/T009 require their real exact-revision test outputs and exact-scope diffs. Missing provenance, a generic verdict or a fabricated JSON replacement fails import. T010 verifies these dependencies through that adapter and its exact-head CI results, without requiring nonexistent bootstrap receipts or trusting the verifier as its own approving authority. Tasks from T010 onward use their listed receipts; no new pin-bearing bootstrap JSON is published before T009 registration.
 
+### Accepted source-only container
+
+The exact coordinator commissioning path is specs/043-private-connectivity-production/evidence/commissioning.json. Its operator-supplied independent trust anchor remains its complete Git commit/path/SHA-256. A closed contained-object reference carries only an opaque object identity; it resolves solely inside that anchored object table. Unique JSON/object keys, existence and acyclic references are mandatory. Original source/governance artifacts remain exact Git references. Tested source, output, receipt and manifest identities stay distinct, with no self-containing receipt hash.
+
+Contained data is limited to E bootstrap/source/CI material; it cannot satisfy provider/customer/staging/production proof through a changed class or scope. Original output, command/source/exit/time identities and redaction provenance remain inspectable. The exact commissioning-authentication.md record under the E proposal remains draft until Brett reviews the actual immutable exports and human provenance. Scope ratification does not authenticate those outputs.
+
+T010 owns the complete accepted six-file first-record transition in tasks.md. Add only the exact commissioning JSON to existing closed production pin paths. Empty members remain FUTURE until actual committed sites exist; promote and measure only their actual population, preserving local/foreign reachability, all unknown-path refusals and 040 behavior. Accepted observations remain immutable; a corrected commissioning control is a new reviewed revision preserving prior history.
+
 ## Owner, file and command binding
 
 C-01 freezes the actual canonical repository/worktree/revision, exact per-task file allowlist, approved owner command and required-case definitions before runtime work. The task's candidate file envelope is an additional upper bound, not a permission grant. Validate the strict intersection and fail if a diff, selected domain layout or needed file falls outside it; replan before expanding scope.
 
 One task writes one owner tree. From T010 onward its acceptance receipt is in that tree: coordinator feature evidence/TNNN.json or external-owner evidence/private-connectivity-production/TNNN.json. T001–T009 use the closed bootstrap bridge above. Source implementation must run the approved owner suite and retain red/green regression identity and exact collected CI results; passing a generic or uncollected suite is insufficient.
 
-Current source layouts are candidates only. T011–T016 must close exact production files and verification commands after their consumed choices. If an owner requires another canonical governance store or layout, revise the precise task/file scope before writing. No production domain/provider/platform is selected by the aliases.
+The exact E/N/L/I/H/D/O source layouts are now accepted through their named packets and reconciled file fields. T011–T016 must still establish actual authenticated acceptance after T010 and their consumed choices. If an owner requires another canonical governance store or layout, revise the precise task/file scope before writing. No production domain/provider/platform is selected by the aliases.
 
 ## Record and instance semantics
 
@@ -143,11 +151,11 @@ Task/registry changes after approval require reviewed scope/contract updates and
 
 ## T005 review freeze
 
-The reviewed definitions were approved at T006 on 2026-11-13 in draft PR #1310. This acceptance-state freeze records the supplied E/source-only C-08 decisions while preserving all 68 task and registry definitions. The ratification record retains the prior reviewed definition digest and source identity. T001–T009 are complete; T010 onward and full program Q0 remain pending. The proposed T010 bootstrap refinement remains draft and has not changed this freeze.
+The initial definitions and later T006 acceptance-state freeze remain historical decisions. Original accepted identity: 547e398b615d08186719674774f379038740292e2472488010151a5f03bbba6d. On 2026-11-14 Brett ratified the exact bootstrap amendment, all five component source scopes/native packets and neutral publication scope. This refreshed freeze reconciles only their accepted file refinements and source-consent/custody handoff. All 68 identities, owners, classes, required cases, dependencies and verification commands are preserved. T001-T009 are complete; T010 onward and full Q0 remain incomplete.
 
-Review packet SHA-256: 547e398b615d08186719674774f379038740292e2472488010151a5f03bbba6d
+Review packet SHA-256: 66db63ec98e366f141230d22e6e4e159916bb997f159916159dcc7b6ae3f32d0
 
-The digest covers a canonical UTF-8 JSON object with keys inputs, registry and tasks, serialized with sorted keys, compact comma/colon separators, ensure_ascii=false and no terminal newline. Tasks are all 68 task lines in order with only each checkbox normalized to unchecked; registry is the ordered 68 literal table rows. Inputs maps the following feature-relative paths to their file SHA-256 values. For this file only, input bytes are the complete body before the newline introducing this freeze heading. Completion checkboxes and later status notes outside task lines do not change the task portion.
+The digest covers canonical UTF-8 JSON keys inputs, registry and tasks, sorted keys, compact comma/colon separators, ensure_ascii=false and no terminal newline. Tasks are all 68 literal task lines with only checkboxes normalized to unchecked; registry is all 68 literal rows. Inputs contains each SHA-256 below. This file's input is only its complete body before this freeze heading. Footer status and task completion checkboxes do not alter the definition.
 
 | Input | SHA-256 |
 | --- | --- |
@@ -155,8 +163,8 @@ The digest covers a canonical UTF-8 JSON object with keys inputs, registry and t
 | plan.md | 5fc1550dd8988e2d32288176c9f4b62c22592e4c583c8106b506fbe9fd22bdee |
 | research.md | 295751853b252eafabbcaf64933a577df88370f7c457f01fe69a479c9df7f9d2 |
 | data-model.md | a2201bc094da3a05567194cbbff5622950f3f8aa17b8a9d978d3eb693ea02f05 |
-| owner-scopes.md | 1b8a18e982a0d8e73e083df4dcd2311ac1b1a1725ec488f417bf6adc554105a6 |
-| commissioning.md | 4c10e115b3ec8520ed88bf5d447a24fb2c2447ccc55e8315203eba9559692eb3 |
+| owner-scopes.md | 2cae7c370e4afe5801e5ff5fc7206f03c2193c1c5cc050eacf35d4a477efe6c0 |
+| commissioning.md | 11c05e374c68ee9f8fa0b8e790a47381f56aea63fe37141a4a4a6f17d232ec50 |
 | rollout-gates.md | f667ed2e6f8c5f1b4e75651b1aa5bdb671074fe2dcf74f8f3f722250084d2fc8 |
 | validation-matrix.md | 53688287673d29e5d58604eee0ec27e5f134de241032d514edfa5e41a9472d39 |
 | policy-coverage.md | e30154c88b29ce5a21b23d235d0ec863a105a433d7ea23e7fb6937cba928f37b |
@@ -166,6 +174,6 @@ The digest covers a canonical UTF-8 JSON object with keys inputs, registry and t
 | contracts/owner-handoff.md | d8fec9881a390420c41d6bc1dfef8fb44ab35457054611ae3751a8a98ca9fd78 |
 | contracts/product-interfaces.md | 5643be4adba7bb0ac5413a1ddb74bab863af981c945d92c4fde14d97fd0d94e7 |
 | contracts/qualification-evidence.md | 8d7d4ab79a6bb456a2dabef0d6ec4d5ba40da296e5ba19ceab2c7e907df31e92 |
-| contracts/task-evidence.md | b246d8a096821c3817316152b260466c7910400a0eda1a3eb1409dc283dd51d5 |
+| contracts/task-evidence.md | c749c9e78e1f9bfa329cf108bdb7bd1c9bc882f0b910065078f992d381d323fc |
 
-Any change to the frozen task/owner/class/case/dependency/file/command contract or its acceptance inputs requires a new review freeze and affected owner review before use. The T006 decision must identify the actual accepted source/scope and consumed custody/authentication choices; this digest does not fill them. T007–T009 implement the verifier, inventory helper and narrow initial shared registration against this unchanged freeze. Existing bootstrap outputs still require authenticated import and T010's required CI remains pending. The verifier's independently supplied reviewed manifest anchor and synthetic regression fixtures supply no real owner, target or rollout acceptance. The draft bootstrap-custody amendment records the concrete T010 storage/first-record gap; its proposed paths/format/refinement are not implemented or accepted by this footer.
+Further task/owner/class/case/dependency/file/command or frozen-input changes still require affected owner review and a new freeze before use. Source consent supplies no actual output authentication, target authority or rollout acceptance. The exact generated neutral inventory filename remains allocated and closed at the actual authorized cut; no version is reserved here. Actual bootstrap/CI exports and their independent custodian authentication remain required before T010 passes. All three PRs stay draft and Q1-Q5 remain unentered.
