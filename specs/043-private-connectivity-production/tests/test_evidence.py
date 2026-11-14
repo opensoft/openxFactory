@@ -696,3 +696,162 @@ def test_aggregate_permits_only_reviewed_inventory_metadata(world):
     world.trust["aggregates"]["T057"] = world.store.put(record, original["path"], original["repository"])
     with pytest.raises(v.EvidenceError, match="aggregate child"):
         world.verifier().aggregate("T057", world.store.blob(world.trust["aggregates"]["T057"]))
+
+
+def completed_run(world, key, mode="managed-push"):
+    """Synthetic grants close after the original run, never actual authority."""
+    binding = world.trust["bindings"][key]
+    authority = v.decode(world.store.blob(binding["authority"]))
+    authority["mode"] = mode
+    fields = ["consent"] if mode == "customer" else ["request", "grant" if mode == "managed-push" else "reviewed_merge"]
+    for field in fields:
+        carrier = v.decode(world.store.blob(world.decision(field, binding["scope"])))
+        carrier["valid_until"] = "2030-01-01T00:02:00Z"
+        authority[field] = world.store.put(carrier, "closed/" + field + ".json")
+        if field == "grant":
+            world.trust["revoked_authorities"].append(carrier["id"])
+            closure = dict(kind="authority-closure", authority_id=carrier["id"], scope=binding["scope"],
+                           closed_at="2030-01-01T00:01:01Z", disposition="completed", owner="Synthetic Ops Owner")
+            world.trust.setdefault("completed_authorities", {})[carrier["id"]] = world.store.put(closure, "closed/proof.json")
+    authority["valid_until"] = "2030-01-01T00:02:00Z"
+    binding["authority"] = world.store.put(authority, "closed/authority.json")
+    world.records[key]["authority"] = binding["authority"]
+    return binding
+
+
+def admit_run(world, key, **changes):
+    binding = world.trust["bindings"][key]
+    world.publish(key)
+    admission = dict(kind="evidence-admission", id="admission-" + key, decision="accepted",
+                     scope=binding["scope"], owner="Synthetic Evidence Owner", roles=["synthetic-evidence-owner"],
+                     authority=binding["authority"], reviewed_output_sha256=world.records[key]["output"]["sha256"],
+                     reviewed_at="2030-01-01T00:03:00Z", valid_from="2030-01-01T00:02:00Z",
+                     valid_until="2031-01-01T00:00:00Z")
+    admission.update(changes)
+    binding["admission_roles"] = ["synthetic-evidence-owner"]
+    binding["admission"] = world.store.put(admission, "reviews/" + key + ".json")
+    world.records[key]["admission"] = binding["admission"]
+    return admission
+
+
+@pytest.mark.parametrize("mode", ["managed-push", "managed-pull", "customer"])
+def test_completed_execution_uses_current_independent_admission(world, mode):
+    key = world.child("T058")
+    completed_run(world, key, mode)
+    admit_run(world, key)
+    world.check(key)
+
+
+def test_expired_execution_without_admission_stays_rejected(world):
+    key = world.child("T058")
+    completed_run(world, key)
+    with pytest.raises(v.EvidenceError):
+        world.check(key)
+
+
+@pytest.mark.parametrize("changes", [
+    {"valid_until": START}, {"reviewed_at": START}, {"reviewed_at": "2040-01-01T00:00:00Z"},
+    {"roles": []}, {"owner": ""}, {"decision": "rejected"}, {"kind": "request"},
+    {"reviewed_output_sha256": "f" * 64}, {"authority": {}},
+])
+def test_independent_admission_cannot_waive_scope_time_roles_or_output(world, changes):
+    key = world.child("T058")
+    completed_run(world, key)
+    admit_run(world, key, **changes)
+    with pytest.raises(v.EvidenceError):
+        world.check(key)
+
+
+def test_admission_must_have_exact_scope_and_reviewed_record_reference(world):
+    key = world.child("T058")
+    completed_run(world, key)
+    scope = deepcopy(world.trust["bindings"][key]["scope"])
+    scope["site"] = "foreign-site"
+    admit_run(world, key, scope=scope)
+    with pytest.raises(v.EvidenceError):
+        world.check(key)
+    admit_run(world, key)
+    world.records[key].pop("admission")
+    with pytest.raises(v.EvidenceError):
+        world.check(key)
+
+
+@pytest.mark.parametrize("changes", [
+    {"valid_until": START}, {"valid_until": END}, {"valid_from": END},
+])
+def test_admission_does_not_retroactively_authorize_execution(world, changes):
+    key = world.child("T058")
+    binding = completed_run(world, key)
+    authority = v.decode(world.store.blob(binding["authority"]))
+    authority.update(changes)
+    binding["authority"] = world.store.put(authority, "closed/invalid-period.json")
+    world.records[key]["authority"] = binding["authority"]
+    admit_run(world, key)
+    with pytest.raises(v.EvidenceError):
+        world.check(key)
+
+
+@pytest.mark.parametrize("mutation", ["missing", "early", "foreign", "rejected", "other-authority", "future"])
+def test_post_run_revocation_needs_authenticated_completion_closure(world, mutation):
+    key = world.child("T058")
+    completed_run(world, key)
+    admit_run(world, key)
+    closures = world.trust["completed_authorities"]
+    identity, ref = next(iter(closures.items()))
+    proof = v.decode(world.store.blob(ref))
+    if mutation == "missing":
+        closures.pop(identity)
+    else:
+        if mutation == "early": proof["closed_at"] = START
+        if mutation == "future": proof["closed_at"] = "2040-01-01T00:00:00Z"
+        if mutation == "foreign": proof["scope"] = {**proof["scope"], "customer": "foreign"}
+        if mutation == "rejected": proof["disposition"] = "incident"
+        if mutation == "other-authority": proof["authority_id"] = "another"
+        closures[identity] = world.store.put(proof, "closed/invalid-proof.json")
+    with pytest.raises(v.EvidenceError):
+        world.check(key)
+
+
+def test_admission_cannot_reuse_closed_grant_for_a_new_operation(world):
+    key = world.child("T058")
+    binding = completed_run(world, key)
+    admit_run(world, key)
+    world.check(key)
+    verifier = world.verifier()
+    with pytest.raises(v.EvidenceError):
+        verifier.authority(binding["authority"], binding)
+
+
+def test_current_admission_is_rechecked_for_cached_evidence(world):
+    key = world.child("T058")
+    completed_run(world, key)
+    admission = admit_run(world, key)
+    world.publish(key)
+    verifier = world.verifier()
+    verifier.verify(key)
+    verifier.trust["revoked_authorities"].append(admission["id"])
+    with pytest.raises(v.EvidenceError, match="revoked"):
+        verifier.verify(key)
+
+
+@pytest.mark.parametrize("mutation", ["during-run", "source-mode", "changed-output", "uncommissioned-admission"])
+def test_historical_admission_keeps_execution_and_content_floors(world, mutation):
+    key = world.child("T058")
+    binding = completed_run(world, key)
+    if mutation in ("during-run", "source-mode"):
+        authority = v.decode(world.store.blob(binding["authority"]))
+        if mutation == "during-run":
+            grant = v.decode(world.store.blob(authority["grant"]))
+            grant["valid_until"] = END
+            authority["grant"] = world.store.put(grant, "closed/early-expiry.json")
+        else:
+            authority["mode"] = "source"
+        binding["authority"] = world.store.put(authority, "closed/invalid-execution.json")
+        world.records[key]["authority"] = binding["authority"]
+    admit_run(world, key)
+    if mutation == "changed-output":
+        world.outputs[key]["exit_code"] = 1
+    if mutation == "uncommissioned-admission":
+        binding.pop("admission")
+    with pytest.raises(v.EvidenceError):
+        world.check(key)

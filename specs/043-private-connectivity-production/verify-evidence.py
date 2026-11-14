@@ -241,46 +241,87 @@ class Verifier:
     def read(self, ref):
         return decode(self.store.blob(reference(ref)))
 
-    def decision(self, ref, binding, kind, start=None, end=None):
+    def validity(self, decision, expected_scope, start=None, end=None, historical=False):
+        begin, expiry = timestamp(decision["valid_from"]), timestamp(decision["valid_until"])
+        require(begin < expiry, "invalid authority validity period")
+        identity = decision["id"]
+        closure = self.trust.get("completed_authorities", {}).get(identity)
+        revoked = identity in self.trust["revoked_authorities"]
+        if historical:
+            require(start is not None and end is not None and begin <= start <= end < expiry,
+                    "authority cannot retroactively authorize effects")
+            if closure is not None:
+                proof = self.read(closure)
+                require(proof["kind"] == "authority-closure" and proof["authority_id"] == identity
+                        and proof["scope"] == expected_scope and proof["disposition"] == "completed",
+                        "invalid completion closure")
+                text(proof["owner"], "actual closing owner")
+                require(end <= timestamp(proof["closed_at"]) <= self.now, "closure does not cover original run")
+            require(not revoked or closure is not None, "revoked authority without completion closure")
+        else:
+            require(not revoked and closure is None, "revoked or closed authority")
+            require(begin <= self.now < expiry, "authority expired or not current")
+            if start is not None:
+                require(begin <= start <= end < expiry, "later authority cannot authorize an earlier run")
+
+    def decision(self, ref, binding, kind, start=None, end=None, historical=False):
         decision = self.read(ref)
         require(decision["kind"] == kind and decision["decision"] == "accepted", "required decision is not accepted")
-        require(decision["id"] not in self.trust["revoked_authorities"], "required decision revoked")
         expected_scope = binding.get("decision_scopes", {}).get(kind, binding["scope"])
         require(scope(decision["scope"]) == expected_scope, "required decision scope mismatch")
         text(decision["owner"], "actual approving owner")
-        begin, expiry = timestamp(decision["valid_from"]), timestamp(decision["valid_until"])
-        require(begin <= self.now < expiry, "required decision is not current")
-        if start is not None:
-            require(begin <= start <= end < expiry, "decision cannot retroactively authorize effects")
+        self.validity(decision, expected_scope, start, end, historical)
         return decision
 
-    def authority(self, ref, binding, start=None, end=None, resume=False):
+    def authority(self, ref, binding, start=None, end=None, resume=False, historical=False):
         decision = self.read(ref)
-        require(decision["id"] not in self.trust["revoked_authorities"], "revoked authority")
         require(decision["decision"] == "accepted" and decision["scope"] == binding["scope"], "authority scope/status mismatch")
         text(decision["owner"], "actual decision owner")
         require(decision["roles"] == binding["roles"] and bool(decision["roles"]), "required named roles missing")
-        begin, expiry = timestamp(decision["valid_from"]), timestamp(decision["valid_until"])
-        require(begin <= self.now < expiry, "authority expired or not current")
-        if start is not None:
-            require(begin <= start <= end < expiry, "later authority cannot authorize an earlier run")
+        self.validity(decision, binding["scope"], start, end, historical)
         mode = decision["mode"]
         require(mode in ("source", "managed-pull", "managed-push", "customer"), "unknown authority channel")
         if binding["scope"]["phase"] in ("staging", "production"):
             require(mode != "source", "source authority cannot authorize live evidence")
         if mode.startswith("managed-"):
-            self.decision(decision["request"], binding, "request", start, end)
+            self.decision(decision["request"], binding, "request", start, end, historical)
             field = "grant" if mode == "managed-push" else "reviewed_merge"
-            self.decision(decision[field], binding, field, start, end)
+            self.decision(decision[field], binding, field, start, end, historical)
         if mode == "customer":
-            self.decision(decision["consent"], binding, "consent", start, end)
+            self.decision(decision["consent"], binding, "consent", start, end, historical)
         required = binding["decisions"]
         require(set(decision["decisions"]) == set(required), "required gate decisions missing/extra")
         if resume:
             require("C-13" in required, "fresh resume decision missing")
         for item in required:
-            self.decision(decision["decisions"][item], binding, item, start, end)
+            self.decision(decision["decisions"][item], binding, item, start, end, historical)
         return decision
+
+    def evidence_authority(self, binding, record):
+        """Admit historical results without keeping an execution grant open."""
+        require(record["authority"] == binding["authority"], "record authority mismatch")
+        require(record.get("admission") == binding.get("admission"), "record admission mismatch")
+        output = self.read(record["output"])
+        start, end = timestamp(output["started_at"]), timestamp(output["ended_at"])
+        require(start <= end <= self.now, "invalid/future actual run")
+        historical = binding.get("admission") is not None
+        if historical:
+            admission = self.read(binding["admission"])
+            require(admission["kind"] == "evidence-admission" and admission["decision"] == "accepted"
+                    and scope(admission["scope"]) == binding["scope"], "invalid evidence admission scope/status")
+            roles = binding["admission_roles"]
+            require(isinstance(roles, list) and roles and all(isinstance(role, str) and role.strip() for role in roles)
+                    and len(roles) == len(set(roles)) and admission["roles"] == roles, "required admission roles missing")
+            text(admission["owner"], "actual admitting owner")
+            self.validity(admission, binding["scope"])
+            reviewed = timestamp(admission["reviewed_at"])
+            require(end <= reviewed <= self.now and timestamp(admission["valid_from"]) <= reviewed
+                    < timestamp(admission["valid_until"]), "invalid evidence review time")
+            require(admission["authority"] == binding["authority"]
+                    and admission["reviewed_output_sha256"] == reference(record["output"])["sha256"],
+                    "admission is not for original authority/output")
+        self.authority(binding["authority"], binding, start, end, historical=historical)
+        return output, start, end, historical
 
     def binding(self, key):
         require(key in self.trust["bindings"], "uncommissioned task/instance")
@@ -459,12 +500,12 @@ class Verifier:
         data = self.store.blob(ref)
         if supplied is not None:
             require(supplied == data, "receipt differs from independently reviewed immutable reference")
-        # Authority is current on every invocation, even for cached dependencies.
-        self.authority(binding["authority"], binding)
+        record = decode(data)
+        # Current admission and original execution validity are checked even on cache hits.
+        output, start, end, historical = self.evidence_authority(binding, record)
         if key in self.cache:
             return
         self.active.add(key)
-        record = decode(data)
         task = binding["task"]
         bootstrap = int(task[1:]) < 10
         require(record["schema"] == ("043-bootstrap-import-v1" if bootstrap else "043-task-evidence-v1"), "wrong evidence/import kind")
@@ -504,13 +545,9 @@ class Verifier:
             require(b"Status: ratified" in artifact_data.get(base + "proposal.md", b"")
                     and b"Ratified:" in artifact_data.get(base + "review/ratification.md", b"")
                     and b"approved_by:" in artifact_data.get(base + ".openspec.yaml", b""), "actual E ratification/source provenance missing")
-        output = self.read(record["output"])
         for field in ("task", "instance", "scope", "source", "command"):
             require(output[field] == record[field], "actual output " + field + " mismatch")
         require(type(output["exit_code"]) is int and output["exit_code"] == 0, "missing/nonzero owner command result")
-        start, end = timestamp(output["started_at"]), timestamp(output["ended_at"])
-        require(start <= end <= self.now, "invalid/future actual run")
-        self.authority(binding["authority"], binding, start, end)
         self.cases(output, binding)
         self.observations(output, binding)
         self.ci(output, binding)
@@ -541,7 +578,7 @@ class Verifier:
                     and failed["scope"] == record["scope"] and failed["attempt"] != record["attempt"], "failed/blocked attempt history lost or substituted")
         if record["history"]:
             require(record["remediation"] == binding["remediation"], "reviewed remediation missing")
-            resumed = self.authority(record["remediation"], binding, start, end, resume=True)
+            resumed = self.authority(record["remediation"], binding, start, end, resume=True, historical=historical)
             resume = self.read(resumed["decisions"]["C-13"])
             require(resume["reruns"] == binding["resume_outputs"] and record["output"] in resume["reruns"], "reviewed affected rerun outputs missing")
             for rerun in resume["reruns"]:
