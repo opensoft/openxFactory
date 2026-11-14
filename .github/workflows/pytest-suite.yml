@@ -964,6 +964,7 @@ jobs:
           PC043_EXPECTED_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -euo pipefail
+          original_tree="$(pwd)"
           feature_tree="$GITHUB_WORKSPACE/private-connectivity-043-source"
           git -c core.hooksPath=/dev/null worktree add --detach "$feature_tree" "$PC043_EXPECTED_REVISION"
           cd "$feature_tree"
@@ -1000,3 +1001,6 @@ jobs:
           for name, count in sorted(actual.items()):
               print(f"043 source suite {name}: collected={count} passed={count} skipped=0 failures=0 errors=0")
           PY
+          [ -z "$(git status --porcelain)" ]
+          cd "$original_tree"
+          git worktree remove "$feature_tree"
