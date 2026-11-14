@@ -2790,3 +2790,75 @@ def test_the_live_inventory_carries_the_FOUR_legs_of_the_two_pinned_roots():
         named = {m.group("address")
                  for m in source.finditer(pin.read_text(encoding="utf-8"))}
         assert not named & set(legs), (pin.name, named & set(legs))
+
+
+# Verified casing changes are evidence aliases, never inventory resolutions.
+_FACTORY_RENAME_PAIRS = [
+    ("opensoft/openxFactory", "opensoft/openXfactory"),
+    ("codeXfactory/codexFactory", "codeXfactory/codeXfactory"),
+    ("MedxSoft/MedxFactory", "MedxSoft/medXfactory"),
+    ("ledgerXfactory/LedgerxFactory", "ledgerXfactory/ledgerXfactory"),
+    ("opensoft/AdxFactory", "opensoft/adXfactory"),
+    ("opensoft/OpsxFactory", "opensoft/opsXfactory"),
+    ("opensoft/OpsxFactory-Gateway-Install", "opensoft/opsXfactory-Gateway-Install"),
+    ("opensoft/xFactory-CodexFactory-MCP-Install",
+     "opensoft/xFactory-codeXfactory-MCP-Install"),
+]
+
+
+@pytest.mark.parametrize("recorded,current", _FACTORY_RENAME_PAIRS)
+@pytest.mark.parametrize("site", ["checkout", "step-uses", "job-uses"])
+def test_verified_rename_still_supplies_structural_workflow_evidence(
+        recorded, current, site):
+    if site == "checkout":
+        document = {"jobs": {"check": {"steps": [
+            {"uses": "actions/checkout@v4", "with": {"repository": current}}]}}}
+    elif site == "step-uses":
+        document = {"jobs": {"check": {"steps": [
+            {"uses": current + "/.github/workflows/check.yml@deadbeef"}]}}}
+    else:
+        document = {"jobs": {"check": {
+            "uses": current + "/.github/workflows/check.yml@deadbeef"}}}
+    assert ei._workflow_names_repository(document, recorded)
+
+
+@pytest.mark.parametrize("recorded,current", _FACTORY_RENAME_PAIRS)
+def test_verified_rename_carrier_origin_still_verifies_its_recorded_identity(
+        tmp_path, recorded, current):
+    _git_out(tmp_path, "init")
+    _git_out(tmp_path, "remote", "add", "origin", "https://github.com/" + current + ".git")
+    assert ei.carrier_identity(tmp_path, recorded).verified
+    # Case changes to the OWNER and a same-name repository on another forge
+    # remain different identities, even for these approved repository names.
+    owner, name = current.split("/")
+    _git_out(tmp_path, "remote", "set-url", "origin",
+         "https://github.com/" + owner.upper() + "/" + name + ".git")
+    assert not ei.carrier_identity(tmp_path, recorded).verified
+    _git_out(tmp_path, "remote", "set-url", "origin",
+         "https://attacker.example/" + current + ".git")
+    assert not ei.carrier_identity(tmp_path, recorded).verified
+
+
+@pytest.mark.parametrize("candidate", [
+    "otherOwner/codeXfactory", "codeXfactory/codeXfactory-extra",
+    "CODEXFACTORY/codeXfactory", "codeXfactory/CODEXFACTORY",
+    "https://github.com/codeXfactory/codeXfactory", None, {}, True,
+])
+def test_rename_evidence_refuses_unapproved_names_and_nonstructural_prose(candidate):
+    document = {"jobs": {"check": {"steps": [
+        {"uses": "actions/checkout@v4", "with": {"repository": candidate}},
+        {"run": "echo codeXfactory/codeXfactory"}]}}}
+    assert not ei._workflow_names_repository(document, "codeXfactory/codexFactory")
+
+
+@pytest.mark.parametrize("recorded,current", _FACTORY_RENAME_PAIRS)
+def test_rename_evidence_does_not_add_an_inventory_resolution(
+        tmp_path, recorded, current):
+    path = _inventory(tmp_path, [_row(recorded)])
+    inventory = ei.load_inventory(path)
+    assert ei.resolve(inventory, recorded).resolved
+    assert not ei.resolve(inventory, current).resolved
+    assert ei.same_evidence_repository(recorded, current)
+    owner, name = current.split("/")
+    assert not ei.same_evidence_repository(recorded, owner.upper() + "/" + name)
+    assert not ei.same_evidence_repository(recorded, current + "-extra")

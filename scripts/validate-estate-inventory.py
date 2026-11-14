@@ -220,7 +220,8 @@ def main(argv: list[str] | None = None) -> int:
         if reading.addresses is None:
             not_rechecked.append((verdict, reading.detail))
             continue
-        if verdict.row.repository in reading.addresses:
+        if any(ei.same_evidence_repository(verdict.row.repository, address)
+               for address in reading.addresses):
             named_gitlinks += 1
         else:
             gone.append(ei.EvidenceVerdict(
