@@ -559,8 +559,9 @@ Every DomainxFactory must validate against the canonical contract:
 - [publish-private-connectivity-production-contract](openspec/changes/publish-private-connectivity-production-contract/proposal.md) — draft in [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); neutral owner acceptance and release realization pending.
   [Design and exact scope](openspec/changes/publish-private-connectivity-production-contract/design.md) · [Publication requirements](openspec/changes/publish-private-connectivity-production-contract/specs/private-connectivity-contract-publication/spec.md) · [Governance handoff](openspec/changes/publish-private-connectivity-production-contract/tasks.md).
 
-- [commission-private-connectivity-production-evidence](openspec/changes/commission-private-connectivity-production-evidence/proposal.md) — draft in [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); T006 owner acceptance pending.
+- [commission-private-connectivity-production-evidence](openspec/changes/commission-private-connectivity-production-evidence/proposal.md) — ratified 2026-11-13 in draft [PR #1310](https://github.com/opensoft/openXfactory/pull/1310); T006 complete for exact E scope and source-only C-08 custody.
   [Design and exact scope](openspec/changes/commission-private-connectivity-production-evidence/design.md) · [Evidence requirements](openspec/changes/commission-private-connectivity-production-evidence/specs/private-connectivity-production-evidence/spec.md) · [Governance handoff](openspec/changes/commission-private-connectivity-production-evidence/tasks.md).
+  [Owner scope approval and accepted custody settings](openspec/changes/commission-private-connectivity-production-evidence/review/owner-scope-approval-and-custody.md) · [Ratification record](openspec/changes/commission-private-connectivity-production-evidence/review/ratification.md).
 
 - [add-workload-factory-binding](openspec/changes/add-workload-factory-binding/proposal.md)
   - source acceptance ratified by Brett Heap on 2026-11-11 at factory

@@ -1,10 +1,11 @@
 # Design: Coordinator E evidence commissioning
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-13 by Brett Heap. [Ratification record](review/ratification.md)
 
 ## Context
 
-See [proposal](proposal.md). The production policy is ratified, while feature 043's runtime scopes and C-08 evidence choices are unaccepted. Its [task evidence contract](../../../specs/043-private-connectivity-production/contracts/task-evidence.md) already resolves bootstrap and per-instance dependencies. This packet proposes the exact E realization boundary; the existing 040 reader/registration is preserved.
+See [proposal](proposal.md). The production policy and the exact E scope/source-only C-08 choices are ratified. Feature 043's component runtime scopes and live evidence custody remain unaccepted. Its [task evidence contract](../../../specs/043-private-connectivity-production/contracts/task-evidence.md) resolves bootstrap and per-instance dependencies. The existing 040 reader/registration is preserved.
 
 ## Goals / Non-Goals
 
@@ -48,16 +49,18 @@ Register the closed 043 top-level receipt names and the approved T057–T064 ins
 
 Explicitly invoke both new feature suites in required coordinator CI. Capture the exact head and actual collection/results. Only directly affected new-suite counts and measured census additions can change; existing required floors and skipped counts stay intact. Missing collection, dependencies or output fails source readiness.
 
-### Proposed acceptance at T006
+### Acceptance at T006
 
-Proposed accountable neutral/evidence maintainer: Brett Heap, subject to his explicit role/scope acceptance. The following inputs remain required and unaccepted:
+The [owner approval and custody note](review/owner-scope-approval-and-custody.md) and [ratification record](review/ratification.md) record Brett Heap's E owner-scope approval and his subsequent selection of the prepared source-only Git custody policy.
 
-- Exact E files, source revision and approved verification commands.
-- Named evidence custodian and immutable storage binding for bootstrap outputs, approvals and source-CI artifacts.
-- Retention/access responsibility and a method for authenticating original outputs, source identities and actual human decisions.
-- Accepted reviewed task/case/instance contract and decision validity; later operating choices stay due at their consumers.
+Accountable neutral/evidence maintainer and evidence custodian: Brett Heap. The combined T006 decision accepts:
 
-The storage/retention/authentication values are gate inputs, not hidden architecture defaults. No credential or private storage material belongs in the packet. Record actual acceptance in review/ratification.md and origin approval metadata only after the owner supplies it. This draft deliberately contains neither record nor approval metadata.
+- The exact nine E surfaces above, the reviewed source revision and T007–T010 verification commands.
+- Reviewed redacted E bootstrap/source/CI exports and approval references in opensoft/openXfactory Git history, with exact commit/content identities and the existing reviewed publication process.
+- Project-lifetime retention and existing repository access permissions; Brett is accountable for actual output/human-decision review, source/receipt commits, SHA-256 and GitHub repository/run/job/output provenance.
+- The reviewed task/case/instance contract and feature-bounded E authority; changed scope needs renewed owner review and later operating choices stay due at their consumers.
+
+The source-only storage/retention/authentication values were explicitly selected by the owner; they are recorded in review/ratification.md and origin approval metadata. Actual bootstrap ingestion/authentication still occurs at its consuming tasks. Customer/provider/staging/production evidence requires a separate protected-custody decision before consumption. No credential or private storage material belongs in the packet.
 
 ## Risks / Trade-offs
 

@@ -37,7 +37,7 @@ An unmanaged customer-operated target remains under its current authorized custo
 
 ## Current disposition
 
-Feature drafting, implementation planning and task generation have been requested here. Runtime scopes and named production-role acceptances are not recorded as granted. The [commissioning register](commissioning.md) identifies each missing decision and its due gate. Owner-level proposals/realizations and the single coordinating task list must supply the concrete approved scopes before implementation. Task file fields are proposed envelopes intersected with the exact accepted C-01 per-task file list; they are never standalone grants. A selected layout outside an envelope requires replanning before writes.
+Feature drafting, implementation planning and task generation have been requested here. The [T006 owner decision](../../openspec/changes/commission-private-connectivity-production-evidence/review/ratification.md) now grants Brett Heap's exact E source/test/CI scope and source-only evidence custody; this pass stops before T007. Component runtime scopes and named production-role acceptances remain ungranted. The [commissioning register](commissioning.md) identifies each missing decision and its due gate. Owner-level proposals/realizations and the single coordinating task list must supply the concrete approved scopes before implementation. Task file fields are proposed envelopes intersected with the exact accepted C-01 per-task file list; they are never standalone grants. A selected layout outside an envelope requires replanning before writes.
 
 ## Candidate implementation and verification surfaces
 

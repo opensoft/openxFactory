@@ -6,13 +6,14 @@ sequenced_after: [qualify-private-connectivity-production, register-private-conn
 
 # Proposal: Commission private connectivity production evidence controls
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-13 by Brett Heap. [Ratification record](review/ratification.md)
 Kind: proposal
 Proposed: 2026-11-13
 
 ## Why
 
-Feature 043 has an analyzed implementation plan but no accepted scope for its evidence verifier, shared pin registration or required CI. The feature 040 registration covers only its historical pilot; production qualification needs its own reviewed evidence boundary before T007–T010 can begin.
+At proposal creation, feature 043 had an analyzed implementation plan but no accepted scope for its evidence verifier, shared pin registration or required CI. The feature 040 registration covers only its historical pilot; production qualification needs its own reviewed evidence boundary before T007–T010 can begin.
 
 ## What Changes
 
@@ -35,8 +36,8 @@ None. Existing production qualification, pin reachability, document lifecycle, r
 
 ## Impact
 
-The proposed owner is opensoft/openXfactory's named neutral/evidence maintainer. The eight code/test/CI files and the initial receipt are explicit in the design; feature coordination records and this packet remain governance surfaces. Required C-08 custody, retention/access and output/approval authentication choices are review inputs, not defaults selected by Codex.
+The accepted owner is Brett Heap, opensoft/openXfactory's neutral/evidence maintainer and source-only evidence custodian. The eight code/test/CI files and the initial receipt are explicit in the design; feature coordination records and this packet remain governance surfaces. He explicitly selected the source-only C-08 Git custody, retention/access and output/approval authentication policy recorded in [ratification](review/ratification.md).
 
-This draft grants no implementation authority, owner acceptance, provider integration, deployment credential, production-domain selection, supported contract publication or target effect. T006 stays open until actual acceptance is recorded. Q0 is unaccepted and Q1–Q5 are not entered. The neutral publication successor and every runtime owner scope remain separately governed.
+This ratification grants only the exact E source/test/CI scope for T007–T010 and its consumed source-only C-08 settings. T006 is complete and this pass stops before T007. Provider integration, deployment credentials, production-domain selection, supported contract publication and target effects retain their own authority. Full program Q0 is unaccepted and Q1–Q5 are not entered. The neutral publication successor and every component runtime owner scope remain separately governed.
 
 Draft publication: [PR #1310](https://github.com/opensoft/openXfactory/pull/1310). Related: [ratified production policy](../qualify-private-connectivity-production/proposal.md), [evidence contract](../../../specs/043-private-connectivity-production/contracts/task-evidence.md) and [governance handoff](tasks.md).

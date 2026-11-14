@@ -1,6 +1,7 @@
 # Production qualification evidence controls
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-13 by Brett Heap. [Ratification record](../../review/ratification.md)
 
 ## Purpose
 

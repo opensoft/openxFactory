@@ -1,13 +1,14 @@
 # Tasks: Evidence authority and Speckit handoff
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-13 by Brett Heap. [Ratification record](review/ratification.md)
 
 This is the governance/acceptance handoff. The sole executable implementation list remains [feature 043 tasks](../../../specs/043-private-connectivity-production/tasks.md); this packet creates no second implementation list.
 
 ## 1. Draft publication and owner review
 
 - [x] 1.1 Publish this draft in PR #1310 and the README index, regenerate its corpus-ledger row with the sanctioned seed command and verify strict OpenSpec/sequencing validation.
-- [ ] 1.2 Obtain actual named-owner acceptance at T006 of the exact E files/commands, reviewed task/evidence contract and consumed C-08 custody/authentication decisions. Verify a cited ratification record and origin approval metadata; no generated text supplies acceptance.
+- [x] 1.2 Obtain actual named-owner acceptance at T006 of the exact E files/commands, reviewed task/evidence contract and consumed C-08 custody/authentication decisions. Verify a cited ratification record and origin approval metadata; no generated text supplies acceptance.
 
 ## 2. Scoped realization handoff
 

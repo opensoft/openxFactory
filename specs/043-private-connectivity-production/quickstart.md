@@ -25,7 +25,7 @@ The [validation matrix](validation-matrix.md) lists inspected owner source comma
 
 ## Planning and task handoff
 
-Read plan.md, research.md, owner-scopes.md, commissioning.md, data-model.md, [tasks.md](tasks.md), the [analysis/remediation record](analysis.md) and the contracts directory. The revised packet is ready for gated implementation, starting with T001–T005 preparation and governance drafts. T006 needs actual named-owner E acceptance and consumed custody/authentication choices before helpers are implemented. Do not generate child implementation lists or reopen 040.
+Read plan.md, research.md, owner-scopes.md, commissioning.md, data-model.md, [tasks.md](tasks.md), the [analysis/remediation record](analysis.md) and the contracts directory. T001–T005 preparation and T006's exact E/source-only custody acceptance are complete. The [owner ratification](../../openspec/changes/commission-private-connectivity-production-evidence/review/ratification.md) records the accepted scope; this pass stops before T007 helper implementation. Full program Q0 and every later gate retain their remaining decisions. Do not generate child implementation lists or reopen 040.
 
 The complete specification/plan/tasks artifact handoff can satisfy governance task 2.1 after validation. It does not supply C-01 owner acceptance, governance task 2.2 or a passed Q0.
 
