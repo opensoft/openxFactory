@@ -443,9 +443,24 @@ _PC043_EVIDENCE_PATHS = tuple(
                  "T056", "T057", "T061", "T062", "T064", "T065", "T066", "T067", "T068")
 ) + tuple("specs/043-private-connectivity-production/evidence/instances/" + task + "/*.json"
           for task in ("T057", "T061", "T062", "T064"))
+_PC043_EVIDENCE_PATHS += ("specs/043-private-connectivity-production/evidence/commissioning.json",)
 
 
 PIN_CLASS: tuple[PinMember, ...] = (
+    # Original Git references remain verbatim in the source container and
+    # receipts. The inventory does not exempt their commit/revision fields
+    # from the vocabulary sweep. Per-reference repository ownership decides
+    # locality; missing ownership falls back to repo-local MUST_RESOLVE.
+    *(PinMember(
+        id="private-connectivity-production-original-" + key,
+        paths=_PC043_EVIDENCE_PATHS, key=key, key_form="field",
+        generator="feature 043 authenticated original source/CI exports",
+        reproduction=MEASURED, locality=REPO_LOCAL, presence=FUTURE,
+        locality_from=("repository",), key_expected=False,
+        note="Original immutable 043 source/output/control references. Local "
+             "pins owe resolution; explicit foreign proof remains separately "
+             "verified against its actual owner by the feature inventory.",
+    ) for key in ("commit", "revision")),
     # Feature 043's closed coordinator receipt set. Component-owned tasks keep
     # their receipts in the owner's tree. No bootstrap receipts or directory
     # exclusion are introduced. FUTURE is deliberate until T010's first actual

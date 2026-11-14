@@ -2632,7 +2632,7 @@ def test_committed_private_connectivity_inventory_cannot_hide_local_references()
     for record in records:module.validate_stored_inventory(record,local)
 
 
-@pytest.mark.parametrize("task", ["T010", "T011", "T012", "T013", "T014", "T015", "T016", "T017", "T018", "T019", "T027", "T042", "T049", "T051", "T056", "T057", "T061", "T062", "T064", "T065", "T066", "T067", "T068"])
+@pytest.mark.parametrize("task", ["commissioning", "T010", "T011", "T012", "T013", "T014", "T015", "T016", "T017", "T018", "T019", "T027", "T042", "T049", "T051", "T056", "T057", "T061", "T062", "T064", "T065", "T066", "T067", "T068"])
 def test_production_connectivity_exact_coordinator_receipt_is_registered(tmp_path, task):
     import json
     repo, old = reachable_pin_repo(tmp_path)
@@ -2643,6 +2643,34 @@ def test_production_connectivity_exact_coordinator_receipt_is_registered(tmp_pat
     assert len(sites) == 1 and sites[0].member_id == "private-connectivity-production-local-evidence"
     assert sites[0].locality == pc.REPO_LOCAL
     assert pc.non_member_reason(path) is None
+
+
+def test_production_commissioning_original_nested_refs_keep_coverage_and_locality(tmp_path):
+    import json
+    repo, old, orphan = orphaned_pin_repo(tmp_path)
+    path = "specs/043-private-connectivity-production/evidence/commissioning.json"
+    value = {
+        "source_container": {"objects": {
+            "original": {"tasks": ["T007"], "evidence_class": "source", "value": {
+                "source": {"repository": "opensoft/openXfactory", "revision": old, "base": old},
+                "artifact": {"repository": "opensoft/openXfactory", "commit": orphan},
+                "foreign": {"repository": "opensoft/Headscale-Install", "commit": "f" * 40},
+            }},
+        }},
+        "pin_inventory": [
+            {"repository": "opensoft/openxfactory", "openxfactory_commit": old},
+            {"repository": "opensoft/openxfactory", "openxfactory_commit": orphan},
+            {"repository": "opensoft/headscale-install", "foreign_commit": "f" * 40},
+        ],
+    }
+    _write(repo, path, json.dumps(value, indent=2))
+    _commit(repo, "synthetic original source container")
+    sites = pc.member_sites(repo, "HEAD", paths=[path])
+    assert len(sites) == 6
+    assert not pc.uncovered_sites(repo, "HEAD", paths=[path])
+    assert sum(site.locality == pc.CROSS_REPOSITORY for site in sites) == 2
+    report = _verify(repo)
+    assert any(item.site.path == path and item.site.pin == orphan for item in report.orphans)
 
 
 @pytest.mark.parametrize("task", ["T057", "T061", "T062", "T064"])
