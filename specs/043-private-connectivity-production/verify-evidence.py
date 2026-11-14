@@ -29,13 +29,25 @@ from datetime import datetime, timezone
 
 FEATURE = "043-private-connectivity-production"
 FEATURE_PATH = "specs/" + FEATURE
-DEFINITION = "547e398b615d08186719674774f379038740292e2472488010151a5f03bbba6d"
+DEFINITION = "66db63ec98e366f141230d22e6e4e159916bb997f159916159dcc7b6ae3f32d0"
 COORDINATOR = "opensoft/openxfactory"
 FIXED_REPOSITORIES = {"C": COORDINATOR, "L": "opensoft/headscale-install", "I": "opensoft/xfactory-installer",
                       "H": "opensoft/openxsoft-hosted-services"}
 SCOPE_FIELDS = frozenset("run candidate profile customer site network domain environment target region offering phase offer wave".split())
 REF_FIELDS = frozenset(("repository", "commit", "path", "sha256"))
 INSTANCE_TASKS = frozenset(f"T{i:03}" for i in range(57, 65))
+COMMISSIONING_PATH = FEATURE_PATH + "/evidence/commissioning.json"
+AUTHENTICATION_PATH = "openspec/changes/commission-private-connectivity-production-evidence/review/commissioning-authentication.md"
+
+
+def canonical_json(value):
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+
+
+def commissioning_digest(value):
+    # The review pointer and mechanically derived inventory are control metadata.
+    # Every binding, object, source, output and authority remains authenticated.
+    return digest(canonical_json({key: item for key, item in value.items() if key not in ("review", "pin_inventory")}))
 
 
 class EvidenceError(ValueError):
@@ -221,11 +233,12 @@ def load_contract(root):
 
 
 class Verifier:
-    def __init__(self, tasks, store, trust_reference, now=None):
+    def __init__(self, tasks, store, trust_reference, now=None, *, prepare=False):
         self.tasks, self.store = tasks, store
         self.now = now or datetime.now(timezone.utc)
         require(trust_reference["repository"].lower() == COORDINATOR, "trust must belong to coordinator")
-        self.trust = decode(store.blob(reference(trust_reference)))
+        self.trust_reference = reference(trust_reference)
+        self.trust = decode(store.blob(self.trust_reference))
         t = self.trust
         require(t["schema"] == "043-reviewed-trust-v1" and t["feature"] == FEATURE and t["definition"] == DEFINITION,
                 "wrong commissioning manifest")
@@ -235,13 +248,92 @@ class Verifier:
             require(alias in "CLIHOD" and len(alias) == 1, "unknown owner alias")
             require(canonical_origin(repository) == repository.lower(), "invalid canonical repository")
             require(alias not in FIXED_REPOSITORIES or repository.lower() == FIXED_REPOSITORIES[alias], "wrong canonical component owner")
-        require(store.blob(reference(t["review"])).strip(), "missing independent custody review")
+        self.objects = {}
+        self.authenticated, self.authenticated_at = True, None
+        require(trust_reference["path"] != COMMISSIONING_PATH or "source_container" in t,
+                "source commissioning container required")
+        if "source_container" in t:
+            require(trust_reference["path"] == COMMISSIONING_PATH, "wrong source commissioning path")
+            self.source_container(t["source_container"])
+            self.authentication(prepare)
+        else:
+            require(store.blob(reference(t["review"])).strip(), "missing independent custody review")
         self.active, self.cache = set(), set()
 
-    def read(self, ref):
-        return decode(self.store.blob(reference(ref)))
+    def source_container(self, container):
+        require(isinstance(container, dict) and set(container) == {"schema", "objects"}
+                and container["schema"] == "043-source-container-v1", "wrong source container")
+        objects = container["objects"]
+        require(isinstance(objects, dict) and objects, "closed source object table required")
+        for name, entry in objects.items():
+            require(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", name), "invalid opaque object identity")
+            require(isinstance(entry, dict) and set(entry) == {"tasks", "evidence_class", "value"}
+                    and entry["evidence_class"] == "source", "source-only contained object required")
+            tasks = entry["tasks"]
+            require(isinstance(tasks, list) and tasks and len(tasks) == len(set(tasks))
+                    and all(task in self.tasks and 1 <= int(task[1:]) <= 10
+                            and self.tasks[task]["owner"] == "C" for task in tasks), "contained object outside E bootstrap scope")
+            require(isinstance(entry["value"], dict), "contained object must be JSON object")
+        self.objects = objects
+        # Validate even unused objects. A caller cannot hide missing/cyclic refs
+        # in a branch that the selected receipt happens not to traverse.
+        visited = set()
+        def visit(value, active):
+            if isinstance(value, dict):
+                if "object" in value:
+                    require(set(value) == {"object"} and isinstance(value["object"], str)
+                            and value["object"] in objects, "unknown or malformed contained reference")
+                    name = value["object"]
+                    require(name not in active, "cyclic contained reference")
+                    if name not in visited:
+                        visit(objects[name]["value"], active | {name})
+                        visited.add(name)
+                else:
+                    for child in value.values(): visit(child, active)
+            elif isinstance(value, list):
+                for child in value: visit(child, active)
+        for name, entry in objects.items():
+            visit(entry["value"], {name})
+        visit({key: item for key, item in self.trust.items() if key != "source_container"}, set())
 
-    def validity(self, decision, expected_scope, start=None, end=None, historical=False, source_lifetime=False):
+    def authentication(self, prepare):
+        ref = reference(self.trust["review"])
+        require(ref["repository"].lower() == COORDINATOR and ref["path"] == AUTHENTICATION_PATH,
+                "wrong source authentication owner/path")
+        blocks = re.findall(rb"^```json\r?\n(.*?)^```[ \t]*$", self.store.blob(ref), re.M | re.S)
+        require(len(blocks) == 1, "one source authentication JSON block required")
+        review = decode(blocks[0])
+        require(set(review) == {"schema", "decision", "custodian", "reviewed_manifest", "content_sha256", "reviewed_at"}
+                and review["schema"] == "043-source-authentication-v1" and review["custodian"] == "Brett Heap",
+                "wrong source authentication record")
+        self.authenticated = review["decision"] == "accepted"
+        if not self.authenticated:
+            require(prepare and review["decision"] == "pending", "actual custodian authentication pending")
+            return
+        reviewed = reference(review["reviewed_manifest"])
+        require(reviewed["repository"].lower() == COORDINATOR and reviewed["path"] == COMMISSIONING_PATH,
+                "wrong reviewed source manifest")
+        prior = decode(self.store.blob(reviewed))
+        require(review["content_sha256"] == commissioning_digest(prior) == commissioning_digest(self.trust),
+                "source authentication content mismatch")
+        self.authenticated_at = timestamp(review["reviewed_at"])
+        require(self.authenticated_at <= self.now, "future custodian authentication")
+
+    def blob(self, ref, binding=None):
+        if isinstance(ref, dict) and "object" in ref:
+            require(set(ref) == {"object"} and isinstance(ref["object"], str) and ref["object"] in self.objects,
+                    "unanchored or malformed contained reference")
+            require(binding is not None and binding["owner"] == "C" and binding["scope"]["phase"] == "source"
+                    and 1 <= int(binding["task"][1:]) <= 10, "contained reference outside E source scope")
+            entry = self.objects[ref["object"]]
+            require(binding["task"] in entry["tasks"], "contained object task substitution")
+            return canonical_json(entry["value"])
+        return self.store.blob(reference(ref))
+
+    def read(self, ref, binding=None):
+        return decode(self.blob(ref, binding))
+
+    def validity(self, decision, expected_scope, start=None, end=None, historical=False, source_lifetime=False, binding=None):
         """Source permissions may persist; execution channels remain time-bounded."""
         begin = timestamp(decision["valid_from"])
         expiry = (None if source_lifetime and expected_scope["phase"] == "source"
@@ -256,7 +348,7 @@ class Verifier:
                     and (expiry is None or end < expiry),
                     "authority cannot retroactively authorize effects")
             if closure is not None:
-                proof = self.read(closure)
+                proof = self.read(closure, binding)
                 require(proof["kind"] == "authority-closure" and proof["authority_id"] == identity
                         and proof["scope"] == expected_scope and proof["disposition"] == "completed",
                         "invalid completion closure")
@@ -272,7 +364,7 @@ class Verifier:
         return begin, expiry
 
     def decision(self, ref, binding, kind, start=None, end=None, historical=False, source_lifetime=False):
-        decision = self.read(ref)
+        decision = self.read(ref, binding)
         require(decision["kind"] == kind and decision["decision"] == "accepted", "required decision is not accepted")
         expected_scope = binding.get("decision_scopes", {}).get(kind, binding["scope"])
         require(scope(decision["scope"]) == expected_scope, "required decision scope mismatch")
@@ -280,11 +372,11 @@ class Verifier:
                 and kind in ("C-03", "C-08", "C-09", "C-10", "C-11", "C-12", "C-13")):
             require(decision["scope"]["phase"] == binding["scope"]["phase"], "live decision phase mismatch")
         text(decision["owner"], "actual approving owner")
-        self.validity(decision, expected_scope, start, end, historical, source_lifetime)
+        self.validity(decision, expected_scope, start, end, historical, source_lifetime, binding)
         return decision
 
     def authority(self, ref, binding, start=None, end=None, resume=False, historical=False):
-        decision = self.read(ref)
+        decision = self.read(ref, binding)
         require(decision["decision"] == "accepted" and decision["scope"] == binding["scope"], "authority scope/status mismatch")
         text(decision["owner"], "actual decision owner")
         require(decision["roles"] == binding["roles"] and bool(decision["roles"]), "required named roles missing")
@@ -293,7 +385,7 @@ class Verifier:
         if binding["scope"]["phase"] in ("staging", "production"):
             require(mode != "source", "source authority cannot authorize live evidence")
         source_lifetime = mode == "source" and binding["scope"]["phase"] == "source"
-        self.validity(decision, binding["scope"], start, end, historical, source_lifetime)
+        self.validity(decision, binding["scope"], start, end, historical, source_lifetime, binding)
         if mode.startswith("managed-"):
             self.decision(decision["request"], binding, "request", start, end, historical)
             field = "grant" if mode == "managed-push" else "reviewed_merge"
@@ -313,12 +405,14 @@ class Verifier:
         """Admit historical results without keeping an execution grant open."""
         require(record["authority"] == binding["authority"], "record authority mismatch")
         require(record.get("admission") == binding.get("admission"), "record admission mismatch")
-        output = self.read(record["output"])
+        output = self.read(record["output"], binding)
         start, end = timestamp(output["started_at"]), timestamp(output["ended_at"])
         require(start <= end <= self.now, "invalid/future actual run")
+        if self.objects and binding["task"] in {f"T{i:03}" for i in range(1, 11)}:
+            require(self.authenticated and end <= self.authenticated_at, "output not authenticated after actual run")
         historical = binding.get("admission") is not None
         if historical:
-            admission = self.read(binding["admission"])
+            admission = self.read(binding["admission"], binding)
             require(admission["kind"] == "evidence-admission" and admission["decision"] == "accepted"
                     and scope(admission["scope"]) == binding["scope"], "invalid evidence admission scope/status")
             roles = binding["admission_roles"]
@@ -326,12 +420,12 @@ class Verifier:
                     and len(roles) == len(set(roles)) and admission["roles"] == roles, "required admission roles missing")
             text(admission["owner"], "actual admitting owner")
             begin, expiry = self.validity(admission, binding["scope"],
-                                          source_lifetime=binding["scope"]["phase"] == "source")
+                                          source_lifetime=binding["scope"]["phase"] == "source", binding=binding)
             reviewed = timestamp(admission["reviewed_at"])
             require(end <= reviewed <= self.now and begin <= reviewed and (expiry is None or reviewed < expiry),
                     "invalid evidence review time")
             require(admission["authority"] == binding["authority"]
-                    and admission["reviewed_output_sha256"] == reference(record["output"])["sha256"],
+                    and admission["reviewed_output_sha256"] == digest(self.blob(record["output"], binding)),
                     "admission is not for original authority/output")
         self.authority(binding["authority"], binding, start, end, historical=historical)
         return output, start, end, historical
@@ -503,14 +597,15 @@ class Verifier:
                 require(type(run[field]) is int and run[field] > 0, "actual GitHub run/job identity required")
 
     def verify(self, key, supplied=None):
+        require(self.authenticated, "actual custodian authentication pending")
         if key in INSTANCE_TASKS:
             aggregate_ref = reference(self.trust["aggregates"][key])
             self.aggregate(key, self.store.blob(aggregate_ref) if supplied is None else supplied)
             return
         require(key not in self.active, "cyclic evidence dependency")
         binding = self.binding(key)
-        ref = reference(binding["record"])
-        data = self.store.blob(ref)
+        ref = binding["record"]
+        data = self.blob(ref, binding)
         if supplied is not None:
             require(supplied == data, "receipt differs from independently reviewed immutable reference")
         record = decode(data)
@@ -523,8 +618,9 @@ class Verifier:
         bootstrap = int(task[1:]) < 10
         require(record["schema"] == ("043-bootstrap-import-v1" if bootstrap else "043-task-evidence-v1"), "wrong evidence/import kind")
         if bootstrap:
-            require(not re.fullmatch(r"T00[1-9]\.json", PurePosixPath(ref["path"]).name), "fabricated bootstrap task receipt")
+            require("object" in ref or not re.fullmatch(r"T00[1-9]\.json", PurePosixPath(ref["path"]).name), "fabricated bootstrap task receipt")
         else:
+            reference(ref)
             require(ref["path"] in binding["files"] and ref["repository"].lower() == self.trust["repositories"][binding["owner"]].lower(), "receipt outside exact accepted owner scope")
         for field, expected in (("task", task), ("instance", binding["instance"]), ("owner", binding["owner"]),
                                 ("evidence_class", binding["class"]), ("scope", binding["scope"]), ("command", binding["command"]),
@@ -586,26 +682,27 @@ class Verifier:
                     require(offer["scope"][field] == binding["scope"][field], "wrong corresponding offer admission")
                 self.verify(binding["offer_admission"])
         for prior in record["history"]:
-            failed = self.read(prior)
+            failed = self.read(prior, binding)
             require(failed["verdict"] in ("fail", "blocked") and failed["task"] == task
                     and failed["scope"] == record["scope"] and failed["attempt"] != record["attempt"], "failed/blocked attempt history lost or substituted")
         if record["history"]:
             require(record["remediation"] == binding["remediation"], "reviewed remediation missing")
             resumed = self.authority(record["remediation"], binding, start, end, resume=True, historical=historical)
-            resume = self.read(resumed["decisions"]["C-13"])
+            resume = self.read(resumed["decisions"]["C-13"], binding)
             require(resume["reruns"] == binding["resume_outputs"] and record["output"] in resume["reruns"], "reviewed affected rerun outputs missing")
             for rerun in resume["reruns"]:
-                self.store.blob(reference(rerun))
+                self.blob(rerun, binding)
         require(record["incidents"] == binding["incidents"], "incident history omitted")
         for incident in record["incidents"]:
             closed = self.decision(incident, binding, "incident-closure")
             require(closed["reruns"], "affected/adjacent reruns missing")
             for rerun in closed["reruns"]:
-                self.store.blob(reference(rerun))
+                self.blob(rerun, binding)
         self.active.remove(key)
         self.cache.add(key)
 
     def aggregate(self, task, data):
+        require(self.authenticated, "actual custodian authentication pending")
         require(task in INSTANCE_TASKS, "task has no aggregate instances")
         record = decode(data)
         instances = self.trust["instances"].get(task, [])

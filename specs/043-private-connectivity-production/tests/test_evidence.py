@@ -199,6 +199,181 @@ def world():
     return World()
 
 
+def source_container_world():
+    """New commissioning format, built only from synthetic original Git blobs."""
+    world = World()
+    world.add("T010")
+    objects = {}
+    def contain(name, task, value):
+        objects[name] = dict(tasks=[task], evidence_class="source", value=deepcopy(value))
+        return {"object": name}
+    for task in sorted(world.trust["bindings"]):
+        binding, record = world.trust["bindings"][task], world.records[task]
+        authority = v.decode(world.store.blob(binding["authority"]))
+        for kind, ref in authority["decisions"].items():
+            authority["decisions"][kind] = contain(task + "-" + kind, task, v.decode(world.store.blob(ref)))
+        binding["authority"] = contain(task + "-authority", task, authority)
+        record["authority"] = binding["authority"]
+        record["output"] = contain(task + "-output", task, world.outputs[task])
+        record["dependencies"] = {dep: world.ref(selected) for dep, selected in binding["dependencies"].items()}
+        if int(task[1:]) < 10:
+            binding["record"] = contain(task + "-import", task, record)
+        else:
+            binding["record"] = world.store.put(record, v.FEATURE_PATH + "/evidence/T010.json")
+    world.trust["source_container"] = dict(schema="043-source-container-v1", objects=objects)
+    return world
+
+
+def source_anchor(world, *, accepted=True, mutate_review=None):
+    pending = dict(schema="043-source-authentication-v1", decision="pending", custodian="Brett Heap",
+                   reviewed_manifest=None, content_sha256=None, reviewed_at=None)
+    def publish_review(value):
+        fence = bytes([96]) * 3
+        return world.store.put(b"# SYNTHETIC custody review\n\n" + fence + b"json\n" + v.canonical_json(value) + b"\n" + fence + b"\n",
+                               v.AUTHENTICATION_PATH)
+    world.trust["review"] = publish_review(pending)
+    first = world.store.put(world.trust, v.COMMISSIONING_PATH)
+    if accepted:
+        review = dict(pending, decision="accepted", reviewed_manifest=first,
+                      content_sha256=v.commissioning_digest(world.trust), reviewed_at="2030-01-01T01:00:00Z")
+        if mutate_review:
+            mutate_review(review)
+        world.trust["review"] = publish_review(review)
+    return world.store.put(world.trust, v.COMMISSIONING_PATH)
+
+
+def test_contained_bootstrap_and_distinct_git_receipt_verify_without_self_hash():
+    world = source_container_world()
+    anchor = source_anchor(world)
+    reader = v.Verifier(TASKS, world.store, anchor, now=NOW)
+    before = deepcopy(world.store.objects)
+    reader.verify("T010")
+    assert reader.cache == {f"T{i:03}" for i in range(1, 11)}
+    assert world.store.objects == before
+    assert all(set(world.ref(f"T{i:03}")) == {"object"} for i in range(1, 10))
+    assert set(world.ref("T010")) == v.REF_FIELDS
+    assert world.ref("T010")["commit"] != anchor["commit"]
+
+
+@pytest.mark.parametrize("prepare", [False, True])
+def test_pending_container_never_satisfies_task_or_aggregate(prepare):
+    world = source_container_world()
+    anchor = source_anchor(world, accepted=False)
+    with pytest.raises(v.EvidenceError, match="authentication pending"):
+        reader = v.Verifier(TASKS, world.store, anchor, now=NOW, prepare=prepare)
+        reader.verify("T010")
+    if prepare:
+        reader = v.Verifier(TASKS, world.store, anchor, now=NOW, prepare=True)
+        with pytest.raises(v.EvidenceError, match="authentication pending"):
+            reader.aggregate("T057", b"{}")
+
+
+@pytest.mark.parametrize("mutation", ["missing", "cycle", "self-cycle", "extra-ref-field", "bad-id",
+                                      "unknown-task", "duplicate-task", "live-task", "foreign-owner",
+                                      "wrong-class", "array-value", "unused-missing"])
+def test_contained_table_is_closed_and_source_only(mutation):
+    world = source_container_world()
+    objects = world.trust["source_container"]["objects"]
+    entry = objects["T007-output"]
+    if mutation == "missing": del objects["T007-output"]
+    if mutation == "cycle":
+        entry["value"]["nested"] = {"object": "T007-authority"}
+        objects["T007-authority"]["value"]["nested"] = {"object": "T007-output"}
+    if mutation == "self-cycle": entry["value"]["nested"] = {"object": "T007-output"}
+    if mutation == "extra-ref-field": world.trust["bindings"]["T007"]["record"]["path"] = "elsewhere"
+    if mutation == "bad-id": objects["../escape"] = deepcopy(entry)
+    if mutation == "unknown-task": entry["tasks"] = ["T999"]
+    if mutation == "duplicate-task": entry["tasks"] *= 2
+    if mutation == "live-task": entry["tasks"] = ["T052"]
+    if mutation == "foreign-owner": entry["tasks"] = ["T011"]
+    if mutation == "wrong-class": entry["evidence_class"] = "staging"
+    if mutation == "array-value": entry["value"] = []
+    if mutation == "unused-missing":
+        objects["unused"] = dict(tasks=["T007"], evidence_class="source", value={"nested": {"object": "absent"}})
+    with pytest.raises(v.EvidenceError):
+        v.Verifier(TASKS, world.store, source_anchor(world), now=NOW)
+
+
+@pytest.mark.parametrize("mutation", ["task", "scope", "source", "command", "case", "exit"])
+def test_authenticated_container_still_checks_original_output_identity(mutation):
+    world = source_container_world()
+    output = world.trust["source_container"]["objects"]["T007-output"]["value"]
+    if mutation == "task": output["task"] = "T008"
+    if mutation == "scope": output["scope"]["customer"] = "other-customer"
+    if mutation == "source": output["source"]["revision"] = "f" * 40
+    if mutation == "command": output["command"] = "echo pass"
+    if mutation == "case": output["cases"] = []
+    if mutation == "exit": output["exit_code"] = 1
+    with pytest.raises(v.EvidenceError):
+        v.Verifier(TASKS, world.store, source_anchor(world), now=NOW).verify("T007")
+
+
+def test_contained_object_cannot_be_borrowed_by_different_task_or_live_scope():
+    world = source_container_world()
+    reader = v.Verifier(TASKS, world.store, source_anchor(world), now=NOW)
+    binding = deepcopy(world.trust["bindings"]["T007"])
+    with pytest.raises(v.EvidenceError, match="task substitution"):
+        reader.read({"object": "T008-output"}, binding)
+    for field, value in [("owner", "L"), ("task", "T011"), ("scope", dict(binding["scope"], phase="staging"))]:
+        altered = dict(binding, **{field: value})
+        with pytest.raises(v.EvidenceError, match="outside E source"):
+            reader.read({"object": "T007-output"}, altered)
+    with pytest.raises(v.EvidenceError, match="outside E source"):
+        reader.read({"object": "T007-output"})
+
+
+@pytest.mark.parametrize("field,value", [
+    ("decision", "pending"), ("custodian", "Other Owner"), ("content_sha256", "0" * 64),
+    ("reviewed_at", "2040-01-01T00:00:00Z"), ("reviewed_at", "2029-01-01T00:00:00Z"),
+    ("reviewed_manifest", dict(repository=v.COORDINATOR, commit="f" * 40, path="other.json", sha256="f" * 64)),
+])
+def test_actual_authentication_must_match_concrete_manifest_and_run(field, value):
+    world = source_container_world()
+    anchor = source_anchor(world, mutate_review=lambda review: review.update({field: value}))
+    with pytest.raises(v.EvidenceError):
+        v.Verifier(TASKS, world.store, anchor, now=NOW).verify("T010")
+
+
+def test_changing_authenticated_payload_or_binding_requires_new_human_review():
+    world = source_container_world()
+    anchor = source_anchor(world)
+    world.trust["source_container"]["objects"]["T007-output"]["value"]["exit_code"] = 1
+    substituted = world.store.put(world.trust, v.COMMISSIONING_PATH)
+    with pytest.raises(v.EvidenceError, match="authentication content mismatch"):
+        v.Verifier(TASKS, world.store, substituted, now=NOW)
+    # The original immutable anchor remains usable.
+    v.Verifier(TASKS, world.store, anchor, now=NOW).verify("T010")
+
+
+def test_derived_inventory_can_change_without_rewriting_authenticated_observations():
+    world = source_container_world()
+    source_anchor(world)
+    world.trust["pin_inventory"] = [{"openxfactory_commit": "a" * 40}]
+    # Inventory correctness is independently checked by T008/doc-health.
+    anchor = world.store.put(world.trust, v.COMMISSIONING_PATH)
+    v.Verifier(TASKS, world.store, anchor, now=NOW).verify("T010")
+
+
+def test_container_cannot_downgrade_to_legacy_nonempty_review():
+    world = World()
+    world.add("T007")
+    anchor = world.store.put(world.trust, v.COMMISSIONING_PATH)
+    with pytest.raises(v.EvidenceError, match="source commissioning container required"):
+        v.Verifier(TASKS, world.store, anchor, now=NOW)
+    with pytest.raises(v.EvidenceError, match="immutable reference"):
+        v.reference({"object": "caller-selected"})
+
+
+def test_container_duplicate_json_object_names_fail_before_authentication():
+    world = source_container_world()
+    anchor = source_anchor(world)
+    raw = world.store.blob(anchor).replace(b'"objects": {', b'"objects": {"dup": {}, "dup": {}, ', 1)
+    assert raw != world.store.blob(anchor)
+    bad = world.store.put(raw, v.COMMISSIONING_PATH)
+    with pytest.raises(v.EvidenceError, match="duplicate JSON key"):
+        v.Verifier(TASKS, world.store, bad, now=NOW)
+
+
 @pytest.mark.parametrize("task", [f"T{i:03}" for i in range(1, 69)])
 def test_each_frozen_task_and_case_has_acceptance_and_rejection(world, task):
     if task in v.INSTANCE_TASKS:
@@ -488,6 +663,42 @@ def test_git_store_reads_immutable_blob_and_rejects_symlink(tmp_path):
     assert git(tmp_path, "status", "--porcelain=v1") == before
     with pytest.raises(v.EvidenceError, match="origin"):
         v.GitStore({"other/repo": tmp_path})
+
+
+def test_source_authentication_uses_distinct_real_git_commits_read_only(tmp_path):
+    git(tmp_path, "init", "-q")
+    git(tmp_path, "config", "user.name", "Synthetic Test")
+    git(tmp_path, "config", "user.email", "test@example.invalid")
+    git(tmp_path, "remote", "add", "origin", "https://github.com/opensoft/openXfactory.git")
+    def commit(path, data):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        raw = data if isinstance(data, bytes) else v.canonical_json(data)
+        target.write_bytes(raw)
+        git(tmp_path, "add", path)
+        git(tmp_path, "commit", "-qm", "synthetic commissioning revision")
+        return dict(repository=v.COORDINATOR, commit=git(tmp_path, "rev-parse", "HEAD"),
+                    path=path, sha256=v.digest(raw))
+    def review_bytes(data):
+        fence = bytes([96]) * 3
+        return fence + b"json\n" + v.canonical_json(data) + b"\n" + fence + b"\n"
+    review = dict(schema="043-source-authentication-v1", decision="pending", custodian="Brett Heap",
+                  reviewed_manifest=None, content_sha256=None, reviewed_at=None)
+    trust = World().trust
+    trust["review"] = commit(v.AUTHENTICATION_PATH, review_bytes(review))
+    trust["source_container"] = dict(schema="043-source-container-v1",
+        objects={"original": dict(tasks=["T007"], evidence_class="source", value={"original": "synthetic bytes"})})
+    first = commit(v.COMMISSIONING_PATH, trust)
+    review.update(decision="accepted", reviewed_manifest=first, content_sha256=v.commissioning_digest(trust),
+                  reviewed_at="2030-01-01T01:00:00Z")
+    auth = commit(v.AUTHENTICATION_PATH, review_bytes(review))
+    trust["review"] = auth
+    final = commit(v.COMMISSIONING_PATH, trust)
+    before = git(tmp_path, "status", "--porcelain=v1")
+    reader = v.Verifier(TASKS, v.GitStore({v.COORDINATOR: tmp_path}), final, now=NOW)
+    assert reader.authenticated
+    assert len({first["commit"], auth["commit"], final["commit"]}) == 3
+    assert git(tmp_path, "status", "--porcelain=v1") == before
 
 
 def test_verifier_never_executes_evidence_commands_or_writes(world, monkeypatch):
