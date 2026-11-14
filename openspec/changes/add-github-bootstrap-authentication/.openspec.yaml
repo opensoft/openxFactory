@@ -1,0 +1,8 @@
+schema: spec-driven
+created: 2026-11-14
+origin:
+  kind: ad_hoc
+  id: openXfactory:adhoc:2026-11-14-add-github-bootstrap-authentication
+  reason: Prepare the real GitHub bootstrap authentication proposal after source acceptance of the T013 preparation packet.
+  approved_by: 'Brett Heap: I ratify #63 at 54dd1e1d4dc6 for source acceptance only. Land it when green, then prepare the real GitHub bootstrap authentication proposal. Keep setup/dispatch unauthorized, feedback deferred, and do not replay either blocked write. Proposal preparation only; no profile ratification, implementation, token issuance or operation is commissioned.'
+  approved_on: '2026-11-14'
