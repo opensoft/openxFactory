@@ -1144,10 +1144,12 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # per-record owner-resolved sites and exactly two standing members.
     # Local pins retain reachability obligations; foreign ownership is
     # checked by the feature inventory verifier and required doc-health test.
-    # Feature 043 T009 declares two FUTURE members before its first T010
-    # record exists. That adds no measured site/member to the standing census;
-    # deliberate first-record promotion must measure its actual delta.
-    assert (standing_sites, standing_members) == (701, 31)
+    # Feature 043 T009 initially declared its empty inventory/original-ref
+    # members FUTURE. Deliberate first-record promotion measures actual data.
+    # T010's first real commissioning export adds 278 sites across four
+    # populated members, measured from its committed tree. The foreign member
+    # has no site and remains FUTURE; presence does not authenticate evidence.
+    assert (standing_sites, standing_members) == (979, 35)
     # ...and the exclusion is exactly one declared row, not a hole a later
     # member can fall into unnoticed.
     assert [m.id for m in pc.rolling_members()] == ["gate-intent-snapshot-rev"]
@@ -1204,7 +1206,7 @@ def test_no_deterministic_check_family_is_added():
         "later edit registers it as a family without deciding to")
 
 
-def test_production_connectivity_registration_does_not_invent_a_current_population():
+def test_production_connectivity_registration_matches_actual_source_population():
     members = [member for member in pc.PIN_CLASS if member.id.startswith("private-connectivity-production-")]
     assert {member.id for member in members} == {
         "private-connectivity-production-original-commit",
@@ -1213,7 +1215,15 @@ def test_production_connectivity_registration_does_not_invent_a_current_populati
         "private-connectivity-production-local-evidence",
         "private-connectivity-production-foreign-evidence",
     }
-    assert {member.presence for member in members} == {pc.FUTURE}
+    assert {member.id for member in members if member.presence == pc.CURRENT} == {
+        "private-connectivity-production-original-commit",
+        "private-connectivity-production-original-revision",
+        "private-connectivity-production-original-source_revision",
+        "private-connectivity-production-local-evidence",
+    }
+    assert {member.id for member in members if member.presence == pc.FUTURE} == {
+        "private-connectivity-production-foreign-evidence",
+    }
     assert all(member.population == pc.STANDING and not member.key_expected for member in members)
     assert all(member.reachability == pc.MUST_RESOLVE for member in members)
     assert {member.locality for member in members} == {pc.REPO_LOCAL, pc.CROSS_REPOSITORY}

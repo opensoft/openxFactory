@@ -455,7 +455,7 @@ PIN_CLASS: tuple[PinMember, ...] = (
         id="private-connectivity-production-original-" + key,
         paths=_PC043_EVIDENCE_PATHS, key=key, key_form="field",
         generator="feature 043 authenticated original source/CI exports",
-        reproduction=MEASURED, locality=REPO_LOCAL, presence=FUTURE,
+        reproduction=MEASURED, locality=REPO_LOCAL, presence=CURRENT,
         locality_from=("repository",), key_expected=False,
         note="Original immutable 043 source/output/control references. Local "
              "pins owe resolution; explicit foreign proof remains separately "
@@ -463,14 +463,15 @@ PIN_CLASS: tuple[PinMember, ...] = (
     ) for key in ("commit", "revision", "source_revision")),
     # Feature 043's closed coordinator receipt set. Component-owned tasks keep
     # their receipts in the owner's tree. No bootstrap receipts or directory
-    # exclusion are introduced. FUTURE is deliberate until T010's first actual
-    # authenticated evidence; its arrival requires deliberate census promotion.
+    # exclusion are introduced. T010's first actual source export populates
+    # local references; CURRENT measures presence, independently of the pending
+    # custodian authentication. The empty foreign member remains FUTURE.
     PinMember(
         id="private-connectivity-production-local-evidence",
         paths=_PC043_EVIDENCE_PATHS,
         key="openxfactory_commit", key_form="field",
         generator="feature 043 register-evidence-pins.py",
-        reproduction=MEASURED, locality=REPO_LOCAL, presence=FUTURE,
+        reproduction=MEASURED, locality=REPO_LOCAL, presence=CURRENT,
         key_expected=False,
         note="Exact owner-resolved source/authority inventory for closed 043 "
              "coordinator receipts and scoped children. Local commits still "
