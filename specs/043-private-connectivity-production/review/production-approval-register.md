@@ -45,6 +45,8 @@ The operating rows are preparation status, not approved acceptance inputs. Actua
 
 ## Current infrastructure questions
 
+The [operating service candidates](operating-service-candidates.md) record current Azure/OIDC candidates, the real MCP signing compatibility gap, identity-versus-authority constraints and remaining DNS/TLS/relay/custody choices. These are preparation inputs, not accepted operating decisions.
+
 All 23 observed QA persistent volumes are Bound, and the inspected QA node resource group reports no unattached disk. No dedicated available service volume has been identified. A choice is pending between preparing a minimal dedicated-storage budget for review and retaining zero new spend with an owner-identified existing dedicated allocation. No provisioning or spend is authorized by that preparation question.
 
 A separate choice is pending between investigating GitHub macOS runners within included capacity with paid overages prohibited and using an owner-identified existing Mac. Availability, actual versions, live enrollment authority and the supported matrix remain prerequisites before qualification.
