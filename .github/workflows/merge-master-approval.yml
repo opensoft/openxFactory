@@ -515,18 +515,18 @@ jobs:
           {
             echo "### merge-master-approval — FAILED (no decision-core read credential)"
             echo
-            echo "This advisory lane must read \`codeXfactory/codexFactory\` at"
+            echo "This advisory lane must read \`codeXfactory/codeXfactory\` at"
             echo "\`${PINNED_CORE_COMMIT}\` to obtain the decision core. That"
             echo "repository is private, so the default \`GITHUB_TOKEN\` cannot"
             echo "read it, and NEITHER candidate identity is available here."
             echo
-            echo "Grant ONE of the following to \`opensoft/openxFactory\`:"
+            echo "Grant ONE of the following to \`opensoft/openXfactory\`:"
             echo
             echo "1. \`secrets.OPENXFACTORY_APP_ID\` + \`secrets.OPENXFACTORY_APP_PRIVATE_KEY\`"
             echo "   exist on this repository already — install that App on"
-            echo "   \`codeXfactory/codexFactory\` (read-only Contents) and this lane"
+            echo "   \`codeXfactory/codeXfactory\` (read-only Contents) and this lane"
             echo "   needs no org-level change."
-            echo "2. Add \`opensoft/openxFactory\` to the \`selected\` repository"
+            echo "2. Add \`opensoft/openXfactory\` to the \`selected\` repository"
             echo "   list for the org secrets \`XFACTORY_APP_ID\` and"
             echo "   \`XFACTORY_APP_PRIVATE_KEY\`."
             echo
@@ -535,7 +535,7 @@ jobs:
             echo "purpose: a green run that read no core would manufacture the"
             echo "appearance of a review that did not happen."
           } >> "$GITHUB_STEP_SUMMARY"
-          echo "::error title=merge-master-approval::No decision-core read credential on opensoft/openxFactory. Grant OPENXFACTORY_APP_* access to codeXfactory/codexFactory, or add this repository to the selected list for XFACTORY_APP_ID / XFACTORY_APP_PRIVATE_KEY. Advisory check: this blocks no merge."
+          echo "::error title=merge-master-approval::No decision-core read credential on opensoft/openXfactory. Grant OPENXFACTORY_APP_* access to codeXfactory/codeXfactory, or add this repository to the selected list for XFACTORY_APP_ID / XFACTORY_APP_PRIVATE_KEY. Advisory check: this blocks no merge."
           exit 1
 
       # ---- 2. Mint the read token -------------------------------------------
@@ -563,7 +563,7 @@ jobs:
           app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
           private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
           owner: codeXfactory
-          repositories: codexFactory
+          repositories: codeXfactory
 
       - name: Mint content-App token (the org App)
         id: org-token
@@ -574,7 +574,7 @@ jobs:
           app-id: ${{ secrets.XFACTORY_APP_ID }}
           private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
           owner: codeXfactory
-          repositories: codexFactory
+          repositories: codeXfactory
 
       # ---- 3. The base tree, never the pull-request head --------------------
       # No `ref:`. For `pull_request_target` that is the BASE branch tip; for
@@ -613,12 +613,12 @@ jobs:
       # byte-identical to `PINNED_CORE_COMMIT` above and to `core_commit` in
       # `contracts/review-lane-pin.yaml`; the test asserts all three agree and
       # step 5 re-asserts it at run time.
-      - name: Checkout decision core (codeXfactory/codexFactory, pinned)
+      - name: Checkout decision core (codeXfactory/codeXfactory, pinned)
         id: core
         continue-on-error: true
         uses: actions/checkout@v4
         with:
-          repository: codeXfactory/codexFactory
+          repository: codeXfactory/codeXfactory
           ref: "ce9236363d044bc6d8cf9b9f7a5bd15ecaff9559"
           path: .merge-master-core
           persist-credentials: false
@@ -631,20 +631,20 @@ jobs:
           {
             echo "### merge-master-approval — FAILED (decision core unreadable)"
             echo
-            echo "Could not check out \`codeXfactory/codexFactory\` at"
+            echo "Could not check out \`codeXfactory/codeXfactory\` at"
             echo "\`${PINNED_CORE_COMMIT}\`. The credential resolved by the"
             echo "preflight (\`${IDENTITY}\`) exists but could not read that"
             echo "repository at that commit."
             echo
             echo "Likely causes, in order: the App is not installed on"
-            echo "\`codeXfactory/codexFactory\`; the installation grants no Contents"
+            echo "\`codeXfactory/codeXfactory\`; the installation grants no Contents"
             echo "read; or the pinned commit is not reachable there (force-push"
             echo "or a rewritten history)."
             echo
             echo "Nothing was evaluated and nothing was approved. This check is"
             echo "ADVISORY and blocks no merge."
           } >> "$GITHUB_STEP_SUMMARY"
-          echo "::error title=merge-master-approval::Decision core unreadable — codeXfactory/codexFactory@${PINNED_CORE_COMMIT} could not be checked out with the ${IDENTITY} identity. Advisory check: this blocks no merge."
+          echo "::error title=merge-master-approval::Decision core unreadable — codeXfactory/codeXfactory@${PINNED_CORE_COMMIT} could not be checked out with the ${IDENTITY} identity. Advisory check: this blocks no merge."
           exit 1
         env:
           IDENTITY: ${{ steps.preflight.outputs.identity }}
@@ -1316,7 +1316,7 @@ jobs:
             echo "| | |"
             echo "|---|---|"
             echo "| candidate | #${PR_NUMBER} @ \`${HEAD_SHA}\` |"
-            echo "| decision core | \`codeXfactory/codexFactory@${PINNED_CORE_COMMIT}\` (pinned by \`contracts/review-lane-pin.yaml\`) |"
+            echo "| decision core | \`codeXfactory/codeXfactory@${PINNED_CORE_COMMIT}\` (pinned by \`contracts/review-lane-pin.yaml\`) |"
             echo "| floor | \`$(jq -r '.floor_id' floor.json)\` for \`$(jq -r '.repository' floor.json)\` |"
             echo "| changed paths judged | $(jq -r '.changed_path_count' floor.json) |"
             echo "| floor entries | $(jq -r '.never_clearable_paths | length' floor.json) |"
@@ -1445,7 +1445,7 @@ jobs:
             || fail "the addition-grace computation (pending_floor_extension) produced no result"
           [ "$(jq -r '.pending_floor_extension | has("count") and has("paths") and has("reasons") and has("pin_measured")' floor.json)" = "true" ] \
             || fail "the addition-grace computation ran but its report is missing a field (count/paths/reasons/pin_measured) — a partial result is not distinguishable from a stopped one"
-          echo "anti-vacuity: the pinned core's floor for opensoft/openxFactory was read and applied,"
+          echo "anti-vacuity: the pinned core's floor for opensoft/openXfactory was read and applied,"
           echo "  over the post-merge tree, with the completeness, reachability and addition-grace reports all computed."
 
       # ---- 11. THE ENVELOPE, for the one enrolled candidate class ----------
@@ -1740,7 +1740,7 @@ jobs:
             echo "| failed condition | \`${FAILED:-none}\` |"
             echo "| reason | ${REASON} |"
             echo "| envelope | \`${CONFIG}\` on the base branch |"
-            echo "| decision core | \`codeXfactory/codexFactory@${PINNED_CORE_COMMIT}\` |"
+            echo "| decision core | \`codeXfactory/codeXfactory@${PINNED_CORE_COMMIT}\` |"
             echo "| repository gate floor | \`${FLOOR_MATCHED}\` never-clearable path(s) touched |"
             echo
             if [ "$DECISION" = "approve" ] && [ "${HAS_MERGE_MASTER_APP}" != "true" ]; then
@@ -1802,7 +1802,7 @@ jobs:
           app-id: ${{ vars.MERGE_MASTER_APP_ID || secrets.MERGE_MASTER_APP_ID }}
           private-key: ${{ secrets.MERGE_MASTER_APP_KEY }}
           owner: ${{ github.repository_owner }}
-          repositories: ${{ github.event.repository.name || 'openxFactory' }}
+          repositories: ${{ github.event.repository.name || 'openXfactory' }}
           permission-pull-requests: write
 
       # ---- 13. THE APPROVAL ------------------------------------------------

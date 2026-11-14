@@ -274,7 +274,7 @@ def pinned_ref(document: dict) -> str:
     for job in jobs.values():
         for step in (job or {}).get("steps") or []:
             with_block = (step or {}).get("with") or {}
-            if with_block.get("repository") == PINNED_REPOSITORY:
+            if str(with_block.get("repository", "")).casefold() == PINNED_REPOSITORY.casefold():
                 found.append(with_block.get("ref"))
     if len(found) != 1:
         raise AssertionError(
@@ -388,6 +388,26 @@ class TheRealFiles(unittest.TestCase):
             "no step named for the changed-path gather was found; the "
             "masking check below would otherwise check nothing")
 
+    def test_current_checkout_and_token_locators_use_canonical_names(self) -> None:
+        canonical = {
+            "codexfactory": "codeXfactory",
+            "openxfactory": "openXfactory",
+            "codexfactory/codexfactory": "codeXfactory/codeXfactory",
+            "opensoft/openxfactory": "opensoft/openXfactory",
+        }
+        checked = []
+        for workflow in sorted((REPO_ROOT / ".github/workflows").glob("*.yml")):
+            document = caller_document(workflow.read_text(encoding="utf-8"))
+            for job in (document.get("jobs") or {}).values():
+                for step in (job or {}).get("steps") or []:
+                    for key in ("repository", "repositories"):
+                        value = str(((step or {}).get("with") or {}).get(key, ""))
+                        if value.casefold() in canonical:
+                            self.assertEqual(canonical[value.casefold()], value,
+                                             f"{workflow.name}: {key}")
+                            checked.append((workflow.name, key))
+        self.assertTrue(checked)
+
     def test_the_caller_and_the_pin_exist(self) -> None:
         self.assertTrue(CALLER.is_file(), f"missing caller: {CALLER}")
         self.assertTrue(PIN.is_file(), f"missing pin: {PIN}")
@@ -445,7 +465,7 @@ class TheRealFiles(unittest.TestCase):
                 with_ = step.get("with") or {}
                 if not str(step.get("uses", "")).startswith("actions/checkout"):
                     continue
-                if str(with_.get("repository", "")) != pinned:
+                if str(with_.get("repository", "")).casefold() != pinned.casefold():
                     continue
                 where = f"{workflow.name}: {step.get('name') or step.get('id')}"
                 ids = step_re.findall(str(with_.get("token", "")))
@@ -521,7 +541,7 @@ class TheRealFiles(unittest.TestCase):
                     scoped = [name.strip()
                               for name in str(with_.get("repositories", "")).split()
                               if name.strip()]
-                    if bare not in scoped:
+                    if bare.casefold() not in {name.casefold() for name in scoped}:
                         continue
                     where = f"{workflow.name}: {step.get('name') or step.get('id')}"
                     self.assertEqual(
