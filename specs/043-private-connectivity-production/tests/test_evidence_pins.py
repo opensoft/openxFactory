@@ -286,3 +286,36 @@ def test_inventory_check_admits_completed_execution_but_write_needs_current_auth
     with pytest.raises(ValueError, match="revoked"):
         pins.process(verifier, "T010", write=False)
     assert c.path.read_bytes() == original
+
+
+def test_inventory_source_permission_remains_current_until_withdrawn(commissioned):
+    from datetime import datetime, timezone
+
+    c = commissioned
+    verifier = object.__new__(v.Verifier)
+    verifier.__dict__.update(c.verifier.__dict__)
+    del verifier.authority
+    verifier.now = datetime(2030, 1, 2, tzinfo=timezone.utc)
+    verifier.trust["revoked_authorities"] = []
+    scope = {field: "not-applicable" for field in v.SCOPE_FIELDS}
+    scope.update(phase="source", environment="source")
+    c.binding.update(scope=scope, roles=["synthetic-source-owner"], decisions=[])
+    authority = dict(id="source-scope", decision="accepted", owner="Synthetic Source Owner", mode="source",
+                     roles=c.binding["roles"], scope=scope, decisions={},
+                     valid_from="2029-01-01T00:00:00Z", valid_until="until-superseded")
+    path = c.root / "source-authority.json"
+    path.write_text(json.dumps(authority))
+    git(c.root, "add", "source-authority.json")
+    git(c.root, "commit", "-qm", "synthetic source permission")
+    c.binding["authority"] = dict(repository=LOCAL, commit=git(c.root, "rev-parse", "HEAD"),
+                                  path="source-authority.json", sha256=v.digest(path.read_bytes()))
+    c.record["authority"] = c.binding["authority"]
+    c.path.write_text(json.dumps(c.record))
+    pins.process(verifier, "T010", write=True)
+    pins.process(verifier, "T010", write=False)
+    original = c.path.read_bytes()
+    verifier.trust["revoked_authorities"].append(authority["id"])
+    for write in (False, True):
+        with pytest.raises(ValueError, match="revoked"):
+            pins.process(verifier, "T010", write=write)
+        assert c.path.read_bytes() == original
