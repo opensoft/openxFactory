@@ -4,11 +4,19 @@ Status: draft
 Kind: review-packet
 Prepared: 2026-11-14
 
-Brett approved preparing this budget, not provisioning or spending. This is a proposed storage-only financial envelope for existing Opensoft QA in West US. It supplies no C-03 execution grant, C-08 protected custody, Q1 entry or production allowance. The [approval register](production-approval-register.md) and frozen 043 gates remain authoritative.
+Brett approved preparing this budget and subsequently accepted its USD 10 financial envelope on 2026-11-14. This is a storage-only financial limit for existing Opensoft QA in West US, not permission to provision or spend before the required execution gates. It supplies no C-03 execution grant, C-08 protected custody, Q1 entry or production allowance. The [approval register](production-approval-register.md) and frozen 043 gates remain authoritative.
+
+## Actual financial decision
+
+After reviewing the immutable packet in PR #1310, Brett answered:
+
+> Approve the USD 10 financial envelope (Recommended)
+
+The reviewed source is [the budget packet at the supplied decision](https://github.com/opensoft/openXfactory/blob/56ba53c89c69a0f1d8f9f4fba39794d4933c8bf5/specs/043-private-connectivity-production/review/staging-storage-budget.md). The answer accepts only the listed financial ceiling, quantities and window. Actual resource identities, capacity, protected custody/retention, execution authority and Q1 remain separate inputs. No Azure budget object, disk, container, snapshot or other resource was created by recording this acceptance.
 
 ## Proposed allocation and limits
 
-Propose a USD 10 ceiling for one staging run lasting at most 14 days, with the retained snapshot/object capacity below reserved for one full billing month. Refresh prices and reconcile the actual topology before acceptance. This estimate uses public retail rates, before tax or negotiated discounts; it is not an Azure invoice or an automatic spending cap.
+The accepted financial ceiling is USD 10 for one staging run lasting at most 14 days, with the retained snapshot/object capacity below reserved for one full billing month. Refresh prices and reconcile the actual topology before execution; a changed quantity, duration, retention cost or ceiling requires a fresh affected decision. This estimate uses public retail rates, before tax or negotiated discounts; it is not an Azure invoice or an automatic spending cap.
 
 | Proposed capacity | Purpose and constraint |
 | --- | --- |
