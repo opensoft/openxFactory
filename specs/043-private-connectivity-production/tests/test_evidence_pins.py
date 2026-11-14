@@ -109,6 +109,8 @@ def commissioned(tmp_path):
     calls = []
     verifier = SimpleNamespace(tasks=v.load_contract(ROOT), trust=dict(repositories={"C": LOCAL}, pin_owners=[]),
                                store=v.GitStore({LOCAL: root}), binding=lambda key: binding,
+                               trust_reference=dict(repository=LOCAL, commit=revision, path="source",
+                                                    sha256=v.digest((root / "source").read_bytes())),
                                authority=lambda *args: calls.append(args))
     return SimpleNamespace(root=root, path=location, relative=path, record=record, binding=binding,
                            verifier=verifier, calls=calls, revision=revision)
@@ -127,6 +129,79 @@ def test_generation_writes_only_an_exact_new_draft_and_check_never_writes(commis
     pins.process(c.verifier, "T010", write=False)
     assert c.path.read_bytes() == original
     assert (c.root / "source").read_text() == "synthetic source\n"
+
+
+def commissioning_draft(c):
+    c.path.unlink()
+    c.relative = v.COMMISSIONING_PATH
+    c.path = c.root / c.relative
+    c.binding["files"] = [c.relative]
+    c.record = dict(schema="043-reviewed-trust-v1", feature=v.FEATURE, definition=v.DEFINITION,
+                    source_container=dict(schema="043-source-container-v1", objects={
+                        "original": dict(tasks=["T007"], evidence_class="source",
+                                         value=dict(source=dict(repository=LOCAL, revision=c.revision)))}))
+    c.path.write_text(json.dumps(c.record))
+
+
+def test_commissioning_generation_and_anchored_check_preserve_source_objects(commissioned):
+    c = commissioned
+    commissioning_draft(c)
+    original = deepcopy(c.record)
+    pins.process(c.verifier, "T010", write=True, commissioning=True)
+    data = json.loads(c.path.read_text())
+    assert pins.body(data) == original
+    assert data["pin_inventory"] == [dict(repository=LOCAL, openxfactory_commit=c.revision)]
+    git(c.root, "add", c.relative)
+    git(c.root, "commit", "-qm", "synthetic pending commissioning")
+    c.verifier.trust_reference = dict(repository=LOCAL, commit=git(c.root, "rev-parse", "HEAD"),
+                                     path=c.relative, sha256=v.digest(c.path.read_bytes()))
+    before = c.path.read_bytes()
+    pins.process(c.verifier, "T010", commissioning=True)
+    assert c.path.read_bytes() == before
+    assert c.calls
+    with pytest.raises(ValueError, match="reviewed commissioning"):
+        pins.process(c.verifier, "T010", write=True, commissioning=True)
+
+
+@pytest.mark.parametrize("task,instance", [("T009", None), ("T011", None), ("T010", "other"), ("T057", "service")])
+def test_commissioning_mode_cannot_expand_to_other_tasks_or_instances(commissioned, task, instance):
+    c = commissioned
+    commissioning_draft(c)
+    original = c.path.read_bytes()
+    with pytest.raises(ValueError):
+        pins.process(c.verifier, task, instance, write=True, commissioning=True)
+    assert c.path.read_bytes() == original
+
+
+@pytest.mark.parametrize("mutation", ["scope", "schema", "definition", "missing-container", "unreachable"])
+def test_commissioning_inventory_refuses_unaccepted_paths_and_missing_provenance(commissioned, mutation):
+    c = commissioned
+    commissioning_draft(c)
+    if mutation == "scope": c.binding["files"] = ["specs/043-private-connectivity-production/evidence/other.json"]
+    if mutation == "schema": c.record["schema"] = "other"
+    if mutation == "definition": c.record["definition"] = "e" * 64
+    if mutation == "missing-container": del c.record["source_container"]
+    if mutation == "unreachable": c.record["raw_commit"] = "f" * 40
+    c.path.write_text(json.dumps(c.record))
+    original = c.path.read_bytes()
+    with pytest.raises(ValueError):
+        pins.process(c.verifier, "T010", write=True, commissioning=True)
+    assert c.path.read_bytes() == original
+
+
+def test_commissioning_check_requires_exact_immutable_anchor(commissioned):
+    c = commissioned
+    commissioning_draft(c)
+    pins.process(c.verifier, "T010", write=True, commissioning=True)
+    git(c.root, "add", c.relative)
+    git(c.root, "commit", "-qm", "synthetic pending commissioning")
+    c.verifier.trust_reference = dict(repository=LOCAL, commit=git(c.root, "rev-parse", "HEAD"),
+                                     path=c.relative, sha256=v.digest(c.path.read_bytes()))
+    c.path.write_text(c.path.read_text() + "\n")
+    before = c.path.read_bytes()
+    with pytest.raises(ValueError, match="differs from reviewed"):
+        pins.process(c.verifier, "T010", commissioning=True)
+    assert c.path.read_bytes() == before
 
 
 def test_check_rejects_stale_inventory_without_repair(commissioned):
@@ -242,6 +317,7 @@ def test_inventory_check_admits_completed_execution_but_write_needs_current_auth
     c = commissioned
     verifier = object.__new__(v.Verifier)
     verifier.__dict__.update(c.verifier.__dict__)
+    verifier.objects = {}
     del verifier.authority
     verifier.now = datetime(2030, 1, 2, tzinfo=timezone.utc)
     verifier.trust["revoked_authorities"] = []

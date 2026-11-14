@@ -8,6 +8,10 @@ mode never writes. Write mode only adds inventory to a new untracked draft,
 within the current exact accepted file scope, before its immutable record
 reference has been reviewed. Accepted/committed observations are never edited.
 This helper establishes pin ownership/reachability, not task or gate acceptance.
+--commissioning selects only the exact T010 commissioning.json control. Its
+read-only inventory check may inspect pending custodian authentication; the
+evidence verifier still refuses admission until that authentication is accepted.
+Generation cannot rewrite a tracked or independently anchored control.
 """
 
 import argparse
@@ -146,8 +150,10 @@ def _write_new_draft(root, relative, original, replacement):
         os.fsync(stream.fileno())
 
 
-def process(verifier, task, instance=None, *, write=False):
+def process(verifier, task, instance=None, *, write=False, commissioning=False):
     require(task in verifier.tasks and int(task[1:]) >= 10, "only closed T010-T068 receipts may carry new inventories")
+    require(not commissioning or (task == "T010" and instance is None),
+            "commissioning inventory belongs only to coordinator T010")
     instances = task in verifier_module().INSTANCE_TASKS
     require(instance is None or instances, "task has no child instances")
     if instances and instance is None:
@@ -160,12 +166,15 @@ def process(verifier, task, instance=None, *, write=False):
     owner = verifier.tasks[task]["owner"]
     prefix = FEATURE + "/evidence/" if owner == "C" else "evidence/private-connectivity-production/"
     path = prefix + task + ".json"
+    if commissioning:
+        require(owner == "C", "commissioning owner must be coordinator")
+        path = FEATURE + "/evidence/commissioning.json"
     if instance:
         require(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", instance), "invalid instance identity")
         path = prefix + "instances/" + task + "/" + instance + ".json"
     for binding in bindings:
         require(binding["owner"] == owner and path in binding["files"], "record outside exact accepted task scope")
-        if write or "record" not in binding:
+        if commissioning or write or "record" not in binding:
             verifier.authority(binding["authority"], binding)
         else:
             # Reading accepted evidence does not require leaving an execution grant open.
@@ -181,12 +190,19 @@ def process(verifier, task, instance=None, *, write=False):
     raw = target.read_bytes()
     module = verifier_module()
     value = module.decode(raw)
-    require(value["task"] == task, "record task mismatch")
-    if not instances or instance:
-        require(value["instance"] == instance, "record instance mismatch")
+    if commissioning:
+        require(value["schema"] == "043-reviewed-trust-v1" and value["feature"] == module.FEATURE
+                and value["definition"] == module.DEFINITION and "source_container" in value,
+                "wrong source commissioning object")
+    else:
+        require(value["task"] == task, "record task mismatch")
+        if not instances or instance:
+            require(value["instance"] == instance, "record instance mismatch")
     resolved = owner_commits(value, verifier)
     if write:
-        require(all("record" not in binding for binding in bindings), "reviewed immutable record cannot be rewritten")
+        require(commissioning or all("record" not in binding for binding in bindings), "reviewed immutable record cannot be rewritten")
+        require(not commissioning or verifier.trust_reference["path"] != path,
+                "reviewed commissioning control cannot be rewritten")
         require(not instances or instance is not None or task not in verifier.trust.get("aggregates", {}), "reviewed immutable aggregate cannot be rewritten")
         require(not verifier.store.git(root, "ls-files", "-z", "--", path), "committed/tracked record cannot be rewritten")
         value["pin_inventory"] = inventory(value, resolved)
@@ -194,7 +210,8 @@ def process(verifier, task, instance=None, *, write=False):
         _write_new_draft(root, relative, raw, (json.dumps(value, indent=2, ensure_ascii=False) + "\n").encode())
     else:
         validate_inventory(value, resolved)
-        references = [binding["record"] for binding in bindings if "record" in binding]
+        references = ([verifier.trust_reference] if commissioning else
+                      [binding["record"] for binding in bindings if "record" in binding])
         if instances and instance is None:
             references = [verifier.trust["aggregates"][task]]
         for ref in references:
@@ -212,6 +229,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--task", required=True)
     parser.add_argument("--instance")
+    parser.add_argument("--commissioning", action="store_true",
+                        help="exact T010 source commissioning container; inventory only, never evidence acceptance")
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--check", action="store_true")
     mode.add_argument("--write", action="store_true")
@@ -227,8 +246,9 @@ def main(argv=None):
         roots[LOCAL] = str(root)
         store = module.GitStore(roots)
         ref = dict(repository=LOCAL, commit=revision, path=path, sha256=os.environ.get("PC_EVIDENCE_TRUST_SHA256", ""))
-        verifier = module.Verifier(tasks, store, ref)
-        result = process(verifier, arguments.task, arguments.instance, write=arguments.write)
+        verifier = module.Verifier(tasks, store, ref, prepare=arguments.commissioning)
+        result = process(verifier, arguments.task, arguments.instance, write=arguments.write,
+                         commissioning=arguments.commissioning)
         print(("GENERATED draft inventory: " if arguments.write else "CHECKED inventory (read-only): ") + result)
         return 0
     except (ValueError, OSError, KeyError, TypeError, AttributeError, RecursionError) as exc:
