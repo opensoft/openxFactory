@@ -1,6 +1,7 @@
 # Design: Commission the supported Headscale package
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap, through [commission-headscale-production](proposal.md).
 
 ## Context
 

@@ -1,17 +1,18 @@
 # Tasks: Commission production connectivity execution and operations authority and handoff
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap, through [commission-connectivity-operations-production](proposal.md).
 
 This packet owns governance/acceptance only. The sole executable implementation list remains [043 tasks](../../../specs/043-private-connectivity-production/tasks.md).
 
 ## 1. Draft publication and owner decision
 
 - [x] 1.1 Publish the draft and exact design in PR #1310, index it, seed the corpus ledger with that actual PR number, and verify strict OpenSpec, sequencing, code-surface and target-release checks.
-- [ ] 1.2 Obtain the actual named owner's role, exact source/file/command/custody acceptance and consumed decisions. Verify the recorded human decision and origin provenance; this draft supplies no consent or target permission.
+- [x] 1.2 Record the actual named owner's role, exact source/file/command and source-only custody acceptance with human-decision/origin provenance in [ratification](review/ratification.md). Remaining consumed operating/platform/limit decisions are checked at 2.2; source consent supplies no target permission.
 
 ## 2. Scope reconciliation and source readiness
 
-- [ ] 2.1 Publish/link the corresponding owner-local realization packet in the repository's existing canonical OpenSpec store and verify actual owner ratification there before source implementation. Keep the sole executable task list in 043.
+- [x] 2.1 Publish/link the corresponding owner-local realization packet in the repository's existing canonical OpenSpec store and verify actual owner ratification there before source implementation. Keep the sole executable task list in 043.
 - [ ] 2.2 Close any listed task-file refinement into the reviewed 043 freeze before use, verify required consumed choices and complete T015 only after T010 and its actual authenticated receipt check. Early scope consent does not mark the task or full Q0 complete.
 - [ ] 2.3 Accept owned realization only through the 043 dependency graph. Verify exact source diffs, original source outputs, actual required CI collection, supported compatible artifact/provenance and independent readback; retain failures and do not substitute source evidence for a target result.
 

@@ -1,6 +1,7 @@
 # Commission actual software-factory hosted connectivity profiles
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap, through [commission-hosted-domain-production](../../proposal.md).
 
 ## Purpose
 

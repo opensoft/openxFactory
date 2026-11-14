@@ -1,6 +1,7 @@
 # Commission Hosted Headscale and hosted-factory service production
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap, through [commission-hosted-headscale-production](../../proposal.md).
 
 ## Purpose
 

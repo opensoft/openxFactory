@@ -1,6 +1,7 @@
 # Design: Commission production connectivity execution and operations
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap, through [commission-connectivity-operations-production](proposal.md).
 
 ## Context
 

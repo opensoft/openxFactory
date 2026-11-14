@@ -8,6 +8,8 @@ origin:
     needed approvals now.
   proposed_by: Codex at Brett Heap's request
   proposed_on: '2026-11-14'
+  approved_by: Brett Heap in session; see review/ratification.md
+  approved_on: '2026-11-14'
 related:
 - openXfactory:change:qualify-private-connectivity-production
 - openXfactory:pr:1310

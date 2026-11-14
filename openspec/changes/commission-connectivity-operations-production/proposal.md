@@ -6,7 +6,8 @@ sequenced_after: [qualify-private-connectivity-production, establish-headscale-i
 
 # Proposal: Commission production connectivity execution and operations
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap. [Ratification record](review/ratification.md)
 Kind: proposal
 Proposed: 2026-11-14
 
@@ -39,4 +40,4 @@ Proposed runtime owner: opensoft/opsXfactory; admitted estate identifier: OpsxFa
 
 Source/CI custody is proposed as reviewed, redacted exports and genuine decision references retained in the private owning Git repository for project lifetime under existing permissions, bound to exact commits/content, actual run/job/command identities and owner review. The existing accepted receipt paths may contain sealed original source-output payloads; no unlisted export tree is granted. The coordinator authenticates the whole reviewed receipt before interpreting contained data. Missing provenance remains blocked. Target/customer/provider/live data requires its own protected C-08 decision before use.
 
-This draft grants no implementation, release version, target effect, resource spend, customer enrollment, commercial eligibility, merge or archive. T015 still requires T010 and actual consumed decisions; source approval can be recorded early without marking its receipt/task complete. Full program Q0 and Q1–Q5 remain pending. Publication is in draft [PR #1310](https://github.com/opensoft/openXfactory/pull/1310).
+This ratification accepts the exact source owner/file/command/custody scope and listed task-file refinements in the [ratification record](review/ratification.md). Implementation still requires its dependencies, consumed choices and a reviewed freeze. No target effect, resource spend, customer enrollment, commercial eligibility, merge or archive is granted. T015 still requires T010 and actual consumed decisions; source approval can be recorded early without marking its receipt/task complete. Full program Q0 and Q1–Q5 remain pending. Publication is in draft [PR #1310](https://github.com/opensoft/openXfactory/pull/1310).

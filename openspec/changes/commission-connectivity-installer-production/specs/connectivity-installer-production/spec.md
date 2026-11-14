@@ -1,6 +1,7 @@
 # Commission the production private-connectivity installer
 
-Status: draft
+Status: ratified
+Ratified: 2026-11-14 by Brett Heap, through [commission-connectivity-installer-production](../../proposal.md).
 
 ## Purpose
 
